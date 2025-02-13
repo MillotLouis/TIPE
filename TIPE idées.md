@@ -5,7 +5,7 @@ share: true
 
 Boucles réseau, routage infini ? 
 
-**Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic ^cf
+**Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
 
 optimiser réseau pour empêcher cycles/boucles 
 Plus court chemin graphe pour lien réseau
@@ -13,7 +13,7 @@ Plus court chemin graphe pour lien réseau
 
 Relier tous les nœuds réseau : Graphe connexe (tous les sommets peuvent reliés) et besoin graphe couvrant, graphe simple :
 ![[./Pasted/Pasted image 20250207120104.png|100]]   
-éviter boucles [[TIPE idées#^cf|^cf]]
+éviter boucles (spanning tree)
 
 arbre couvrant/ graphe connexe / graphe acyclique / 
 
