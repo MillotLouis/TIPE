@@ -12,7 +12,7 @@ Plus court chemin graphe pour lien réseau
 à l'échelle mondiale gain avec optimisation ?
 
 Relier tous les nœuds réseau : Graphe connexe (tous les sommets peuvent reliés) et besoin graphe couvrant, graphe simple :
-![image](./Pasted/Pasted image 20250207120104.png|100)   
+![100](./Pasted/Pasted%20image%2020250207120104.png)   
 éviter boucles (spanning tree)
 
 arbre couvrant/ graphe connexe / graphe acyclique / 
