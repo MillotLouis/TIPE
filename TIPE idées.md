@@ -1,8 +1,6 @@
 ---
 share: true
 ---
-
-
 Boucles réseau, routage infini ? 
 
 **Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
