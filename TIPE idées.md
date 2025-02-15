@@ -1,8 +1,6 @@
 ---
 share: true
 ---
-
-
 Boucles réseau, routage infini ? 
 
 **Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
@@ -21,7 +19,7 @@ Shortest path problem
 
 Complexité 
 
-P2P ??
+P2P ?
  
 VPN Tree Routing Conjecture
 
