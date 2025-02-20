@@ -1,6 +1,7 @@
 ---
 share: true
 ---
+[TIPE](file:///C:%5CUsers%5Cmillo%5CDesktop%5CTIPE)
 Boucles réseau, routage infini ? 
 
 **Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
@@ -30,4 +31,3 @@ VPN Tree Routing Conjecture
 [Optimisation robuste des réseaux de télécommunications - TEL - Thèses en ligne](https://theses.hal.science/tel-00321868/)
 
 [Algorithms for Detecting Cycles in Graphs: A Comprehensive Guide - AlgoCademy Blog](https://algocademy.com/blog/algorithms-for-detecting-cycles-in-graphs-a-comprehensive-guide/)
-
