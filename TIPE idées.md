@@ -37,3 +37,9 @@ VPN Tree Routing Conjecture
 
 
 Il faut une propriété originale sur le reseau pour rendre le sujet intéressant et "recherchable"
+
+
+Probabilité de fiabilité d'un nœud variable en fonction de la position (modélisé par un graphe) ex : opérations de sauvetage, couverture réseau variable.
+Protocoles P2P classique -> génèrent boucles ou rupture chemins -> ajustement dynamique nécessaire
+$\implies$ algorithmes pour privilégier nœuds avec plus haute proba de fiabilité optimiser latence et réduire perte paquets
+
