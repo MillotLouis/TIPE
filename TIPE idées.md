@@ -5,6 +5,7 @@ share: true
 Boucles réseau, routage infini ? 
 
 **Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
+à quelle échelle devient intéressant ? 
 
 optimiser réseau pour empêcher cycles/boucles 
 Plus court chemin graphe pour lien réseau
@@ -31,3 +32,8 @@ VPN Tree Routing Conjecture
 [Optimisation robuste des réseaux de télécommunications - TEL - Thèses en ligne](https://theses.hal.science/tel-00321868/)
 
 [Algorithms for Detecting Cycles in Graphs: A Comprehensive Guide - AlgoCademy Blog](https://algocademy.com/blog/algorithms-for-detecting-cycles-in-graphs-a-comprehensive-guide/)
+
+[Spanning Tree Protocol : optimiser le réseau LAN - IONOS](https://www.ionos.fr/digitalguide/serveur/know-how/spanning-tree-protocol/)
+
+
+Il faut une propriété originale sur le reseau pour rendre le sujet intéressant et "recherchable"
