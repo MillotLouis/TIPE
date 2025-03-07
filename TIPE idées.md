@@ -2,6 +2,25 @@
 share: true
 ---
 [TIPE](file:///C:%5CUsers%5Cmillo%5CDesktop%5CTIPE)
+
+Si sinistre ou catastrophe naturel ou opération secours milieu isolé $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P ou alors une nœud central pour faire communiquer secouristes, drones, équipements….
+$\Rightarrow$ ad hoc network, infrastructure-less network
+
+Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...)
+Couverture réseau ou capacité à capter peut ê modélisée par des graphes en fct de la position : Random Waypoint ? mais aussi batterie ou bien traditionellement qualité connexion
+$\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs chemins toutes les $x$ minutes par exemple
+
+
+
+
+
+
+
+
+
+___
+___
+___ 
 Boucles réseau, routage infini ? 
 
 **Protocole Spanning Tree (STP)** : Graphes, lien avec maths : parcours pour modéliser trafic
@@ -34,6 +53,8 @@ VPN Tree Routing Conjecture
 [Algorithms for Detecting Cycles in Graphs: A Comprehensive Guide - AlgoCademy Blog](https://algocademy.com/blog/algorithms-for-detecting-cycles-in-graphs-a-comprehensive-guide/)
 
 [Spanning Tree Protocol : optimiser le réseau LAN - IONOS](https://www.ionos.fr/digitalguide/serveur/know-how/spanning-tree-protocol/)
+
+[These_MargueriteFaycal_280510_v1 - These_MargueriteFaycal_280510_v2.pdf](https://pastel.hal.science/pastel-00521935v1/document)
 
 
 Il faut une propriété originale sur le reseau pour rendre le sujet intéressant et "recherchable"
