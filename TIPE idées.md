@@ -27,4 +27,5 @@ $\implies$ algorithmes pour privilégier nœuds avec plus haute proba de fiabili
 **Cycles et boucles** :
 - *count to infinity*
 - [Rapport_Lohier, page 6](./TIPE/Rapport_Lohier.pdf.md#page=6&selection=1,0,5,7)
-- 
+
+![Pasted image 20250314133605.png](./Pasted/Pasted%20image%2020250314133605.png)
