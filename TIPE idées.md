@@ -3,11 +3,13 @@ share: true
 ---
 [TIPE](file:///C:%5CUsers%5Cmillo%5CDesktop%5CTIPE)
 
-Si sinistre ou catastrophe naturel ou opération secours milieu isolé $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P ou alors une nœud central pour faire communiquer secouristes, drones, équipements….
+Si sinistre ou catastrophe naturel ou opération secours milieu isolé $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
 $\Rightarrow$ ad hoc network, infrastructure-less network
 
+> Un **réseau ad hoc** est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
+
 Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...)
-Couverture réseau ou capacité à capter peut ê modélisée par des graphes en fct de la position : Random Waypoint ? mais aussi batterie ou bien traditionnellement qualité connexion
+Couverture réseau ou capacité à capter peut ê modélisée par des fonctions en fct de la position : Random Waypoint ? mais aussi batterie ou bien traditionnellement qualité connexion
 $\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs chemins toutes les $x$ minutes par exemple
 
 Donc créer une fonction qui calcule la couverture réseau simplement en fonction de la position et faire se déplacer les noeuds aléatoirement
