@@ -15,8 +15,8 @@ $\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs 
 
 https://chatgpt.com/c/67caefc2-2b58-8011-8077-41a73283d05c
 
-
-
+<br>
+<br> <br> <br>
 
 ___
 ___
