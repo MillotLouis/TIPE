@@ -5,97 +5,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TIPE Louis Millot</title>
     <style>
+        :root {
+            --primary: #6C8EBF;  /* Soft pastel blue */
+            --secondary: #93B7E3;  /* Light powder blue */
+            --light: #f8fafc;
+            --dark: #2D3748;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
+
         header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
+            background: var(--gradient);
+            color: white;
+            padding: 2.5rem 1rem;
             text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
+
         main {
-            padding: 20px;
+            padding: 2rem 1rem;
             max-width: 800px;
             margin: 0 auto;
-            text-align: center;
         }
+
+        .journal-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
         .journal-entry {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: left;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 4px solid var(--primary);
         }
+
+        .journal-entry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
         .journal-entry h2 {
-            margin-top: 0;
-            font-size: 1.2em;
+            margin: 0 0 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .journal-entry p {
-            margin: 0;
-            color: #4a5568;
+
+        .journal-entry h2::before {
+            content: '📅';
         }
+
         .link-button {
-            display: inline-block;
-            padding: 0.6rem 1.5rem;
-            margin: 1rem 0 2rem;
-            font-size: 0.95em;
-            color: #4a5568;
-            background-color: transparent;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            margin: 2rem auto;
+            font-weight: 500;
+            color: white;
+            background: var(--gradient);
+            border-radius: 8px;
             text-decoration: none;
             transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .link-button:hover {
-            border-color: #3498db;
-            color: #3498db;
-            background-color: #f8fbff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            opacity: 0.9;
         }
+
         footer {
             text-align: center;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            padding: 1.5rem;
+            background: var(--gradient);
+            color: white;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 640px) {
+            .journal-entry {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+            
+            header {
+                padding: 2rem 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>TIPE Louis Millot</h1>
+        <p>Journal de recherche</p>
     </header>
     
     <main>
-        <a href="https://github.com/MillotLouis/TIPE/blob/main/TIPE%20id%C3%A9es.md" class="link-button">📝 Notes et idées</a>
-        <div class="journal-entry">
-            <h2>Date: 14 Mars 2025</h2>
-            <p> Recherche sur l'état des protocoles déjà existants et avantages et inconvénients de ces dernier pour pouvoir les comparer à un algorithme prenant en compte le contexte particulier de mon sujet <br>
-                Reflexion sur le sujet et ce sur quoi je veux rechercher / ce que je veux implémenter.
-            </p>
-        </div>
+        <a href="https://github.com/MillotLouis/TIPE/blob/main/TIPE%20id%C3%A9es.md" class="link-button">
+            📝 Notes et idées
+        </a>
 
-        
-        <div class="journal-entry">
-            <h2>Date: 07 Mars 2025</h2>
-            <p>Optimisation d'un reseau p2p ad hoc : un réseau mobile sans infrastructure fixe. Utile en cas d'interventions dans des zones sinistrées par exemple : en fonction de la position, de la batterie... un noeud aura une plus grande chance de se deconnecter donc il faut le dé-privilégier.<br>
-                Donc il faudrait simuler cela, une fonction qui calcule la couverture réseau simplement en fonction de la position. une fonction qui calcule la proba de déconnexion d'un noeud et combiner tout cela pour faire un graphe probabilisé du reseau <br>
-                Modélisable avec python et des librairies
-            </p>
-        </div>
-        
-        <div class="journal-entry">
-            <h2>Date: 07 Février 2025</h2>
-            <p>Création du site web </p> 
-            <br>
-            <p>Séance 11h : Recherches, idées potentielles : Problèmes d'optimisation d'un réseau internet local/étendu grâce à des graphes et des algorithmes (Spanning tree)</p>
+        <div class="journal-container">
+            <article class="journal-entry">
+                <h2>14 Mars 2025</h2>
+                <p>Recherche sur l'état des protocoles déjà existants et avantages et inconvénients de ces dernier pour pouvoir les comparer à un algorithme prenant en compte le contexte particulier de mon sujet <br>
+                    Reflexion sur le sujet et ce sur quoi je veux rechercher / ce que je veux implémenter.</p>
+            </article>
+
+            <article class="journal-entry">
+                <h2>7 Mars 2025</h2>
+                <p>Optimisation d'un reseau p2p ad hoc : un réseau mobile sans infrastructure fixe. Utile en cas d'interventions dans des zones sinistrées par exemple : en fonction de la position, de la batterie... un noeud aura une plus grande chance de se deconnecter donc il faut le dé-privilégier.<br>
+                    Donc il faudrait simuler cela, une fonction qui calcule la couverture réseau simplement en fonction de la position. une fonction qui calcule la proba de déconnexion d'un noeud et combiner tout cela pour faire un graphe probabilisé du reseau <br>
+                    Modélisable avec python et des librairies</p>
+            </article>
+
+            <article class="journal-entry">
+                <h2>7 Février 2025</h2>
+                <p>Recherches, idées potentielles : Problèmes d'optimisation d'un réseau internet local/étendu grâce à des graphes et des algorithmes. Ex : (Spanning tree)</p>
+            </article>
         </div>
     </main>
 </body>
