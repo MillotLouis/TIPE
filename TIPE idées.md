@@ -9,7 +9,7 @@ $\Rightarrow$ ad hoc network, infrastructure-less network
 > Un **réseau ad hoc** (généralement appelé MANet (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
 Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...) Mais pas grosse puissance de calcul
-Couverture réseau ou capacité à capter peut ê modélisée par des fonctions en fct de la position : Random Waypoint ? mais aussi batterie ou bien traditionnellement qualité connexion
+Couverture réseau ou capacité à capter peut ê modélisée par des fonctions en fct de la position : Random Waypoint pour prédiction sommaire ? mais aussi batterie^[si batterie pas trop faible aucun impact mais si batterie très faible, décroissance exponentielle score maybe] ou bien traditionnellement qualité connexion
 $\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs chemins toutes les $x$ minutes par exemple
 
 Donc créer une fonction qui calcule la couverture réseau simplement en fonction de la position et faire se déplacer les noeuds aléatoirement
@@ -33,17 +33,25 @@ Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rap
 - **Moins** 
 	- Prend pas en compte obstacles physiques par exemple si juste calcule distance avec cordoonées
 
-##### Power Aware Routing 
-- à chercher, minimise consommation batterie
-
 
 > [!info] Mais
 > Les algorithmes classiques (AODV, OLSR) négligent souvent les variations spatiales de couverture réseau.
 
 Donc plus intéressant ici : 
-#### Plus centré sur risk aware :
-[Algorithmes de routage et de planification sensibles à la QoS : Guide](https://www.linkedin.com/advice/3/how-do-you-deal-uncertainty-dynamics-qos-aware) (sûrement utile (cycles et boucles ))
+#### Plus centré sur risk aware ou ce que je veux faire :
+[Algorithmes de routage et de planification sensibles à la QoS : Guide](https://www.linkedin.com/advice/3/how-do-you-deal-uncertainty-dynamics-qos-aware) (sûrement utile (cycles et boucles))
 ##### Trust-based routing
+- Évalue la fiabilité des noeuds et évite les moins fiables
+
+##### Power Aware Routing 
+- à chercher, minimise consommation batterie
+
+##### QoS-Aware Routing
+
+
+> [!info]
+> Aujourd'hui aucun programme ne combine vraiment tout cela : batterie restante, position, historique de fiabilité (trajectoire prédite : random waypoint mais probablement trop compliqué)
+
 
 ___
 ___
@@ -65,3 +73,6 @@ https://chatgpt.com/c/67caefc2-2b58-8011-8077-41a73283d05c
 https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 [Chapitre 3 - Chapitre3.pdf](http://opera.inrialpes.fr/people/Tayeb.Lemlouma/Papers/MasterThesis/Chapitre3.pdf)
 [INTRODUCTION - AdHoc_Presentation.pdf](http://opera.inrialpes.fr/people/Tayeb.Lemlouma/Papers/AdHoc_Presentation.pdf)
+
+**Sources/thèses/papers sur le sujet :**
+[A Composite Mobility Model for Ad Hoc Networks in Disaster Areas - CentraleSupélec](https://centralesupelec.hal.science/hal-00589846v1)
