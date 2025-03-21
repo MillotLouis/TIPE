@@ -40,6 +40,8 @@ Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rap
 Donc plus intéressant ici : 
 #### Plus centré sur risk aware ou ce que je veux faire :
 [Algorithmes de routage et de planification sensibles à la QoS : Guide](https://www.linkedin.com/advice/3/how-do-you-deal-uncertainty-dynamics-qos-aware) (sûrement utile (cycles et boucles))
+
+https://chat.deepseek.com/a/chat/s/c110635a-240c-4359-b666-1e1a1beccd21
 ##### Trust-based routing
 - Évalue la fiabilité des noeuds et évite les moins fiables
 
@@ -73,6 +75,6 @@ https://chatgpt.com/c/67caefc2-2b58-8011-8077-41a73283d05c
 https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 [Chapitre 3 - Chapitre3.pdf](http://opera.inrialpes.fr/people/Tayeb.Lemlouma/Papers/MasterThesis/Chapitre3.pdf)
 [INTRODUCTION - AdHoc_Presentation.pdf](http://opera.inrialpes.fr/people/Tayeb.Lemlouma/Papers/AdHoc_Presentation.pdf)
-
+[BonnMotion - A mobility scenario generation and analysis tool](https://sys.cs.uos.de/bonnmotion/)
 **Sources/thèses/papers sur le sujet :**
 [A Composite Mobility Model for Ad Hoc Networks in Disaster Areas - CentraleSupélec](https://centralesupelec.hal.science/hal-00589846v1)
