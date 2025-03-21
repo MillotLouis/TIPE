@@ -8,7 +8,7 @@ $\Rightarrow$ ad hoc network, infrastructure-less network
 
 > Un **réseau ad hoc** (généralement appelé MANet (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
-Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...)
+Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...) Mais pas grosse puissance de calcul
 Couverture réseau ou capacité à capter peut ê modélisée par des fonctions en fct de la position : Random Waypoint ? mais aussi batterie ou bien traditionnellement qualité connexion
 $\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs chemins toutes les $x$ minutes par exemple
 
@@ -17,6 +17,35 @@ Donc créer une fonction qui calcule la couverture réseau simplement en fonctio
 **État actuel de la technologie** :
 ![600](./Pasted/Pasted%20image%2020250314135053.png)
 Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rapide en fonction du debit.
+
+##### Flooding :
+- **Plus**
+	- Rapide pas de temps de calcul ou quasiment pas 
+	- Plus simple à implémenter
+- **Moins**
+	- Consommation batterie potentiellement élevée
+	- Brutal et largement optimisable
+##### Random walk
+- *Cf photo*
+
+##### Greedy forwarding
+- *Cf photo*
+- **Moins** 
+	- Prend pas en compte obstacles physiques par exemple si juste calcule distance avec cordoonées
+
+##### Power Aware Routing 
+- à chercher, minimise consommation batterie
+
+
+> [!info] Mais
+> Les algorithmes classiques (AODV, OLSR) négligent souvent les variations spatiales de couverture réseau.
+
+Donc plus intéressant ici : 
+#### Plus centré sur risk aware :
+[Algorithmes de routage et de planification sensibles à la QoS : Guide](https://www.linkedin.com/advice/3/how-do-you-deal-uncertainty-dynamics-qos-aware) (sûrement utile (cycles et boucles ))
+##### Trust-based routing
+
+___
 ___
 Il faut une propriété originale sur le reseau pour rendre le sujet intéressant et "recherchable"
 
