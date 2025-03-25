@@ -17,7 +17,7 @@ Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rap
 ##### Greedy forwarding
 - *Cf photo*
 - **Moins** 
-	- Prend pas en compte obstacles physiques par exemple si juste calcule distance avec cordoonées
+	- Prend pas en compte obstacles physiques par exemple si juste calcule distance avec coordonées
 
 
 > [!info] Mais
