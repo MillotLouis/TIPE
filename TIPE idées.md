@@ -3,29 +3,25 @@ share: true
 ---
 [TIPE](file:///C:%5CUsers%5Cmillo%5CDesktop%5CTIPE)
 
->[!note] Pour vendredi
->2 slides : theme problématique objectifs
+>[!note] **Pour vendredi** 2 slides : theme problématique objectifs
 
 Si sinistre ou catastrophe naturelle ou opération secours milieu isolé ou opération militaire $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
 $\Rightarrow$ ad hoc network, infrastructure-less network
 
 > Un **réseau ad hoc** (généralement appelé [MANet](https://geekflare.com/fr/mobile-ad-hoc-network/) (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
-**État actuel de la technologie** : [État actuel technologie](./%C3%89tat%20actuel%20technologie.md)
+>[!question] Objectif
+>Solution low-cost et low complexity comparé à protocoles existants pour les petits réseaux d'urgence 
 
+___
+**[État actuel technologie](./%C3%89tat%20actuel%20technologie.md)**
+___
 > [!info]
 > Aujourd'hui aucun programme ne combine vraiment tout cela : batterie restante, position, historique de fiabilité (trajectoire prédite : random waypoint mais probablement trop compliqué)
 
-Crucial avoir faible latence (ne pas retarder opération) **et surtout** fiabilité (ne pas perdre données importantes : coordonnées, images...). 
-Couverture réseau ou capacité à capter peut ê modélisée par des fonctions en fct de la position : Random Waypoint pour prédiction sommaire ? 
-
-$\Rightarrow$ faire fonction qui prend cela en compte pour recalculer meilleurs chemins toutes les $x$ minutes en prenant en compte :
-- batterie restante^[si batterie pas trop faible aucun impact mais si batterie très faible, décroissance exponentielle score ?]
-- Position
-- Historique de fiabilité
-- Qualité de connexion (couverture réseau)
-Tout en ayant un **faible coût** (ou moindre par rapport aux protocoles existants), une **faible latence** un faible **temps de convergence** et étant **fiable**
->[!info] Temps de convergence = temps pour recréer les routes en cas de déconnexion
+___
+**[Idée Protocole](./Id%C3%A9e%20Protocole.md)** 
+___
 
 **Cycles et boucles** :
 - *count to infinity*
