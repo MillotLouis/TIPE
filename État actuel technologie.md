@@ -3,6 +3,8 @@ share: true
 ---
 ![600](./Pasted/Pasted%20image%2020250314135053.png)
 Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rapide en fonction du debit.
+___
+## Protocoles Naïfs :
 
 ##### Flooding :
 - **Plus**
@@ -18,7 +20,9 @@ Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rap
 - *Cf photo*
 - **Moins** 
 	- Prend pas en compte obstacles physiques par exemple si juste calcule distance avec coordonées
-
+## Protocoles existants/utilisés :
+- [AODV](./AODV.md)
+- 
 
 > [!info] Mais
 > Les algorithmes classiques (AODV, OLSR) négligent souvent les variations spatiales de couverture réseau.
@@ -35,3 +39,4 @@ https://chat.deepseek.com/a/chat/s/c110635a-240c-4359-b666-1e1a1beccd21
 - à chercher, minimise consommation batterie
 
 ##### QoS-Aware Routing
+- à chercher
