@@ -10,6 +10,7 @@ $\Rightarrow$ ad hoc network, infrastructure-less network
 
 > Un **réseau ad hoc** (généralement appelé [MANet](https://geekflare.com/fr/mobile-ad-hoc-network/) (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
+
 >[!question] Objectif
 >Solution low-cost et low complexity comparé à protocoles existants pour les petits réseaux d'urgence 
 
