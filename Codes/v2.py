@@ -25,6 +25,7 @@ class NetworkSimulator:
         return self.env.process(self._transmit_packet(path, payload))
     
     def dist(self,node1,node2):
+        """Calcule la distance entre node1 et node2"""
         return ((self.G.nodes[node2]["pos"][0] - self.G.nodes[node1]["pos"][0])**2 + (self.G.nodes[node2]["pos"][1] - self.G.nodes[node1]["pos"][1])**2)**0.5
     
     
@@ -35,8 +36,6 @@ class NetworkSimulator:
 
 # Exemple d'utilisation
 def main():
-
-
     nx.draw(net.G, with_labels=True, node_color='lightblue')
     plt.show()
 
