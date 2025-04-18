@@ -14,8 +14,7 @@ ___
 > [!info]
 > Aujourd'hui aucun programme ne combine vraiment tout cela : batterie restante, position, historique de fiabilité (trajectoire prédite : random waypoint mais probablement trop compliqué)
 
->[!question] Objectif
->Solution de routage se basant sur les technologies actuelles améliorant la durée de vie du réseau en réduisant la consommation énergétique : [Objectifs](./Objectifs.md)
+
 
 ___
 (Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./Id%C3%A9es%20Protocole.md)**) 
