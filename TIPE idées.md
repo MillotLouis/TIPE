@@ -3,6 +3,8 @@ share: true
 ---
 [TIPE](file:///C:%5CUsers%5Cmillo%5CDesktop%5CTIPE)
 
+# ! Pas à jour !
+
 >[!note] **Pour vendredi** 2 slides : theme problématique objectifs
 
 Si sinistre ou catastrophe naturelle ou opération secours milieu isolé ou opération militaire $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
