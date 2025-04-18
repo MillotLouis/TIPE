@@ -1,7 +1,7 @@
 ---
 share: true
 ---
-![TIPE Louis Millot.url](./Pasted/TIPE%20Louis%20Millot.url.md)
+-> [TIPE Louis Millot.url](./Pasted/TIPE%20Louis%20Millot.url.md)
 ___
 Si sinistre ou catastrophe naturelle ou opération secours milieu isolé ou opération militaire $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
 $\Rightarrow$ ad hoc network, infrastructure-less network
@@ -17,7 +17,7 @@ ___
 >[!question] Objectif
 >Solution de routage se basant sur les technologies actuelles améliorant la durée de vie du réseau en réduisant la consommation énergétique
  
-Objectifs
+[Objectifs](./Objectifs.md)
 
 ___
 (Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./Id%C3%A9es%20Protocole.md)**) 
