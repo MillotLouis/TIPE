@@ -9,7 +9,8 @@ class NetworkSimulator:
     def __init__(self):
         self.env = simpy.Environment()
         self.G = nx.Graph()
-        self.routing_algorithm = nx.dijkstra_path  # Algorithme par défaut
+        self.routing_algorithm = get_path_dijkstra
+        self.table = {node:{node:(float('inf'),[]) for node in self.G} for node in self.G} 
         
     def add_node(self, node_id,x,y,bat):
         self.G.add_node((node_id,{"pos":[x,y],"bat":bat}))
@@ -39,13 +40,3 @@ class NetworkSimulator:
     
     def _transmit_packet(self, path, payload):
         """Simule la transmission du paquet à travers le chemin"""
-
-        
-
-# Exemple d'utilisation
-def main():
-    nx.draw(net.G, with_labels=True, node_color='lightblue')
-    plt.show()
-
-if __name__ == "__main__":
-    main()
