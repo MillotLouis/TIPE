@@ -2,6 +2,7 @@ import networkx as nx
 import simpy
 import random
 import matplotlib.pyplot as plt
+from algorithm import *
 
 
 class NetworkSimulator:
