@@ -1,7 +1,6 @@
 ---
 share: true
 ---
-
 Le protocole **AODV (Ad-hoc On-Demand Distance Vector)** est un protocole de routage réactif conçu pour les réseaux mobiles ad hoc (MANETs). Il établit des routes uniquement lorsque nécessaire, réduisant ainsi la surcharge du réseau. Voici une explication détaillée de son fonctionnement :
 
 ---
