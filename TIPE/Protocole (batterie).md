@@ -8,25 +8,29 @@ Je vais probablement utiliser NetworkX et simPy
 - [x] Utilisation SimPy
 - [x] Utilisation NetworkX
 - [ ] Écrire bon algorithme pseudo code avant d'implémenter
+- [ ] Documentation recherches sur le sujet
 
 ##### Idées features algorithme : 
 - Pénaliser fortement les routes comprenant des appareils avec peu de batterie (pondération des arcs prend en compte batterie)
+	- Si batterie inférieure à un seuil `p` : pénaliser très fortement afin que le nœud ne soit utilisé que si il n'y a pas d'autres alternatives
+	- Sinon poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$ 
 - Système de mise en veille et réveil pour des messages urgents (pas compliqué avec SimPy surement)
-- voir : [DeepSeek - Into the Unknown](https://chat.deepseek.com/a/chat/s/4e2a9815-fd19-4653-b3c2-a087f881b637)
-- Réduction puissance d'émition en fonction de la distance du voisin à qui on envoie des donées
+- Voir : [DeepSeek](https://chat.deepseek.com/a/chat/s/4e2a9815-fd19-4653-b3c2-a087f881b637)
+- Réduction puissance d'émition en fonction de la distance du voisin à qui on envoie des données (pas sûr)
 
-[panisson/pymobility: python implementation of mobility models](https://github.com/panisson/pymobility)
 
 ##### Pseudo-Code :
-- Permet de rafraichir la table de routage (toutes les `x` secondes) 
-	- Pour chaque noeud, Exécuter algorithme de Dijkstra modifié :
-		- Rendre tous les sommets bleus
-		- Créer file verte de priorité, tableau des distances min et des prédécesseurs
-		- Tant que file verte non vide :
-			- Choisir noeud vert avec distance à la source min
-			- Le sortir de la file, le rendre rouge
-			- Pour tous les voisins de ce noeud : 
-				- Si noeud bleu devient vert 
-				- Actualiser distance et predécesseur dans tableau : min entre poids actuelle et poids en passant par le noeud
-					- Si le noeud a moins de `p` pourcentage de batterie : mettre un poids très grand afin de ne choisir ce noeud que si il n'y a pas le choix
-					- Sinon poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$  à ajuster pour voir meilleur résultat
+- Pour chaque nœud, Exécuter algorithme de Dijkstra modifié :
+	- Créer file de priorité, tableau des distances min et des prédécesseurs
+	- Tant que file non vide :
+		- Choisir nœud de la file avec distance à la source min
+		- Le sortir de la file
+		- Si la distance associée à ce noeud dans la file est supérieure à celle stockée dans le tableau des distance min, continuer car ça signifie que cette entrée dans la file était obsolète car on a trouvé mieux avant (car on ne peut pas modifier les elements de la file en utilisant le module python)
+		- Pour tous les voisins de ce noeud : 
+			- Si la batterie est inférieure à un seuil `p` : 
+				- Poids = valeur très grande devant poids possibles
+			- Sinon :
+				- Poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$ 
+			- Actualiser distance et prédécesseur dans tableau : min entre poids actuel et poids en passant par le nœud qui vient d'être pop
+
+
