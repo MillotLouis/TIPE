@@ -20,7 +20,7 @@ def distances(net:NetworkSimulator, source, p, a, b):
         for neighbor in net.get_neighbors(current_node):
             battery = net.get_battery(neighbor)
             if battery < p:
-                weight = float('inf')
+                weight = 10**5 #Distances en mètre donc 100km est largement supérieur à distance max
             else:
                 distance = net.get_distance(current_node, neighbor)
                 weight = a * distance + b * (1 / battery)
