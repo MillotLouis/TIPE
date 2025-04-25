@@ -3,6 +3,7 @@ share: true
 ---
 - Sommets pondérés par leur pourcentage de batterie et contenant infos tq position....
 - Arêtes inversement pondérées par distance (et donc qualité de connexion)
+- Dans un premier temps sommets immobiles j'intégrerais les déplacements ↓ plus tard
 
 ##### Déplacements : 
 [panisson/pymobility: python implementation of mobility models](https://github.com/panisson/pymobility)
