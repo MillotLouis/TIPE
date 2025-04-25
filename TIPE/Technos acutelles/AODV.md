@@ -23,7 +23,7 @@ Le protocole **AODV (Ad-hoc On-Demand Distance Vector)** est un protocole de rou
     - Compteur de sauts (`hop_count`), initialisé à 0.
 ##### **Étape 2 : Traitement par les nœuds intermédiaires**
 - Chaque nœud reçoit le RREQ :
-    1. Vérifie s'il a une **route fraîche** vers `D` (via `D_seq` stocké ≥ celui du RREQ).
+    1. Vérifie s'il a une route **fraîche** vers `D` (via `D_seq` stocké ≥ celui du RREQ).
         - Si oui : Envoie un **RREP** directement au nœud source via le chemin inverse.
         - Si non : Incrémente `hop_count` et diffuse le RREQ à ses voisins.
     2. Stocke une **entrée de routage inverse** vers `S` pour acheminer le RREP.
