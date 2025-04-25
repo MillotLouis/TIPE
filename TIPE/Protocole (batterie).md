@@ -17,8 +17,11 @@ Je vais probablement utiliser NetworkX et simPy
 - Système de mise en veille et réveil pour des messages urgents (pas compliqué avec SimPy surement)
 - Voir : [DeepSeek](https://chat.deepseek.com/a/chat/s/4e2a9815-fd19-4653-b3c2-a087f881b637)
 - Réduction puissance d'émition en fonction de la distance du voisin à qui on envoie des données (pas sûr)
+- Adaptation d'AODV : au lieu de choisir une route avec le nombre de sauts minimal on ajoute la batterie et la distance en métriques à prendre en compte 
 
 
+---
+Obsolète, Dijkstra
 ##### Pseudo-Code :
 - Pour chaque nœud, Exécuter algorithme de Dijkstra modifié :
 	- Créer file de priorité, tableau des distances min et des prédécesseurs

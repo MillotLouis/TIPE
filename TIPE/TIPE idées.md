@@ -35,3 +35,4 @@ https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 
 **Sources/thèses/papers sur le sujet :**
 [A Composite Mobility Model for Ad Hoc Networks in Disaster Areas - CentraleSupélec](https://centralesupelec.hal.science/hal-00589846v1)
+[AODV-EOCW: An Energy-Optimized Combined Weighting AODV Protocol for Mobile Ad Hoc Networks](https://www.mdpi.com/1424-8220/23/15/6759)
