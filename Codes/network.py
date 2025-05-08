@@ -16,7 +16,7 @@ class Network:
     def __init__(self,conso,seuil,a,b):
         """
         conso : tuple (x,y) : x = pourcentage de batterie consomée à chaque transmission de rreq, y = ... à chaque transmission de message
-        seuil : seuil en dessous duquel un noeud évite de transmettre des messages : poids très grand
+        seuil : seuil en dessous duquel un noeud évite de transmettre des messages : on lui affecte poids très grand
         """
         self.env = simpy.Environment()
         self.G = nx.Graph()
@@ -29,6 +29,7 @@ class Network:
         """Ajoute un noeud au graphe"""
         new_node = Node(self.env,id,pos,battery)
         self.G.add_node(id,obj=new_node)
+        new_node.routing_table = {}
 
     def add_link(self, n1, n2):
         """Ajoute une arrête entre n1 et n2 si il leur reste de la batterie"""
@@ -44,9 +45,9 @@ class Network:
         """Modifie le poids de l'arrête entre n1 et n2"""
         self.G[n1][n2]["weight"] = weight
 
-    def update_battery(self,node,cons):
-        """Retire cons% de batterie à node"""
-        self.battery = max(0,self.battery - cons)
+    def update_battery(self,node,percent):
+        """Retire percent% de batterie à node"""
+        self.battery = max(0,self.battery - percent)
         return self.battery > 0 #Indique si un noeud est tombé en panne car plus de batterie
     
     def get_distance(self,n1,n2):
@@ -63,7 +64,18 @@ class Network:
     
     ## Protocole AODV ###
 
-    def rreq(self,src,dest):
+    def broadcast_rreq(self,src:Node,dest:Node):
         """Démarre une découverte de route de src à dest"""
+        src.seq_num += 1
+        rreq = {
+            'src':src,
+            'dest':dest,
+            's_seq':src.seq_num
+            's'
+        }
+
+
+
+
 
     
