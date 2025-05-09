@@ -13,13 +13,35 @@ Je vais probablement utiliser NetworkX et simPy
 ##### Idées features algorithme : 
 - Pénaliser fortement les routes comprenant des appareils avec peu de batterie (pondération des arcs prend en compte batterie)
 	- Si batterie inférieure à un seuil `p` : pénaliser très fortement afin que le nœud ne soit utilisé que si il n'y a pas d'autres alternatives
-	- Sinon poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$ 
+	- Sinon poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$
 - Système de mise en veille et réveil pour des messages urgents (pas compliqué avec SimPy surement)
 - Voir : [DeepSeek](https://chat.deepseek.com/a/chat/s/4e2a9815-fd19-4653-b3c2-a087f881b637)
 - Réduction puissance d'émition en fonction de la distance du voisin à qui on envoie des données (pas sûr)
 - Adaptation d'AODV : au lieu de choisir une route avec le nombre de sauts minimal on ajoute la batterie et la distance en métriques à prendre en compte 
 
+___
+#### Implémentation :
+##### Classe Node :
+###### Attributs 
+- environnement SimPy
+- id
+- position
+- batterie
+- table de routage : dictionnaire { destination : (next_hop, weight, seq_num, lifetime) }
+- numéro de séquence 
+- queue des messages à traiter : Simpy store
 
+##### Classe network : 
+###### Attributs 
+- graphe NetworkX
+- environnement simpy
+- consomation : (x,y) où x = pourcentage de batterie consomée à chaque transmission de rreq, y = ... à chaque transmission de message
+- seuil de batterie en dessous duquel on pénalise fortement les noeuds
+- a,b : paramètres de pondération des arcs : weight = a*distance + b*(1/batterie)
+###### Méthodes
+- add_node
+- add_link
+- 
 ---
 Obsolète, Dijkstra
 ##### Pseudo-Code :
