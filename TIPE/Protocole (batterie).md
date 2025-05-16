@@ -29,20 +29,25 @@ ___
 - batterie
 - table de routage : dictionnaire { destination : (next_hop, weight, seq_num, lifetime) }
 - numéro de séquence 
-- queue des messages à traiter : Simpy 'store'
+- file des messages à traiter : Simpy 'store'
 - Distance d'émisssion maximum
+- alive : indique si il reste de la batterie au noeud
+- network : classe `Network` dans lequel le noeud se situe
+
+###### Méthodes
+- Process_messages : boucle ``while True`` récupérant les messages dans la file des messages
 
 ##### Classe network : 
 ###### Attributs 
 - graphe NetworkX
 - environnement simpy
-- consomation : (x,y) où x = pourcentage de batterie consomée à chaque transmission de rreq, y = ... à chaque transmission de message
+- consomation : (x,y) où x = pourcentage de batterie consomée à chaque transmission de rreq, y = ... à chaque transmission de message (en fonction de la longueur du message peut-être plus tard)
 - seuil de batterie en dessous duquel on pénalise fortement les noeuds
-- a,b : paramètres de pondération des arcs : weight = a*distance + b*(1/batterie)
+- a,b : paramètres de pondération des arcs : weight = `a*distance + b*(1/batterie)`
 ###### Méthodes
 - add_node
 - add_link
-- 
+- update_battery : met à jour la batterie du noeud en fonction du type de message : rrep/rreq ou données, si le noeud n'a plus de batterie on supprime toutes les liaisons à ce dernier et renvoie un booléen indiquant si il reste de la batterie au noeud 
 ---
 ***Obsolète*** : **Dijkstra**
 ##### Pseudo-Code :
