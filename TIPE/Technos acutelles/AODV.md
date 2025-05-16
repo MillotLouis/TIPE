@@ -1,6 +1,10 @@
 ---
 share: true
 ---
+[RFC 3561 - Ad hoc On-Demand Distance Vector (AODV) Routing](https://datatracker.ietf.org/doc/html/rfc3561)
+[aodv3.dvi - aodv.pdf](https://www.cs.cornell.edu/people/egs/615/aodv.pdf)
+[Fonctionnement AODV et numéros](https://chatgpt.com/c/681de6d7-59f0-8011-9758-fba940748713)
+
 Le protocole **AODV (Ad-hoc On-Demand Distance Vector)** est un protocole de routage réactif conçu pour les réseaux mobiles ad hoc (MANETs). Il établit des routes uniquement lorsque nécessaire, réduisant ainsi la surcharge du réseau. Voici une explication détaillée de son fonctionnement :
 
 ---

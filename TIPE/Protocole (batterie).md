@@ -29,7 +29,8 @@ ___
 - batterie
 - table de routage : dictionnaire { destination : (next_hop, weight, seq_num, lifetime) }
 - numéro de séquence 
-- queue des messages à traiter : Simpy store
+- queue des messages à traiter : Simpy 'store'
+- Distance d'émisssion maximum
 
 ##### Classe network : 
 ###### Attributs 
@@ -43,7 +44,7 @@ ___
 - add_link
 - 
 ---
-Obsolète, Dijkstra
+***Obsolète*** : **Dijkstra**
 ##### Pseudo-Code :
 - Pour chaque nœud, Exécuter algorithme de Dijkstra modifié :
 	- Créer file de priorité, tableau des distances min et des prédécesseurs
