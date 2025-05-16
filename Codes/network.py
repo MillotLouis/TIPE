@@ -17,6 +17,7 @@ class Network:
         """
         conso : tuple (x,y) : x = pourcentage de batterie consomée à chaque transmission de rreq, y = ... à chaque transmission de message
         seuil : seuil en dessous duquel un noeud évite de transmettre des messages : on lui affecte poids très grand
+        a,b : paramètres de pondération des arcs : weight = a*distance + b*(1/batterie)
         """
         self.env = simpy.Environment()
         self.G = nx.Graph()
@@ -37,17 +38,18 @@ class Network:
             weight = self.get_distance(n1,n2)
             self.G.add_edge(n1, n2, weight=weight)
 
-    def remove_link(self,n1,n2):
-        """Supprime le lien entre n1 et n2"""
-        self.G.remove_edge(n1,n2)
+    # def remove_link(self,n1,n2):
+    #     """Supprime le lien entre n1 et n2"""
+    #     self.G.remove_edge(n1,n2)
 
     def update_weight(self,n1,n2,weight):
         """Modifie le poids de l'arrête entre n1 et n2"""
         self.G[n1][n2]["weight"] = weight
 
-    def update_battery(self,node,percent):
+    def update_battery(self,node,type):
         """Retire percent% de batterie à node"""
-        self.battery = max(0,self.battery - percent)
+        cons = self.conso[0] if type == 'RRE' else self.conso[1]
+        self.battery = max(0,self.battery - )
         return self.battery > 0 #Indique si un noeud est tombé en panne car plus de batterie
     
     def get_distance(self,n1,n2):
@@ -62,6 +64,8 @@ class Network:
         """Renvoie un iterator sur les voisins de node"""
         return self.G.neighbors(node)
     
+    def calculate_weight(self,weight)
+
     ## Protocole AODV ###
 
     def broadcast_rreq(self,src:Node,dest:Node):
