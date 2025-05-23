@@ -7,9 +7,9 @@ class Message:
         self.data = data
         self.src_id = src_id
         self.src_seq = src_seq
-        self.dest_seq = 
+        self.dest_seq = dest_seq
         self.dest_id = dest_id
-        self.hop = hop
+        self.weight = weight
         self.prev_hop = prev_hop
 
 class Node:
@@ -24,6 +24,7 @@ class Node:
         self.max_dist = max_dist
         self.alive = True
         self.network = network
+        env.process(self.process_messages())
 
     def process_messages(self):
         while True:
@@ -41,24 +42,31 @@ class Node:
             src_id=self.id,
             src_seq=self.seq_num,
             dest_id=dest_id,
-            dest_seq=self.routing_table.get(dest_id, (None, 0, 0))[2],
+            dest_seq=self.routing_table.get(dest_id, (None, 0, 0))[2], #dernier numéro de séquence connu pour la source
             hop=0,
             prev_hop=self.id
         )
         self.network.broadcast_rreq(self.id,rreq)
 
     def handle_rreq(self, rreq:Message):
-        current_seq = self.routing_table.get(rreq['dest_id'], (None, None, 0))[2]
+        self.update_route(rreq.src_id,rreq.prev_hop,rreq.src_seq,rreq.weight)## On met à jour l'entrée de la table de routage à destination du noeud source (reverse path) afin de pouvoir renvoyer le rrep plus tard
         
-        if rreq.dest_seq <= current_seq:
-            https://chat.deepseek.com/a/chat/s/f4bff47a-b979-4f0d-ab00-b7be9ac44143
+        if self.id == rreq.dest_id:
+            self.send_rrep
+
+        current_seq = self.routing_table.get(rreq['dest_id'], (None, None, 0))[2]
 
     def handle_rrep(self,rrep):
         pass
 
-    def send_rrep(self,rreq):
+    def send_rrep(self,rrep):
         pass
-        
+
+    def update_route(self,dest,next_hop,seq_num,weight):
+        current = self.routing_table.get(dest, (None, -1, float('inf')))
+
+        if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
+            self.routing_table[dest] = (next_hop, seq_num, weight) #On met à jour l'entrée dans la table de routage si le numéro de séquence est supérieur à celui connu OU si il est égal mais la route a un poids préférable        
 
 class Network:
     def __init__(self,conso,seuil,a,b):
@@ -113,8 +121,3 @@ class Network:
         bat = self.get_battery(n2)
         dist = self.get_distance(n1,n2)
         return self.a*dist + self.b*(1/bat)
-
-    ## Protocole AODV ###
-    def process_package(self,node):
-        """Process un message : soit une rreq soit une rrep, à terme permettra de gérer le système de veille pour les messages non urgents"""
-
