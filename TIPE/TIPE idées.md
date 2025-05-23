@@ -1,7 +1,7 @@
 ---
 share: true
 ---
-us[TIPE Louis Millot](https://millotlouis.github.io/TIPE/)
+[TIPE Louis Millot](https://millotlouis.github.io/TIPE/)
 ___
 Si sinistre ou catastrophe naturelle ou opération secours milieu isolé ou opération militaire $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
 $\Rightarrow$ ad hoc network, infrastructure-less network

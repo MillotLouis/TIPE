@@ -10,7 +10,10 @@ Je vais probablement utiliser NetworkX et simPy
 - [ ] Écrire bon algorithme pseudo code avant d'implémenter
 - [ ] Documentation recherches sur le sujet
 
+Dans la réalité, AODV est utilisé dans des réseaux de noeuds mobiles donc des connexions se font et se défont donc le protocole AODV est utilisé uniquement afin de recréer une route ou en créer une si elle n'existe pas.
+Ici comme pas de déplacements pour l'instant je définis un TTL pour les routes afin de simuler ces créations de routes quand il y a effectivement des déplacements. cf : [AODV](./Technos%20acutelles/AODV.md)
 ##### Idées features algorithme : 
+Protocole de routage se basant sur AODV (norme RFC 3561)
 - Pénaliser fortement les routes comprenant des appareils avec peu de batterie (pondération des arcs prend en compte batterie)
 	- Si batterie inférieure à un seuil `p` : pénaliser très fortement afin que le nœud ne soit utilisé que si il n'y a pas d'autres alternatives
 	- Sinon poids = $\alpha*\text{distance} + \beta*1/\text{batterie}$
@@ -36,6 +39,7 @@ ___
 
 ###### Méthodes
 - Process_messages : boucle ``while True`` récupérant les messages dans la file des messages
+- 
 
 ##### Classe network : 
 ###### Attributs 
