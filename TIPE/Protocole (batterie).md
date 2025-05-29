@@ -7,11 +7,23 @@ Je vais probablement utiliser NetworkX et simPy
 ##### À faire :
 - [x] Utilisation SimPy
 - [x] Utilisation NetworkX
-- [ ] Écrire bon algorithme pseudo code avant d'implémenter
-- [ ] Documentation recherches sur le sujet
-
+- [x] Écrire bon algorithme pseudo code avant d'implémenter
+- [x] Documentation recherches sur le sujet
+- [ ] Voir si je discard toutes les RREQ après en avoir vu une venant de la même source ou bien si je discard uniquement celles venant de la même source et d'un voisin déja vu car sinon je risque de discard un meilleur chemin potentiel si il a un noeud qui a plusieurs voisins lui envoyant la RREQ
+- [ ] Ajouter TTL aux routes (à peu près fréquence "HELLO messages" afin de coller à la réalité)
+- [ ] Ajouter consommation de batterie selon la distance
+- [ ] Ajouter limite de distance afin de ne pouvoir transmettre qu'à ses voisins les plus proches
+- [ ] Ajouter réponse des noeuds intermédiaires
+- [ ] Ajouter modèle de mobilité
+- [ ] Pour compter nombre de paquets perdus : à chaque fois qu'un nœud mort reçoit un message (Pas une RREQ) qu'il est censé forwarder alors on incrémente et on compare aux nombre de paquets perdus avec AODV classique qui empruntera possiblement des noeuds avec peu de batterie qui peuvent donc mourir avant la fin du TTL sur une route enregistrée
+___
 Dans la réalité, AODV est utilisé dans des réseaux de noeuds mobiles donc des connexions se font et se défont donc le protocole AODV est utilisé uniquement afin de recréer une route ou en créer une si elle n'existe pas.
 Ici comme pas de déplacements pour l'instant je définis un TTL pour les routes afin de simuler ces créations de routes quand il y a effectivement des déplacements. cf : [AODV](./Technos%20acutelles/AODV.md)
+
+Dans la norme **RFC 3561** décrivant le fonctionnement d'AODV il est écrit : "_The destination node... MUST send a RREP back to the source_" et ce RREP est le premier valide à être reçu par le noeud de destination. à ce moment là le nombre de saut de la route est calculé sur le chemin "retour".
+Cependant ici si on fait cela alors la pondération selon la batterie ne pourra pas être prise en compte : il faut donc [ajouter un petit délai d'attente](https://chat.deepseek.com/a/chat/s/101cc16b-010d-48c9-ba9e-eee1aaacbcbc) quand la destination reçoit le premier RREQ émanant de la source afin de tous les collecter et renvoyer uniquement le meilleur. Ici le poids de la route sera calculé à "l'aller" afin de pouvoir comparer à l'arrivée mais aussi au retour (indispensable afin de pouvoir ajouter le bon poids aux noeuds intermédiaires)
+
+De même dans **RFC 3561** si un noeud intermédiaire a un chemin plus frais et valide il renvoie un RREP mais alors le noeud source peut recevoir plusieurs RREP (le noeud de destination renvoie **toujours** un RREP). Dans un premier temps je ne vais pas faire cela : seulement la destination répond
 ##### Idées features algorithme : 
 Protocole de routage se basant sur AODV (norme RFC 3561)
 - Pénaliser fortement les routes comprenant des appareils avec peu de batterie (pondération des arcs prend en compte batterie)
@@ -49,9 +61,8 @@ ___
 - seuil de batterie en dessous duquel on pénalise fortement les noeuds
 - a,b : paramètres de pondération des arcs : weight = `a*distance + b*(1/batterie)`
 ###### Méthodes
-- add_node
-- add_link
-- update_battery : met à jour la batterie du noeud en fonction du type de message : rrep/rreq ou données, si le noeud n'a plus de batterie on supprime toutes les liaisons à ce dernier et renvoie un booléen indiquant si il reste de la batterie au noeud 
+- update_battery : met à jour la batterie du noeud en fonction du type de message : rrep/rreq ou données, si le noeud n'a plus de batterie on supprime toutes les liaisons à ce dernier et renvoie un booléen indiquant si il reste de la batterie au noeud
+- 
 ---
 ***Obsolète*** : **Dijkstra**
 ##### Pseudo-Code :
