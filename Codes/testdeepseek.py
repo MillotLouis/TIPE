@@ -53,7 +53,6 @@ class Node:
         """Process Route Request (RFC 3561 Section 5.3)"""
         # Update reverse path to source (Section 5.3.2)
         self.update_route(rreq.src_id, rreq.prev_hop, rreq.src_seq, rreq.hop)
-        
         # Check if we're the destination or have fresh route (Section 5.3.3)
         if self.id == rreq.dest_id:
             self.send_rrep(rreq, is_destination=True)
