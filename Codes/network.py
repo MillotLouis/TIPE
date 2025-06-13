@@ -171,3 +171,5 @@ class Node:
 
         if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
             self.routing_table[dest] = (next_hop, seq_num, weight) #On met à jour l'entrée dans la table de routage si le numéro de séquence est supérieur à celui connu OU si il est égal mais la route a un poids préférable        
+
+    def collect_rreps(self,)
