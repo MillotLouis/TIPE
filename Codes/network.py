@@ -32,24 +32,23 @@ class Network:
         self.coeff_bat = coeff_bat
         self.coeff_conso = coeff_conso
 
-    def add_node(self,id,pos,battery):
+    def add_node(self,id,pos,max_dist,battery=100):
         """Ajoute un noeud au graphe"""
-        new_node = Node(self.env,id,pos,battery)
+        new_node = Node(self.env,id,pos,battery,max_dist,self)
         self.G.add_node(id,obj=new_node)
-        new_node.routing_table = {}
 
     def add_link(self, n1, n2):
         """Ajoute une arrête entre n1 et n2 si il leur reste de la batterie"""
         if n1.alive and n2.alive:
-            self.G.add_edge(n1, n2)
+            self.G.add_edge(n1.id, n2.id)
 
 
     def update_battery(self,node,type,dist):
         """Retire percent% de batterie à node"""
         cons = self.conso[0] if type == 'RRE' else self.conso[1]
-        node.battery = max(0,node.battery - (self.network.coeff_cons*dist + cons))
+        node.battery = max(0,node.battery - (self.coeff_cons*dist + cons))
         if node.battery <= 0:
-            self.G.remove_edges_from(list(self.get_neighbors(node))) #Supprime les connexions avec ce noeud
+            self.G.remove_edges_from(list(self.G.neighbors(node.id))) #Supprime les connexions avec ce noeud
             node.alive = False
         return node.alive
         
@@ -59,10 +58,6 @@ class Network:
         """
         return ((n2.pos[0] - n1.pos[0])**2 + (n2.pos[1] - n1.pos[1])**2)**0.5
 
-
-    def get_neighbors(self,node):
-        """Renvoie un iterator sur les voisins de node"""
-        return self.G.neighbors(node.id)
     
     def calculate_weight(self,n1,n2):
         """Calcule le poids de l'arc n1 vers n2 en prenant en compte la distance à ce dernier et sa batterie"""
@@ -71,7 +66,7 @@ class Network:
         return self.coeff_dist*dist + self.coeff_bat*(1/bat)
 
     def broadcast_rreq(self,node,rreq):
-        for n in self.get_neighbors(node):
+        for n in self.G.neighbors(node.id):
             neighbor = n["obj"]
             dist = self.get_distance(node,neighbor)
             if dist <= node.max_dist:
