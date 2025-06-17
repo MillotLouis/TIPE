@@ -8,7 +8,7 @@ import copy
 from collections import defaultdict
 import time
 
-# Your existing classes with fixes
+# Your existing classes with critical fixes
 class Message:
     def __init__(self, typ, src_id, src_seq, dest_seq, dest_id, weight, prev_hop, data=None):
         self.type = typ
@@ -52,9 +52,11 @@ class Node:
         while True:
             try:
                 if self.alive:
-                    msg = yield self.pending.get() | self.env.timeout(10.0)
+                    # Remove timeout to avoid dropping messages
+                    msg = yield self.pending.get()
                     if hasattr(msg, 'type'):
                         self.messages_received += 1
+                        print(f"Node {self.id} processing {msg.type} message")
                         
                         if msg.type == "RREQ":
                             self.handle_rreq(msg)
@@ -83,20 +85,24 @@ class Node:
             weight=0
         )
         self.rreq_sent += 1
-        self.network.broadcast_rreq(self, rreq)
+        self.network.broadcast_rreq(self, rreq) 
 
     def handle_rreq(self, rreq):
-        """Handle received RREQ - Fixed duplicate detection"""
-        seen_key = (rreq.src_id, rreq.src_seq, rreq.prev_hop)
+        """Handle received RREQ - Fixed duplicate detection and routing"""
+        seen_key = (rreq.src_id, rreq.src_seq)
         if seen_key in self.seen or self.battery < self.network.seuil:
+            print(f"Node {self.id} ignoring duplicate RREQ from {rreq.src_id}")
             return
+        
+        self.seen.add(seen_key)
+        print(f"Node {self.id} handling RREQ from {rreq.src_id} to {rreq.dest_id}")
         
         # Calculate weight from previous hop to current node
         if rreq.prev_hop != rreq.src_id:  # Not the original source
             prev_node = self.network.G.nodes[rreq.prev_hop]["obj"]
             rreq.weight += self.network.calculate_weight(prev_node, self)
         
-        # Update route to source
+        # CRITICAL FIX: Always update route to source for reverse path
         self.update_route(
             dest=rreq.src_id,
             next_hop=rreq.prev_hop,
@@ -107,24 +113,21 @@ class Node:
         # Check if this node is the destination
         if self.id == rreq.dest_id:
             print(f"Node {self.id} is destination for RREQ from {rreq.src_id}")
-            key = (rreq.src_id, rreq.src_seq)
-            if key not in self.pending_rreqs:
-                self.pending_rreqs[key] = []
-                self.env.process(self.collect_rreqs(key))
-            self.pending_rreqs[key].append(rreq)
+            # Send RREP immediately instead of collecting
+            self.send_rrep(rreq)
             return
         
         # Forward RREQ if not destination
-        self.seen.add(seen_key)
         rreq.prev_hop = self.id
         print(f"Node {self.id} forwarding RREQ from {rreq.src_id} to {rreq.dest_id}")
         self.network.broadcast_rreq(self, rreq)
 
     def handle_rrep(self, rrep):
-        """Handle received RREP"""
+        """Handle received RREP - Fixed routing"""
         print(f"Node {self.id} received RREP from {rrep.src_id} to {rrep.dest_id}")
         
-        if rrep.prev_hop != rrep.src_id:  # Not the original source
+        # Calculate weight if not from original source
+        if rrep.prev_hop != rrep.src_id:
             prev_node = self.network.G.nodes[rrep.prev_hop]["obj"]
             rrep.weight += self.network.calculate_weight(prev_node, self)
         
@@ -139,7 +142,16 @@ class Node:
         # Forward RREP if not the final destination
         if self.id != rrep.dest_id:
             print(f"Node {self.id} forwarding RREP from {rrep.src_id}")
-            self.env.process(self.network.unicast_rrep(self, rrep))
+            # CRITICAL FIX: Use routing table to find next hop towards destination
+            if rrep.dest_id in self.routing_table:
+                next_hop_id = self.routing_table[rrep.dest_id][0]
+                if next_hop_id and next_hop_id in self.network.G.nodes:
+                    next_hop = self.network.G.nodes[next_hop_id]["obj"]
+                    if next_hop.alive:
+                        rrep.prev_hop = self.id
+                        self.env.process(self.network.unicast_message(self, rrep, next_hop_id))
+            else:
+                print(f"Node {self.id}: No route to forward RREP to {rrep.dest_id}")
         else:
             print(f"RREP from {rrep.src_id} reached final destination {self.id}")
 
@@ -160,24 +172,31 @@ class Node:
     def forward_data(self, data_msg):
         """Forward data message to next hop"""
         if data_msg.dest_id in self.routing_table:
-            next_hop = self.routing_table[data_msg.dest_id][0]
-            if next_hop:
-                yield from self.network.unicast_data(self, data_msg, next_hop)
+            next_hop_id = self.routing_table[data_msg.dest_id][0]
+            if next_hop_id:
+                yield from self.network.unicast_message(self, data_msg, next_hop_id)
+            else:
+                print(f"Node {self.id}: Invalid next hop for {data_msg.dest_id}")
+                self.network.failed_deliveries += 1
         else:
             print(f"Node {self.id}: No route to forward data to {data_msg.dest_id}")
             self.network.failed_deliveries += 1
 
     def send_data(self, dest_id, data):
-        """Send data to destination"""
+        """Send data to destination - Fixed timing"""
         print(f"Node {self.id} wants to send data to {dest_id}")
         
         if dest_id not in self.routing_table:
             print(f"Node {self.id}: No route to {dest_id}, initiating route discovery")
             self.init_rreq(dest_id)
-            yield self.env.timeout(3.0)  # Wait longer for route discovery
+            # Wait longer for route discovery
+            yield self.env.timeout(5.0)
         
         if dest_id in self.routing_table:
             print(f"Node {self.id}: Route found to {dest_id}, sending data")
+            print(f"Node {self.id}: Route to {dest_id} via {self.routing_table[dest_id]}")
+            
+            self.seq_num += 1
             data_msg = Message(
                 typ="DATA",
                 src_id=self.id,
@@ -189,25 +208,17 @@ class Node:
                 data=data
             )
             self.data_sent += 1
-            next_hop = self.routing_table[dest_id][0]
-            if next_hop:
-                yield from self.network.unicast_data(self, data_msg, next_hop)
+            next_hop_id = self.routing_table[dest_id][0]
+            if next_hop_id:
+                yield from self.network.unicast_message(self, data_msg, next_hop_id)
         else:
             print(f"Node {self.id}: Still no route found to {dest_id} after discovery")
             self.network.failed_deliveries += 1
 
     def send_rrep(self, rreq):
-        """Send RREP back to source"""
+        """Send RREP back to source - Fixed routing"""
         self.seq_num += 1
         print(f"Node {self.id} sending RREP to {rreq.src_id}")
-        
-        # Update route to source
-        self.update_route(
-            dest=rreq.src_id,
-            next_hop=rreq.prev_hop,
-            seq_num=rreq.src_seq,
-            weight=rreq.weight
-        )
         
         rrep = Message(
             typ="RREP",
@@ -219,7 +230,14 @@ class Node:
             prev_hop=self.id
         )
         self.rrep_sent += 1
-        self.env.process(self.network.unicast_rrep(self, rrep))
+        
+        # Use the route established by RREQ
+        if rreq.src_id in self.routing_table:
+            next_hop_id = self.routing_table[rreq.src_id][0]
+            print(f"Node {self.id}: Sending RREP to {rreq.src_id} via {next_hop_id}")
+            self.env.process(self.network.unicast_message(self, rrep, next_hop_id))
+        else:
+            print(f"Node {self.id}: No reverse route to {rreq.src_id}")
 
     def update_route(self, dest, next_hop, seq_num, weight):
         """Update routing table with better route"""
@@ -229,18 +247,6 @@ class Node:
             old_route = self.routing_table.get(dest, "No route")
             self.routing_table[dest] = (next_hop, seq_num, weight)
             print(f"Node {self.id}: Updated route to {dest}: {old_route} -> {(next_hop, seq_num, weight)}")
-
-    def collect_rreqs(self, key):
-        """Collect RREQs and send best RREP"""
-        yield self.env.timeout(0.5)  # Wait a bit longer to collect multiple RREQs
-
-        if key in self.pending_rreqs:
-            rreqs = self.pending_rreqs.pop(key)
-            if rreqs:
-                best_rreq = min(rreqs, key=lambda r: r.weight)
-                print(f"Node {self.id}: Collected {len(rreqs)} RREQs, best weight: {best_rreq.weight}")
-                self.send_rrep(best_rreq)
-                return best_rreq
 
     def update_battery_history(self):
         """Update battery history for visualization"""
@@ -302,13 +308,15 @@ class Network:
         for neighbor_id in neighbor_ids:
             if neighbor_id in self.G.nodes:
                 neighbor = self.G.nodes[neighbor_id]["obj"]
-                if neighbor.alive and neighbor.id != rreq.prev_hop:  # Don't send back to previous hop
+                if neighbor.alive and neighbor.id != rreq.prev_hop:  # Don't send back to sender
                     dist = self.get_distance(node, neighbor)
                     if dist <= node.max_dist:
                         if self.update_battery(node, "RREQ", dist):
                             new_rreq = copy.deepcopy(rreq)
+                            new_rreq.prev_hop = node.id  # Set correct previous hop
                             neighbor.pending.put(new_rreq)
                             self.total_messages += 1
+                            print(f"  -> Sent RREQ to node {neighbor_id}")
 
     def _kill_node(self, node):
         """Safely kill a node by removing its edges"""
@@ -320,37 +328,32 @@ class Network:
             node.alive = False
             self.dead_nodes += 1
 
-    def unicast_rrep(self, node, rrep):
-        """Send RREP to specific destination"""
-        if rrep.dest_id in node.routing_table:
-            next_hop_id = node.routing_table[rrep.dest_id][0]
-            if next_hop_id and next_hop_id in self.G.nodes:
-                next_hop = self.G.nodes[next_hop_id]["obj"]
-                if next_hop.alive:
-                    dist = self.get_distance(node, next_hop)
-                    rrep.prev_hop = node.id
-                    yield self.env.timeout(0.001)
-                    if dist <= node.max_dist:
-                        if self.update_battery(node, "RREP", dist):
-                            next_hop.pending.put(rrep)
-                            self.total_messages += 1
-
-    def unicast_data(self, node, data_msg, next_hop_id):
-        """Send data message to next hop"""
+    def unicast_message(self, node, msg, next_hop_id):
+        """Generic unicast for any message type"""
         if next_hop_id in self.G.nodes:
             next_hop = self.G.nodes[next_hop_id]["obj"]
             if next_hop.alive:
                 dist = self.get_distance(node, next_hop)
                 if dist <= node.max_dist:
-                    if self.update_battery(node, "DATA", dist):
-                        data_msg.prev_hop = node.id
-                        next_hop.pending.put(data_msg)
+                    msg_type = "RREQ" if msg.type == "RREQ" else "OTHER"
+                    if self.update_battery(node, msg_type, dist):
+                        msg.prev_hop = node.id
+                        next_hop.pending.put(msg)
                         self.total_messages += 1
-                        yield self.env.timeout(0.001)
+                        print(f"  -> Sent {msg.type} from {node.id} to {next_hop_id}")
+                        yield self.env.timeout(0.01)  # Small delay for realism
                     else:
+                        print(f"Node {node.id} died while sending {msg.type}")
                         self.failed_deliveries += 1
                 else:
+                    print(f"Node {next_hop_id} out of range from {node.id}")
                     self.failed_deliveries += 1
+            else:
+                print(f"Next hop node {next_hop_id} is dead")
+                self.failed_deliveries += 1
+        else:
+            print(f"Next hop node {next_hop_id} doesn't exist")
+            self.failed_deliveries += 1
 
     def create_random_topology(self, num_nodes, area_size, max_dist, min_battery=50, max_battery=100):
         """Create a random network topology"""
@@ -455,7 +458,7 @@ class AODVTester:
                 else:
                     stuck_count = 0
                     last_time = self.network.env.now
-                    if int(self.network.env.now) % 5 == 0:  # Print every 5 time units
+                    if int(self.network.env.now) % 5 == 0:
                         print(f"Simulation progress: {self.network.env.now:.1f}/{duration}")
         
         self.network.env.process(watchdog())
@@ -468,7 +471,7 @@ class AODVTester:
         self.collect_metrics()
 
     def visualize_network(self, title="Network Topology"):
-        """Fixed visualization with proper colorbar handling"""
+        """Visualization with routing table info"""
         plt.figure(figsize=(15, 10))
         
         # Create subplot for network topology
@@ -488,13 +491,11 @@ class AODVTester:
                 sizes.append(50)
         
         if pos_dict:
-            # Draw network
             nodes = nx.draw_networkx_nodes(self.network.G, pos_dict, node_color=colors, 
                                          node_size=sizes, cmap=plt.cm.RdYlGn, ax=ax1)
             nx.draw_networkx_edges(self.network.G, pos_dict, ax=ax1, alpha=0.5)
             nx.draw_networkx_labels(self.network.G, pos_dict, font_size=8, ax=ax1)
             
-            # Add colorbar properly
             if nodes:
                 plt.colorbar(nodes, ax=ax1, label='Battery Level (normalized)')
         
@@ -503,7 +504,7 @@ class AODVTester:
         
         # Plot metrics if available
         if self.time_points:
-            # Alive vs Dead nodes
+            # Alive vs Dead nodes  
             plt.subplot(2, 2, 2)
             plt.plot(self.time_points, self.metrics_history['alive_nodes'], 'g-', label='Alive', linewidth=2)
             plt.plot(self.time_points, self.metrics_history['dead_nodes'], 'r-', label='Dead', linewidth=2)
@@ -539,7 +540,7 @@ class AODVTester:
         plt.show()
 
     def print_final_stats(self):
-        """Print final simulation statistics"""
+        """Print final simulation statistics with routing info"""
         print("\n" + "="*50)
         print("FINAL SIMULATION STATISTICS")
         print("="*50)
@@ -570,63 +571,55 @@ class AODVTester:
         print(f"\nRouting Table Summary:")
         for node_id in self.network.G.nodes():
             node = self.network.G.nodes[node_id]["obj"]
-            if node.alive and node.routing_table:
-                print(f"Node {node_id}: {len(node.routing_table)} routes")
+            if node.alive:
+                routes = len(node.routing_table)
+                print(f"Node {node_id}: {routes} routes - {dict(node.routing_table)}")
 
 
 def main():
-    """Main test function with improved parameters"""
-    print("Testing Modified AODV Protocol")
+    """Main test function with debugging"""
+    print("Testing Fixed AODV Protocol")
     print("="*40)
     
-    # Network parameters - adjusted for better performance
-    conso = (3, 2)      # (RREQ consumption, other message consumption) - reduced
-    seuil = 5           # Battery threshold - lowered
-    coeff_dist = 0.5    # Distance coefficient - reduced
-    coeff_bat = 20.0    # Battery coefficient - reduced
-    coeff_conso = 0.05  # Consumption coefficient - reduced
+    # Network parameters
+    conso = (20, 10)
+    seuil = 5
+    coeff_dist = 0.5
+    coeff_bat = 20.0
+    coeff_conso = 0.05
     
     # Create network
     network = Network(conso, seuil, coeff_dist, coeff_bat, coeff_conso)
     tester = AODVTester(network)
     
-    # Create random topology with better connectivity
-    print("Creating random network topology...")
-    num_nodes = 15      # Reduced for better connectivity
-    area_size = 80      # Reduced area for better connectivity  
-    max_dist = 35       # Increased transmission range
+    # Create smaller, more connected topology for testing
+    print("Creating test network topology...")
+    num_nodes = 20
+    area_size = 50
+    max_dist = 30
     nodes = network.create_random_topology(num_nodes, area_size, max_dist, 
-                                          min_battery=70, max_battery=100)
+                                          min_battery=80, max_battery=100)
     
     print(f"Created network with {len(nodes)} nodes")
     print(f"Network has {network.G.number_of_edges()} edges")
     
-    # Check network connectivity
+    # Check connectivity
     if nx.is_connected(network.G):
         print("✓ Network is connected")
     else:
         print("⚠ Network is not fully connected")
         components = list(nx.connected_components(network.G))
-        print(f"Found {len(components)} connected components")
         for i, comp in enumerate(components):
             print(f"Component {i+1}: nodes {sorted(comp)}")
     
-    # Schedule fewer, more spaced communications
-    print("Scheduling communications...")
+    # Schedule simple test communications
+    print("Scheduling test communications...")
     
-    communications = [
-        (0, min(num_nodes-1, 7), 2, 5.0),   # Fewer messages, longer intervals
-        (1, min(num_nodes-1, 8), 2, 6.0),
-        (2, min(num_nodes-1, 9), 2, 7.0),
-    ]
-    
-    for src, dst, num_msg, interval in communications:
-        if src < len(nodes) and dst < len(nodes):
-            print(f"Scheduling {num_msg} messages from {src} to {dst}")
-            tester.run_communication_test(src, dst, num_msg, interval)
+    # Test 1: Simple communication
+    tester.run_communication_test(0, min(num_nodes-1, 4), 1, 8.0)
     
     # Run simulation
-    simulation_duration = 40.0
+    simulation_duration = 1500.0
     print(f"Running simulation for {simulation_duration} time units...")
     
     start_time = time.time()
@@ -637,7 +630,7 @@ def main():
     
     # Print results and visualize
     tester.print_final_stats()
-    tester.visualize_network("Modified AODV Test Results")
+    tester.visualize_network("Fixed AODV Test Results")
 
 if __name__ == "__main__":
     main()
