@@ -16,7 +16,8 @@ class Node:
         self.network = network
         self.seen = set() #évite les boucles de routage infinies
         self.pending_rreqs = {} #permet de collecter les rreqs pour comparer le poids de celles venant d'une même source
-        env.process(self.process_messages())
+        
+        self.env.process(self.process_messages())
 
     def process_messages(self):
         while True:
@@ -26,6 +27,8 @@ class Node:
                     self.handle_rreq(msg)
                 elif msg.type == "RREP":
                     self.handle_rrep(msg)
+                elif msg.type == "DATA":
+                    self.handle_data(msg)
 
     def init_rreq(self,dest_id):
         self.seq_num += 1 #indispensable selon RFC 3561
@@ -121,3 +124,11 @@ class Node:
 
         return best_rreq
         
+
+    def handle_data(self,data:Message):
+        if data.dest_id == self.id:
+            self.network.messages_received += 1
+        else:
+            next_hop = self.routing_table.get(data.dest_id,(None, 0, 0))[2]
+            if next_hop:
+                pass

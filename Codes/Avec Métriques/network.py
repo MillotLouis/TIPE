@@ -7,7 +7,7 @@ from node import Node
 class Message:
     def __init__(self,typ,src_id,src_seq,dest_seq,dest_id,weight,prev_hop,data=None):
         self.type = typ
-        self.data = data
+        # self.data = data # Surement pas utile
         self.src_id = src_id
         self.src_seq = src_seq
         self.dest_seq = dest_seq
@@ -31,6 +31,13 @@ class Network:
         self.coeff_dist = coeff_dist
         self.coeff_bat = coeff_bat
         self.coeff_conso = coeff_conso
+        
+        self.messages_forwarded = 0
+        self.messages_sent = 0
+        self.messages_received = 0
+        self.rreq_sent = 0
+        self.rrep_sent = 0
+        self.battery_history = []
 
     def add_node(self,id,pos,max_dist,battery=100):
         """Ajoute un noeud au graphe"""
@@ -41,7 +48,6 @@ class Network:
         """Ajoute une arrête entre n1 et n2 si il leur reste de la batterie"""
         if n1.alive and n2.alive:
             self.G.add_edge(n1.id, n2.id)
-
 
     def update_battery(self,node,type,dist):
         """Retire percent% de batterie à node"""
@@ -71,6 +77,7 @@ class Network:
             dist = self.get_distance(node,neighbor)
             if dist <= node.max_dist:
                 if self.update_battery(node,"RRE",neighbor):
+                    self.rreq_sent += 1
                     new_rreq = copy.deepcopy(rreq)
                     neighbor.pending.put(new_rreq)
                 #sinon, ajouter compteur perdus peut être
@@ -85,4 +92,5 @@ class Network:
             if dist <= node.max_dist:
                 #else rrep perdu à ajouter au compteur
                 if self.update_battery(node,"RRE",dist):
+                    self.rrep_sent += 1
                     self.G[next_hop]["obj"].pending.put(rrep)
