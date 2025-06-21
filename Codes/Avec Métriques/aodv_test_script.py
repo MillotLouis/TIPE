@@ -451,7 +451,7 @@ class Simulation:
         self.duration = duration
         
         self.net = Network(
-            conso=(0.1, 0.5),
+            conso=(0.01, 0.25),
             seuil=5,
             coeff_dist=0.5,
             coeff_bat=0.5,
@@ -675,7 +675,7 @@ if __name__ == "__main__":
         num_nodes=30,    # Small network for debugging
         area_size=100,
         max_dist=100,
-        duration=50
+        duration=40
     )
     sim.run()
     
