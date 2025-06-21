@@ -1,6 +1,5 @@
 import random
 import matplotlib.pyplot as plt
-import numpy as np
 from collections import defaultdict
 import simpy
 import copy
@@ -43,6 +42,10 @@ class Node:
         while self.alive:
             try:
                 msg = yield self.pending.get()
+                # Add processing delay before handling
+                processing_delay = random.uniform(0.001, 0.005)
+                yield self.env.timeout(processing_delay)
+                
                 print(f"[{self.env.now:.4f}] Node {self.id} received: {msg}")
                 
                 if msg.type == "RREQ":
@@ -59,6 +62,7 @@ class Node:
     def init_rreq(self, dest_id):
         print(f"[{self.env.now:.4f}] Node {self.id} INIT_RREQ to {dest_id}")
         self.seq_num += 1
+        self.network.rreq_sent += 1
         for neighbor_id in self.network.G.neighbors(self.id):
             self.seen.add((self.id, self.seq_num, neighbor_id))
         
@@ -71,7 +75,7 @@ class Node:
             prev_hop=self.id,
             weight=0
         )
-        self.network.broadcast_rreq(self, rreq)
+        self.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rreq(self, rreq):
         try:
@@ -85,10 +89,10 @@ class Node:
                 print(f"Own RREQ discarded, id = {self.id}")
                 return
             
-            if self.battery < self.network.seuil:
-                print(f"  Low battery: {self.battery} < {self.network.seuil}")
-                self.network.seuiled += 1
-                return
+            # if self.battery < self.network.seuil:
+            #     print(f"  Low battery: {self.battery} < {self.network.seuil}")
+            #     self.network.seuiled += 1
+            #     return
             
             prev_node = self.network.G.nodes[rreq.prev_hop]["obj"]
             weight_add = self.network.calculate_weight(prev_node, self)
@@ -114,7 +118,7 @@ class Node:
             
             self.seen.add(seen_key)
             rreq.prev_hop = self.id
-            self.network.broadcast_rreq(self, rreq)
+            self.env.process(self.network.broadcast_rreq(self, rreq))
         except Exception as e:
             print(f"ERROR in Node {self.id} handle_rreq: {e}")
             traceback.print_exc()
@@ -141,12 +145,12 @@ class Node:
                     print(f"  Sending {len(self.to_be_sent[rrep.src_id])} pending messages to {rrep.src_id}")
                     for msg in self.to_be_sent[rrep.src_id]:
                         print(f"    Forwarding DATA to {msg.dest_id}")
-                        self.network.forward_data(self, msg)
+                        self.env.process(self.network.forward_data(self, msg))
                     del self.to_be_sent[rrep.src_id]
             else:
                 print(f"  Forwarding RREP to next hop")
                 rrep.prev_hop = self.id
-                self.network.unicast_rrep(self, rrep)
+                self.env.process(self.network.unicast_rrep(self, rrep))
         except Exception as e:
             print(f"ERROR in Node {self.id} handle_rrep: {e}")
             traceback.print_exc()
@@ -156,6 +160,7 @@ class Node:
         try:
             print(f"[{self.env.now:.4f}] Node {self.id} SEND_RREP to {rreq.src_id}")
             self.seq_num += 1
+            self.network.rrep_sent += 1 
             self.update_route(
                 dest=rreq.src_id,
                 next_hop=rreq.prev_hop,
@@ -172,7 +177,7 @@ class Node:
                 weight=0,
                 prev_hop=self.id
             )
-            self.network.unicast_rrep(self, rrep)
+            self.env.process(self.network.unicast_rrep(self, rrep))
         except Exception as e:
             print(f"ERROR in Node {self.id} send_rrep: {e}")
             traceback.print_exc()
@@ -185,18 +190,14 @@ class Node:
             self.routing_table[dest] = (next_hop, seq_num, weight)
 
     def collect_rreps(self, key):
-        try:
-            print(f"[{self.env.now:.4f}] Node {self.id} COLLECT_RREPS for {key}")
-            yield self.env.timeout(0.2)
-            if key in self.pending_rreqs:
-                rreqs = self.pending_rreqs.pop(key)
-                best_rreq = min(rreqs, key=lambda r: r.weight)
-                print(f"  Selected best RREQ with weight {best_rreq.weight:.2f} from {best_rreq.prev_hop}")
-                self.send_rrep(best_rreq)
-        except Exception as e:
-            print(f"ERROR in Node {self.id} collect_rreps: {e}")
-            traceback.print_exc()
-            raise
+        print(f"[{self.env.now:.4f}] Node {self.id} COLLECT_RREPS for {key}")
+        # Wait before selecting best path
+        yield self.env.timeout(1)
+        if key in self.pending_rreqs:
+            rreqs = self.pending_rreqs.pop(key)
+            best_rreq = min(rreqs, key=lambda r: r.weight)
+            print(f"  Selected best RREQ with weight {best_rreq.weight:.2f} from {best_rreq.prev_hop}")
+            self.send_rrep(best_rreq)
 
     def handle_data(self, data):
         try:
@@ -206,7 +207,7 @@ class Node:
                 self.network.messages_received += 1
             else:
                 print("  Forwarding DATA")
-                self.network.forward_data(self, data)
+                self.env.process(self.network.forward_data(self, data))
         except Exception as e:
             print(f"ERROR in Node {self.id} handle_data: {e}")
             traceback.print_exc()
@@ -222,14 +223,14 @@ class Node:
                 dest_id=dest_id,
                 dest_seq=-1,
                 weight=-1,
-                prev_hop=-1,
+                prev_hop=self.id,
             )
             
             self.network.messages_sent += 1
             
             if dest_id in self.routing_table:
                 print(f"  Route exists, forwarding immediately")
-                self.network.forward_data(self, msg)
+                self.env.process(self.network.forward_data(self, msg))
             else:
                 print(f"  No route, queuing and initiating RREQ")
                 self.to_be_sent[dest_id].append(msg)
@@ -317,33 +318,32 @@ class Network:
             raise
 
     def broadcast_rreq(self, node, rreq):
-        try:
-            print(f"[{self.env.now:.4f}] BROADCAST_RREQ from {node.id} for {rreq.dest_id}")
-            neighbors = list(self.G.neighbors(node.id))
-            print(f"  Neighbors: {neighbors}")
+        print(f"[{self.env.now:.4f}] BROADCAST_RREQ from {node.id} for {rreq.dest_id}")
+        neighbors = list(self.G.neighbors(node.id))
+        print(f"  Neighbors: {neighbors}")
+        
+        for neighbor_id in neighbors:
+            # Add random jitter before each transmission
+            jitter = random.uniform(0.001, 0.01)
+            yield self.env.timeout(jitter)
             
-            for neighbor_id in neighbors:
-                neighbor = self.G.nodes[neighbor_id]["obj"]
-                if not neighbor.alive:
-                    print(f"  Neighbor {neighbor_id} is dead, skipping")
-                    continue
-                    
-                dist = self.get_distance(node, neighbor)
-                print(f"  To neighbor {neighbor_id}, dist={dist:.2f}, max={node.max_dist}")
+            neighbor = self.G.nodes[neighbor_id]["obj"]
+            if not neighbor.alive:
+                print(f"  Neighbor {neighbor_id} is dead, skipping")
+                continue
                 
-                if dist <= node.max_dist:
-                    if self.update_battery(node, "RREQ", dist):
-                        self.rreq_sent += 1
-                        new_rreq = copy.deepcopy(rreq)
-                        print(f"  Sending RREQ to {neighbor_id}")
-                        neighbor.pending.put(new_rreq)
-                else:
-                    print(f"  Out of range ({dist:.2f} > {node.max_dist})")
-        except Exception as e:
-            print(f"ERROR in broadcast_rreq: {e}")
-            traceback.print_exc()
-            raise
+            dist = self.get_distance(node, neighbor)
+            print(f"  To neighbor {neighbor_id}, dist={dist:.2f}, max={node.max_dist}")
+            
+            if dist <= node.max_dist:
+                if self.update_battery(node, "RREQ", dist):
+                    new_rreq = copy.deepcopy(rreq)
+                    print(f"  Sending RREQ to {neighbor_id}")
+                    neighbor.pending.put(new_rreq)
+            else:
+                print(f"  Out of range ({dist:.2f} > {node.max_dist})")
 
+        
     def unicast_rrep(self, node, rrep):
         try:
             print(f"[{self.env.now:.4f}] UNICAST_RREP from {node.id} for dest {rrep.dest_id}")
@@ -365,7 +365,10 @@ class Network:
             
             if dist <= node.max_dist:
                 if self.update_battery(node, "RREQ", dist):
-                    # Create a generator function for delivery
+                    # Add propagation delay
+                    propagation_delay = dist * 0.001
+                    yield self.env.timeout(propagation_delay)
+                    
                     print(f"  Scheduling RREP delivery to {next_hop}")
                     self.env.process(self._deliver_rrep(next_node, rrep))
             else:
@@ -377,9 +380,12 @@ class Network:
     
     def _deliver_rrep(self, next_node, rrep):
         try:
-            yield self.env.timeout(0.001)
+            # Calculate propagation delay based on distance
+            dist = self.get_distance(self.G.nodes[rrep.prev_hop]["obj"], next_node)
+            propagation_delay = dist * 0.001  # 1ms per unit distance
+            yield self.env.timeout(propagation_delay)
+            
             print(f"[{self.env.now:.4f}] DELIVER_RREP to {next_node.id}")
-            self.rrep_sent += 1
             next_node.pending.put(rrep)
         except Exception as e:
             print(f"ERROR in _deliver_rrep: {e}")
@@ -391,6 +397,7 @@ class Network:
             print(f"[{self.env.now:.4f}] FORWARD_DATA from {node.id} to {data.dest_id}")
             route_entry = node.routing_table.get(data.dest_id, (None, 0, 0))
             next_hop = route_entry[0]
+            data.prev_hop = node.id
             print(f"  Next hop: {next_hop}")
             
             if next_hop is None:
@@ -407,6 +414,10 @@ class Network:
             
             if dist <= node.max_dist:
                 if self.update_battery(node, "DATA", dist):
+                    # Add propagation delay
+                    propagation_delay = dist * 0.001
+                    yield self.env.timeout(propagation_delay)
+                    
                     print(f"  Scheduling DATA delivery to {next_hop}")
                     self.env.process(self._deliver_data(next_node, data))
             else:
@@ -418,7 +429,11 @@ class Network:
     
     def _deliver_data(self, next_node, data):
         try:
-            yield self.env.timeout(0.001)
+            # Calculate propagation delay based on distance
+            dist = self.get_distance(self.G.nodes[data.prev_hop]["obj"], next_node)
+            propagation_delay = dist * 0.001  # 1ms per unit distance
+            yield self.env.timeout(propagation_delay)
+            
             print(f"[{self.env.now:.4f}] DELIVER_DATA to {next_node.id}")
             self.messages_forwarded += 1
             next_node.pending.put(data)
@@ -448,7 +463,7 @@ class Simulation:
         for i in range(num_nodes):
             pos = (random.uniform(0, area_size), random.uniform(0, area_size))
             self.node_positions[i] = pos
-            self.net.add_node(i, pos, max_dist, battery=20)  # Lower battery for debugging
+            self.net.add_node(i, pos, max_dist, battery=100)  # Lower battery for debugging
         
         self._create_links()
         
@@ -459,20 +474,39 @@ class Simulation:
         print("===== SIMULATION READY =====")
 
     def _create_links(self):
-        print("Creating links...")
+        print("Creating random links...")
         nodes = list(self.net.G.nodes(data='obj'))
-        for i in range(len(nodes)):
-            n1_id, n1 = nodes[i]
-            if not n1.alive:
-                continue
-            for j in range(i+1, len(nodes)):
-                n2_id, n2 = nodes[j]
-                if not n2.alive:
-                    continue
-                dist = self.net.get_distance(n1, n2)
-                if dist <= self.max_dist:
-                    print(f"  Adding link between {n1_id} and {n2_id} (dist={dist:.2f})")
+        node_ids = [n[0] for n in nodes]
+        num_nodes = len(node_ids)
+        min_degree = 2
+
+        # Start with no edges
+        self.net.G.remove_edges_from(list(self.net.G.edges()))
+
+        # Ensure each node has at least min_degree neighbors
+        for n1_id, n1 in nodes:
+            possible_neighbors = [nid for nid in node_ids if nid != n1_id]
+            random.shuffle(possible_neighbors)
+            neighbors = set(self.net.G.neighbors(n1_id))
+            needed = max(0, min_degree - len(neighbors))
+            added = 0
+            for n2_id in possible_neighbors:
+                if n2_id not in neighbors and n2_id != n1_id:
                     self.net.G.add_edge(n1_id, n2_id)
+                    neighbors.add(n2_id)
+                    added += 1
+                    if len(neighbors) >= min_degree:
+                        break
+            if added < needed:
+                print(f"  Warning: Node {n1_id} could not reach min degree {min_degree}")
+
+        # Optionally, add more random edges for extra connectivity
+        extra_edges = random.randint(num_nodes, num_nodes * 2)
+        for _ in range(extra_edges):
+            n1_id, n2_id = random.sample(node_ids, 2)
+            if not self.net.G.has_edge(n1_id, n2_id):
+                self.net.G.add_edge(n1_id, n2_id)
+
         print(f"Created {self.net.G.number_of_edges()} links")
 
     def _random_communication(self):
@@ -603,10 +637,12 @@ class Simulation:
             plt.plot(pos[0], pos[1], marker='o', markersize=10, color=color)
             plt.text(pos[0], pos[1], str(i), fontsize=9, ha='center', va='center')
         
+        # Only plot links if nodes are within max_dist
         for edge in self.net.G.edges():
             n1 = self.net.G.nodes[edge[0]]['obj']
             n2 = self.net.G.nodes[edge[1]]['obj']
-            if n1.alive and n2.alive:
+            dist = self.net.get_distance(n1, n2)
+            if n1.alive and n2.alive and dist <= self.max_dist:
                 plt.plot([n1.pos[0], n2.pos[0]], [n1.pos[1], n2.pos[1]], 'b-', alpha=0.3)
         
         plt.xlim(0, self.area_size)
@@ -636,10 +672,10 @@ class Simulation:
 if __name__ == "__main__":
     print("===== STARTING DEBUG SIMULATION =====")
     sim = Simulation(
-        num_nodes=10,    # Small network for debugging
-        area_size=30,
-        max_dist=30,
-        duration=1000
+        num_nodes=30,    # Small network for debugging
+        area_size=100,
+        max_dist=100,
+        duration=50
     )
     sim.run()
     
