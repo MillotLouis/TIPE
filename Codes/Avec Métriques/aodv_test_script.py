@@ -15,9 +15,9 @@ class Message:
         self.weight = weight
         self.prev_hop = prev_hop
         
-    def __repr__(self):
-        return (f"Message({self.type}, src={self.src_id}, dest={self.dest_id}, "
-                f"prev_hop={self.prev_hop}, weight={self.weight:.2f})")
+    # def __repr__(self):
+    #     return (f"Message({self.type}, src={self.src_id}, dest={self.dest_id}, "
+    #             f"prev_hop={self.prev_hop}, weight={self.weight:.2f})")
 
 class Node:
     def __init__(self, env, id, pos, initial_battery, max_dist, network):
@@ -31,7 +31,7 @@ class Node:
         self.max_dist = max_dist
         self.alive = True
         self.network = network
-        self.seen = set()
+        self.seen = {} # (rreq.src_id, rreq.src_seq, rreq.prev_hop) : meilleur poids
         self.pending_rreqs = {}
         self.to_be_sent = defaultdict(list)
         self.env.process(self.process_messages())
@@ -43,7 +43,6 @@ class Node:
             processing_delay = random.uniform(0.001, 0.005)
             yield self.env.timeout(processing_delay) # on bloque pour simuler un délai de processing
             
-            # print(f"[{self.env.now:.4f}] Node {self.id} received: {msg}")
             
             if msg.type == "RREQ":
                 self.handle_rreq(msg)
@@ -53,7 +52,6 @@ class Node:
                 self.handle_data(msg)
 
     def init_rreq(self, dest_id):
-        # print(f"[{self.env.now:.4f}] Node {self.id} INIT_RREQ to {dest_id}")
         self.seq_num += 1 # IMPORTANT ! 
         self.network.rreq_sent += 1
 
@@ -70,14 +68,20 @@ class Node:
         self.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rreq(self, rreq):
-        # print(f"[{self.env.now:.4f}] Node {self.id} HANDLE_RREQ from {rreq.src_id} via {rreq.prev_hop}")
         
-        seen_key = (rreq.src_id, rreq.src_seq, rreq.prev_hop)
-        if seen_key in self.seen or rreq.src_id == self.id:
+        if rreq.src_id == self.id:
             return #on discard si on a déjà vu : évite les **boucles** ♥
                    #éviter que les RREQs soient renvoyés à la source       
         
-        self.seen.add(seen_key)
+        seen_key = (rreq.src_id, rreq.src_seq, rreq.prev_hop)
+        if seen_key in self.seen:
+            if rreq.weight >= self.seen[seen_key]:
+                return
+            else:
+                self.seen[seen_key] = rreq.weight
+
+        else:
+            self.seen[seen_key] = rreq.weight
 
         prev_node = self.network.G.nodes[rreq.prev_hop]["obj"]
         weight = self.network.calculate_weight(prev_node, self) #inclus la pénalité si batterie en dessous du seuil
