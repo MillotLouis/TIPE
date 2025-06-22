@@ -25,7 +25,7 @@ class Node:
         self.id = id
         self.pos = pos
         self.battery = initial_battery
-        self.routing_table = {}
+        self.routing_table = {} # dest : {next_hop,seq_num,weight,expiry}
         self.seq_num = 0
         self.pending = simpy.Store(env)
         self.max_dist = max_dist
@@ -34,7 +34,6 @@ class Node:
         self.seen = set()
         self.pending_rreqs = {}
         self.to_be_sent = defaultdict(list)
-        # print(f"Node {id} created at {pos} with battery {initial_battery}")
         self.env.process(self.process_messages())
 
     def process_messages(self):
@@ -63,7 +62,7 @@ class Node:
             src_id=self.id,
             src_seq=self.seq_num,
             dest_id=dest_id,
-            dest_seq=self.routing_table.get(dest_id, (None, 0, 0))[1],
+            dest_seq=self.routing_table.get(dest_id, (None, 0, 0, 0))[1],
             prev_hop=self.id,
             weight=0
         )
@@ -149,10 +148,10 @@ class Node:
         self.env.process(self.network.unicast_rrep(self, rrep))
 
     def update_route(self, dest, next_hop, seq_num, weight):
-        current = self.routing_table.get(dest, (None, -1, float('inf')))
+        current = self.routing_table.get(dest, (None, -1, float('inf'), 0))
         
         if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]): #si la route est plus fraiche ou aussi fraiche avec un poids moindre
-            self.routing_table[dest] = (next_hop, seq_num, weight)
+            self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + self.network.ttl)
 
     def collect_rreps(self, key):
         yield self.env.timeout(1)
@@ -163,16 +162,12 @@ class Node:
             self.send_rrep(best_rreq) #on envoie le meilleur
 
     def handle_data(self, data):
-        print(f"[{self.env.now:.4f}] Node {self.id} HANDLE_DATA from {data.src_id} to {data.dest_id}")
         if data.dest_id == self.id:
-            print("  I AM DESTINATION")
             self.network.messages_received += 1
         else:
-            print("  Forwarding DATA")
             self.env.process(self.network.forward_data(self, data))
 
     def send_data(self, dest_id):
-        print(f"[{self.env.now:.4f}] Node {self.id} SEND_DATA to {dest_id}")
         msg = Message(
             typ="DATA",
             src_id=self.id,
@@ -182,18 +177,19 @@ class Node:
             weight=-1,
             prev_hop=self.id,
         )
-        self.network.messages_sent += 1
-        
-        if dest_id in self.routing_table:
-            print(f"  Route exists, forwarding immediately")
+        self.network.messages_initiated += 1
+
+        if dest_id in self.routing_table and self.routing_table.get(msg.dest_id, (None, 0, 0, 0))[3] > self.env.now:
+            #si la route existe et est toujours valide ie si la date d'expiration n'est pas encore dépassée
+            self.network.messages_sent += 1
             self.env.process(self.network.forward_data(self, msg))
         else:
-            print(f"  No route, queuing and initiating RREQ")
+            #si route inexistante ou plus valide
             self.to_be_sent[dest_id].append(msg)
             self.init_rreq(dest_id)
 
 class Network:
-    def __init__(self, conso, seuil, coeff_dist, coeff_bat, coeff_conso, nb_nodes):
+    def __init__(self, conso, seuil, coeff_dist, coeff_bat, coeff_conso, nb_nodes, ttl):
         self.env = simpy.Environment()
         self.G = nx.Graph()
         self.conso = conso
@@ -201,6 +197,7 @@ class Network:
         self.coeff_dist = coeff_dist
         self.coeff_bat = coeff_bat
         self.coeff_conso = coeff_conso
+        self.ttl = ttl
         self.stop = False
         
         self.messages_forwarded = 0
@@ -290,8 +287,7 @@ class Network:
         
     def unicast_rrep(self, node, rrep):
         print(f"[{self.env.now:.4f}] UNICAST_RREP from {node.id} for dest {rrep.dest_id}")
-        route_entry = node.routing_table.get(rrep.dest_id, (None, 0, 0))
-        next_hop = route_entry[0]
+        next_hop = node.routing_table.get(rrep.dest_id, (None, 0, 0, 0))[0]
         print(f"  Next hop: {next_hop}")
         
         if next_hop is None:
@@ -328,7 +324,7 @@ class Network:
 
     def forward_data(self, node, data):
         print(f"[{self.env.now:.4f}] FORWARD_DATA from {node.id} to {data.dest_id}")
-        route_entry = node.routing_table.get(data.dest_id, (None, 0, 0))
+        route_entry = node.routing_table.get(data.dest_id, (None, 0, 0, 0))
         next_hop = route_entry[0]
         data.prev_hop = node.id
         print(f"  Next hop: {next_hop}")
@@ -380,7 +376,8 @@ class Simulation:
             coeff_dist=0.5,
             coeff_bat=0.5,
             coeff_conso=0.005,
-            nb_nodes=num_nodes
+            nb_nodes=num_nodes,
+            ttl= 10
         )
         
         self.node_positions = {}
@@ -462,6 +459,7 @@ class Simulation:
             self.messages_history['received'].append(self.net.messages_received)
             self.messages_history['rreq'].append(self.net.rreq_sent)
             self.messages_history['rrep'].append(self.net.rrep_sent)
+            self.messages_history['initiated'].append(self.net.messages_initiated)
             
             print(f"[{self.net.env.now:.2f}] MONITOR: "
                     f"Energy={self.net.energy_consumed:.2f}, "
@@ -526,15 +524,16 @@ class Simulation:
         
         # Message Types
         plt.subplot(2, 2, 2)
-        msg_types = ['sent', 'forwarded', 'received', 'rreq', 'rrep']
+        msg_types = ['initiated','sent', 'forwarded', 'received', 'rreq', 'rrep']
         counts = [
+            self.net.messages_initiated,
             self.net.messages_sent,
             self.net.messages_forwarded,
             self.net.messages_received,
             self.net.rreq_sent,
             self.net.rrep_sent
         ]
-        plt.bar(msg_types, counts, color=['blue', 'green', 'red', 'purple', 'orange'])
+        plt.bar(msg_types, counts, color=['cyan','blue', 'green', 'red', 'purple', 'orange'])
         plt.xlabel('Message Type')
         plt.ylabel('Count')
         plt.title('Message Statistics')
