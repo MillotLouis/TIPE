@@ -211,12 +211,10 @@ class Network:
         self.dead_nodes = 0
         self.seuiled = 0
         
-        print(f"Network created with {nb_nodes} nodes, conso={conso}, seuil={seuil}")
 
     def add_node(self, id, pos, max_dist, battery=100):
         new_node = Node(self.env, id, pos, battery, max_dist, self)
         self.G.add_node(id, obj=new_node)
-        print(f"Added node {id} at {pos}")
 
     def update_battery(self, node, msg_type, dist):
         cons = self.conso[0] if msg_type == "RREQ" else self.conso[1]
@@ -224,29 +222,24 @@ class Network:
         node.battery = max(0, node.battery - energy_cost)
         self.energy_consumed += energy_cost
         
-        print(f"  Node {node.id} battery: {node.battery:.2f} (-{energy_cost:.4f} for {msg_type})")
-        
         if node.battery <= 0 and node.alive:
-            print(f"  !! Node {node.id} battery depleted, killing")
             self.env.process(self._kill_node(node))
         
         return node.battery > 0
 
     def _kill_node(self, node):
-        yield self.env.timeout(0)
-        print(f"  !! Node {node.id} is now dead")
+        yield self.env.timeout(0) #attend la fin du step de simulation pour pas supprimer un noeud quand on est en train de parcourir une liste le contenant
         self.G.remove_edges_from(list(self.G.edges(node.id)))
         node.alive = False
         self.dead_nodes += 1
         if self.dead_nodes >= self.nb_nodes / 2:
-            print(f"  !! HALF NODES DEAD ({self.dead_nodes}/{self.nb_nodes}), stopping simulation")
-            self.stop = True
+            self.stop = True #la moitié des noeuds sont morts on inqique qu'il faut arrêter la simulation au prochain check
 
     def get_distance(self, n1, n2):
         return ((n2.pos[0] - n1.pos[0])**2 + (n2.pos[1] - n1.pos[1])**2)**0.5
 
     def calculate_weight(self, n1, n2):
-        bat = n2.battery if n2.battery > 0 else 0.01 # éviter division par 0
+        bat = n2.battery if n2.battery > 0 else 0.001 # éviter division par 0
         dist = self.get_distance(n1, n2)
         weight = self.coeff_dist * dist + self.coeff_bat * (1 / bat)
 
@@ -259,132 +252,84 @@ class Network:
         return weight
 
     def broadcast_rreq(self, node, rreq):
-        print(f"[{self.env.now:.4f}] BROADCAST_RREQ from {node.id} for {rreq.dest_id}")
         neighbors = list(self.G.neighbors(node.id))
-        print(f"  Neighbors: {neighbors}")
         
         for neighbor_id in neighbors:
-            # Add random jitter before each transmission
-            jitter = random.uniform(0.001, 0.01)
+            jitter = random.uniform(0.01, 0.05) #on ajoute un "jitter" aléatoire avant chaque transmission pour
+                                                 #modéliser la réaliter et éviter les problèmes de simulation : 
+                                                 #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
             yield self.env.timeout(jitter)
             
             neighbor = self.G.nodes[neighbor_id]["obj"]
             if not neighbor.alive:
-                print(f"  Neighbor {neighbor_id} is dead, skipping")
-                continue
+                continue #si il est mort on passe
                 
             dist = self.get_distance(node, neighbor)
-            print(f"  To neighbor {neighbor_id}, dist={dist:.2f}, max={node.max_dist}")
-            
             if dist <= node.max_dist:
-                if self.update_battery(node, "RREQ", dist):
-                    new_rreq = copy.deepcopy(rreq)
-                    print(f"  Sending RREQ to {neighbor_id}")
+                if self.update_battery(node, "RREQ", dist): #consomation + vérif de la batterie
+                    new_rreq = copy.deepcopy(rreq)          #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
                     neighbor.pending.put(new_rreq)
-            else:
-                print(f"  Out of range ({dist:.2f} > {node.max_dist})")
 
         
     def unicast_rrep(self, node, rrep):
-        print(f"[{self.env.now:.4f}] UNICAST_RREP from {node.id} for dest {rrep.dest_id}")
         next_hop = node.routing_table.get(rrep.dest_id, (None, 0, 0, 0))[0]
-        print(f"  Next hop: {next_hop}")
         
         if next_hop is None:
-            print("  No next hop in routing table")
-            return
+            return 
             
         next_node = self.G.nodes[next_hop]["obj"]
+        
         if not next_node.alive:
-            print(f"  Next hop {next_hop} is dead")
             return
             
         dist = self.get_distance(node, next_node)
-        print(f"  To next hop {next_hop}, dist={dist:.2f}, max={node.max_dist}")
         
         if dist <= node.max_dist:
-            if self.update_battery(node, "RREQ", dist):
-                # Add propagation delay
-                propagation_delay = dist * 0.001
-                yield self.env.timeout(propagation_delay)
-                
-                print(f"  Scheduling RREP delivery to {next_hop}")
-                self.env.process(self._deliver_rrep(next_node, rrep))
-        else:
-            print(f"  Out of range ({dist:.2f} > {node.max_dist})")
-    
-    def _deliver_rrep(self, next_node, rrep):
-        # Calculate propagation delay based on distance
-        dist = self.get_distance(self.G.nodes[rrep.prev_hop]["obj"], next_node)
-        propagation_delay = dist * 0.001  # 1ms per unit distance
-        yield self.env.timeout(propagation_delay)
-        
-        print(f"[{self.env.now:.4f}] DELIVER_RREP to {next_node.id}")
-        next_node.pending.put(rrep)
+            if self.update_battery(node, "RREQ", dist): 
+                yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))  #délai basé sur la distance, facteur arbitraire : 1ms / unité de distance
+                next_node.pending.put(rrep)
 
     def forward_data(self, node, data):
-        print(f"[{self.env.now:.4f}] FORWARD_DATA from {node.id} to {data.dest_id}")
-        route_entry = node.routing_table.get(data.dest_id, (None, 0, 0, 0))
-        next_hop = route_entry[0]
+        next_hop = node.routing_table.get(data.dest_id, (None, 0, 0, 0))[0]
         data.prev_hop = node.id
-        print(f"  Next hop: {next_hop}")
         
         if next_hop is None:
-            print("  No next hop in routing table")
             return
             
         next_node = self.G.nodes[next_hop]["obj"]
         if not next_node.alive:
-            print(f"  Next hop {next_hop} is dead")
             return
             
         dist = self.get_distance(node, next_node)
-        print(f"  To next hop {next_hop}, dist={dist:.2f}, max={node.max_dist}")
-        
         if dist <= node.max_dist:
             if self.update_battery(node, "DATA", dist):
-                # Add propagation delay
-                propagation_delay = dist * 0.001
-                yield self.env.timeout(propagation_delay)
+                self.messages_forwarded += 1
                 
-                print(f"  Scheduling DATA delivery to {next_hop}")
-                self.env.process(self._deliver_data(next_node, data))
-        else:
-            print(f"  Out of range ({dist:.2f} > {node.max_dist})")
-    
-    def _deliver_data(self, next_node, data):
-        # Calculate propagation delay based on distance
-        dist = self.get_distance(self.G.nodes[data.prev_hop]["obj"], next_node)
-        propagation_delay = dist * 0.001  # 1ms per unit distance
-        yield self.env.timeout(propagation_delay)
-        
-        print(f"[{self.env.now:.4f}] DELIVER_DATA to {next_node.id}")
-        self.messages_forwarded += 1
-        next_node.pending.put(data)
+                yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+                next_node.pending.put(data)
 
 class Simulation:
-    def __init__(self, num_nodes, area_size, max_dist, duration):
-        print("===== SIMULATION INIT =====")
-        self.num_nodes = num_nodes
+    def __init__(self, nb_nodes, area_size, max_dist, duration,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl):
+        self.nb_nodes = nb_nodes
         self.area_size = area_size
         self.max_dist = max_dist
         self.duration = duration
         
         self.net = Network(
-            conso=(0.01, 0.25),
-            seuil=5,
-            coeff_dist=0.5,
-            coeff_bat=0.5,
-            coeff_conso=0.005,
-            nb_nodes=num_nodes,
-            ttl= 10
+            conso=conso,
+            seuil=seuil,
+            coeff_dist=coeff_dist,
+            coeff_bat=coeff_bat,
+            coeff_conso=coeff_conso,
+            nb_nodes=nb_nodes,
+            ttl=ttl
         )
-        
+
         self.node_positions = {}
-        for i in range(num_nodes):
+        for i in range(nb_nodes):
             pos = (random.uniform(0, area_size), random.uniform(0, area_size))
             self.node_positions[i] = pos
-            self.net.add_node(i, pos, max_dist, battery=100)  # Lower battery for debugging
+            self.net.add_node(i, pos, max_dist, battery=random.uniform(90,100))  
         
         self._create_links()
         
@@ -398,7 +343,7 @@ class Simulation:
         print("Creating random links...")
         nodes = list(self.net.G.nodes(data='obj'))
         node_ids = [n[0] for n in nodes]
-        num_nodes = len(node_ids)   
+        nb_nodes = len(node_ids)   
         min_degree = 2
 
         # Start with no edges
@@ -422,7 +367,7 @@ class Simulation:
                 print(f"  Warning: Node {n1_id} could not reach min degree {min_degree}")
 
         # Optionally, add more random edges for extra connectivity
-        extra_edges = random.randint(num_nodes, num_nodes * 2)
+        extra_edges = random.randint(nb_nodes, nb_nodes * 2)
         for _ in range(extra_edges):
             n1_id, n2_id = random.sample(node_ids, 2)
             if not self.net.G.has_edge(n1_id, n2_id):
@@ -433,10 +378,10 @@ class Simulation:
     def _random_communication(self):
         print("Starting random communication...")
         while self.net.env.now < self.duration and not self.net.stop:
-            src_id = random.randint(0, self.num_nodes-1)
-            dest_id = random.randint(0, self.num_nodes-1)
+            src_id = random.randint(0, self.nb_nodes-1)
+            dest_id = random.randint(0, self.nb_nodes-1)
             while dest_id == src_id:
-                dest_id = random.randint(0, self.num_nodes-1)
+                dest_id = random.randint(0, self.nb_nodes-1)
                 
             src_node = self.net.G.nodes[src_id]['obj']
             if src_node.alive and src_node.battery > self.net.seuil:
@@ -476,7 +421,7 @@ class Simulation:
         
         while not self.net.stop and self.net.env.now < self.duration:
             self.net.env.step()
-            print(f"\n--- STEP {self.net.env.now:.4f} ---")
+            # print(f"\n--- STEP {self.net.env.now:.4f} ---")
         
         print("\n=== SIMULATION COMPLETE ===")
         self.print_results()
@@ -485,7 +430,7 @@ class Simulation:
     def print_results(self):
         print("\n=== SIMULATION RESULTS ===")
         print(f"Duration: {self.net.env.now:.2f} time units")
-        print(f"Dead nodes: {self.net.dead_nodes}/{self.num_nodes}")
+        print(f"Dead nodes: {self.net.dead_nodes}/{self.nb_nodes}")
         print(f"Energy consumed: {self.net.energy_consumed:.2f}")
         print(f"Messages sent: {self.net.messages_sent}")
         print(f"Messages forwarded: {self.net.messages_forwarded}")
@@ -496,7 +441,7 @@ class Simulation:
         
         # Print final node status
         print("\nNode Status:")
-        for i in range(self.num_nodes):
+        for i in range(self.nb_nodes):
             node = self.net.G.nodes[i]['obj']
             status = "ALIVE" if node.alive else "DEAD"
             print(f"Node {i}: {status}, Battery: {node.battery:.2f}, Position: {node.pos}")
@@ -581,10 +526,10 @@ class Simulation:
 if __name__ == "__main__":
     print("===== STARTING DEBUG SIMULATION =====")
     sim = Simulation(
-        num_nodes=30,    # Small network for debugging
+        nb_nodes=50,    # Small network for debugging
         area_size=100,
-        max_dist=100,
-        duration=40
+        max_dist=50,
+        duration=100
     )
     sim.run()
     
