@@ -255,6 +255,11 @@ class Network:
         neighbors = list(self.G.neighbors(node.id))
         
         for neighbor_id in neighbors:
+            jitter = random.uniform(0.01, 0.05) #on ajoute un "jitter" aléatoire avant chaque transmission pour
+                                                 #modéliser la réaliter et éviter les problèmes de simulation : 
+                                                 #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
+            yield self.env.timeout(jitter)
+            
             neighbor = self.G.nodes[neighbor_id]["obj"]
             if not neighbor.alive:
                 continue #si il est mort on passe
@@ -262,10 +267,7 @@ class Network:
             dist = self.get_distance(node, neighbor)
             if dist <= node.max_dist:
                 if self.update_battery(node, "RREQ", dist): #consomation + vérif de la batterie
-                    yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05)) #on ajoute un "jitter" aléatoire avant chaque transmission pour
-                                                                                      #modéliser la réalité et éviter les problèmes de simulation : 
-                                                                                      #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
-                    new_rreq = copy.deepcopy(rreq)  #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
+                    new_rreq = copy.deepcopy(rreq)          #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
                     neighbor.pending.put(new_rreq)
 
         
@@ -301,76 +303,134 @@ class Network:
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist:
             if self.update_battery(node, "DATA", dist):
-                self.messages_forwarded += 1
-                
                 yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+                self.messages_forwarded += 1
                 next_node.pending.put(data)
 
+        else:
+            print(f"  Out of range ({dist:.2f} > {node.max_dist})")
+    
+    def _deliver_data(self, next_node, data):
+        
+        print(f"[{self.env.now:.4f}] DELIVER_DATA to {next_node.id}")
+        self.messages_forwarded += 1
+        next_node.pending.put(data)
+
 class Simulation:
-    def __init__(self, nb_nodes, area_size, max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl):
-        self.nb_nodes = nb_nodes
+    def __init__(self, num_nodes, area_size, max_dist, duration):
+        print("===== SIMULATION INIT =====")
+        self.num_nodes = num_nodes
         self.area_size = area_size
         self.max_dist = max_dist
+        self.duration = duration
         
         self.net = Network(
-            conso=conso,
-            seuil=seuil,
-            coeff_dist=coeff_dist,
-            coeff_bat=coeff_bat,
-            coeff_conso=coeff_conso,
-            nb_nodes=nb_nodes,
-            ttl=ttl
+            conso=(0.01, 0.25),
+            seuil=5,
+            coeff_dist=0.5,
+            coeff_bat=1,
+            coeff_conso=0.005,
+            nb_nodes=num_nodes,
+            ttl= 5
         )
-
+        
         self.node_positions = {}
-        for i in range(nb_nodes):
+        for i in range(num_nodes):
             pos = (random.uniform(0, area_size), random.uniform(0, area_size))
             self.node_positions[i] = pos
-            self.net.add_node(i, pos, max_dist, battery=random.uniform(90,100))  
+            self.net.add_node(i, pos, max_dist, battery=100)  # Lower battery for debugging
         
         self._create_links()
         
         self.energy_history = []
         self.dead_nodes_history = []
+        self.messages_history = defaultdict(list)
         self.time_points = []
+        print("===== SIMULATION READY =====")
 
     def _create_links(self):
-        for i in range(self.nb_nodes):
-            for j in range(i + 1, self.nb_nodes):
-                self.net.G.add_edge(i, j)
-        # crée un réseau complet : toutes les connexions possibles sont crées mais pas utilisées car la distance est verifiée dans les fct de transmission
-    
+        print("Creating random links...")
+        nodes = list(self.net.G.nodes(data='obj'))
+        node_ids = [n[0] for n in nodes]
+        num_nodes = len(node_ids)   
+        min_degree = 2
+
+        # Start with no edges
+        self.net.G.remove_edges_from(list(self.net.G.edges()))
+
+        # Ensure each node has at least min_degree neighbors
+        for n1_id, n1 in nodes:
+            possible_neighbors = [nid for nid in node_ids if nid != n1_id]
+            random.shuffle(possible_neighbors)
+            neighbors = set(self.net.G.neighbors(n1_id))
+            needed = max(0, min_degree - len(neighbors))
+            added = 0
+            for n2_id in possible_neighbors:
+                if n2_id not in neighbors and n2_id != n1_id:
+                    self.net.G.add_edge(n1_id, n2_id)
+                    neighbors.add(n2_id)
+                    added += 1
+                    if len(neighbors) >= min_degree:
+                        break
+            if added < needed:
+                print(f"  Warning: Node {n1_id} could not reach min degree {min_degree}")
+
+        # Optionally, add more random edges for extra connectivity
+        extra_edges = random.randint(num_nodes, num_nodes * 2)
+        for _ in range(extra_edges):
+            n1_id, n2_id = random.sample(node_ids, 2)
+            if not self.net.G.has_edge(n1_id, n2_id):
+                self.net.G.add_edge(n1_id, n2_id)
+
+        print(f"Created {self.net.G.number_of_edges()} links")
+
     def _random_communication(self):
         print("Starting random communication...")
-        while not self.net.stop:
-            src_id = random.randint(0, self.nb_nodes-1)
-            dest_id = random.randint(0, self.nb_nodes-1)
+        while self.net.env.now < self.duration and not self.net.stop:
+            src_id = random.randint(0, self.num_nodes-1)
+            dest_id = random.randint(0, self.num_nodes-1)
             while dest_id == src_id:
-                dest_id = random.randint(0, self.nb_nodes-1)
-            #on choisit deux noeuds différents
-
+                dest_id = random.randint(0, self.num_nodes-1)
+                
             src_node = self.net.G.nodes[src_id]['obj']
-            if src_node.alive:
-                src_node.send_data(dest_id) # on lance le tranfer de données
+            if src_node.alive and src_node.battery > self.net.seuil:
+                print(f"[{self.net.env.now:.4f}] RANDOM COMM: {src_id} -> {dest_id}")
+                src_node.send_data(dest_id)
+            else:
+                print(f"[{self.net.env.now:.4f}] Skip comm: node {src_id} battery {src_node.battery:.2f}")
             
-            yield self.net.env.timeout(0.1) #petit délai pour pas flood
+            delay = random.expovariate(0.5)  # More frequent for debugging
+            yield self.net.env.timeout(delay)
 
     def _monitor(self):
-        while not self.net.stop:
+        print("Starting monitor...")
+        while not self.net.stop and self.net.env.now < self.duration:
             self.time_points.append(self.net.env.now)
             self.energy_history.append(self.net.energy_consumed)
             self.dead_nodes_history.append(self.net.dead_nodes)
+            self.messages_history['sent'].append(self.net.messages_sent)
+            self.messages_history['forwarded'].append(self.net.messages_forwarded)
+            self.messages_history['received'].append(self.net.messages_received)
+            self.messages_history['rreq'].append(self.net.rreq_sent)
+            self.messages_history['rrep'].append(self.net.rrep_sent)
+            self.messages_history['initiated'].append(self.net.messages_initiated)
             
-            yield self.net.env.timeout(0.25)  # ce qui donne à peu près tous les 2 messages envoyés, pas déconnant
+            print(f"[{self.net.env.now:.2f}] MONITOR: "
+                    f"Energy={self.net.energy_consumed:.2f}, "
+                    f"Dead={self.net.dead_nodes}, "
+                    f"Sent={self.net.messages_sent}, "
+                    f"RREQ={self.net.rreq_sent}")
+            
+            yield self.net.env.timeout(1.0)  # Update every 1 time unit
 
     def run(self):
         print("===== STARTING SIMULATION =====")
         self.net.env.process(self._random_communication())
         self.net.env.process(self._monitor())
         
-        while not self.net.stop:
+        while not self.net.stop and self.net.env.now < self.duration:
             self.net.env.step()
-            print(f"\n--- STEP {self.net.env.now:.4f} ---")
+            # print(f"\n--- STEP {self.net.env.now:.4f} ---")
         
         print("\n=== SIMULATION COMPLETE ===")
         self.print_results()
@@ -378,23 +438,22 @@ class Simulation:
 
     def print_results(self):
         print("\n=== SIMULATION RESULTS ===")
-        print(f"Durée: {self.net.env.now:.2f} unités de temps")
-        print(f"Noeuds morts: {self.net.dead_nodes}/{self.nb_nodes}")
-        print(f"Énergie consommée: {self.net.energy_consumed:.2f}")
-        print(f"Messages envoyés: {self.net.messages_sent}")
-        print(f"Messages transmis: {self.net.messages_forwarded}")
-        print(f"Messages reçus: {self.net.messages_received}")
-        print(f"RREQ envoyés: {self.net.rreq_sent}")
-        print(f"RREP envoyés: {self.net.rrep_sent}")
+        print(f"Duration: {self.net.env.now:.2f} time units")
+        print(f"Dead nodes: {self.net.dead_nodes}/{self.num_nodes}")
+        print(f"Energy consumed: {self.net.energy_consumed:.2f}")
+        print(f"Messages sent: {self.net.messages_sent}")
+        print(f"Messages forwarded: {self.net.messages_forwarded}")
+        print(f"Messages received: {self.net.messages_received}")
+        print(f"RREQ sent: {self.net.rreq_sent}")
+        print(f"RREP sent: {self.net.rrep_sent}")
         print(f"Seuiled: {self.net.seuiled}")
         
-        # # Print final node status
-        # print("\nNode Status:")
-        # for i in range(self.nb_nodes):
-        #     node = self.net.G.nodes[i]['obj']
-        #     status = "ALIVE" if node.alive else "DEAD"
-        #     print(f"Node {i}: {status}, Battery: {node.battery:.2f}, Position: {node.pos}")
-        #inutile et déjà dans le plt
+        # Print final node status
+        print("\nNode Status:")
+        for i in range(self.num_nodes):
+            node = self.net.G.nodes[i]['obj']
+            status = "ALIVE" if node.alive else "DEAD"
+            print(f"Node {i}: {status}, Battery: {node.battery:.2f}, Position: {node.pos}")
 
     def plot_results(self):
         if not self.time_points:
@@ -405,21 +464,21 @@ class Simulation:
         
         # Energy and Dead Nodes
         plt.subplot(2, 2, 1)
-        plt.plot(self.time_points, self.energy_history, 'b-')
-        plt.xlabel('Temps')
-        plt.ylabel('Énergie')
-        plt.title('Consommation énergétique au cours du temps')
+        plt.plot(self.time_points, self.energy_history, 'b-', label='Energy Consumed')
+        plt.xlabel('Time')
+        plt.ylabel('Energy')
+        plt.title('Energy Consumption Over Time')
         plt.grid(True)
         
-        plt.subplot(2,2,2)
-        plt.plot(self.time_points, self.dead_nodes_history, 'r-')
-        plt.ylabel('Noeuds morts')
-        plt.title('Mort des noeuds au cours du temps')
-        plt.grid(True)
+        ax2 = plt.gca().twinx()
+        ax2.plot(self.time_points, self.dead_nodes_history, 'r-', label='Dead Nodes')
+        ax2.set_ylabel('Dead Nodes')
+        plt.title('Energy and Node Mortality')
+        plt.legend()
         
         # Message Types
-        plt.subplot(2, 2, 3)
-        msg_types = ['Messages initiés','envoyés', 'transmis', 'reçus', 'RREQs envoyés', 'RREPs envoyés']
+        plt.subplot(2, 2, 2)
+        msg_types = ['initiated','sent', 'forwarded', 'received', 'rreq', 'rrep']
         counts = [
             self.net.messages_initiated,
             self.net.messages_sent,
@@ -429,32 +488,43 @@ class Simulation:
             self.net.rrep_sent
         ]
         plt.bar(msg_types, counts, color=['cyan','blue', 'green', 'red', 'purple', 'orange'])
-        plt.xlabel('Type')
-        plt.ylabel('Nombre')
-        plt.title('Statistiques de messages')
-        plt.grid(True)
-
+        plt.xlabel('Message Type')
+        plt.ylabel('Count')
+        plt.title('Message Statistics')
         
-        plt.subplot(2, 2, 4)
-        #affichage du réseau
+        # Network Topology
+        plt.subplot(2, 2, 3)
         for i, pos in self.node_positions.items():
             node_obj = self.net.G.nodes[i]['obj']
             color = 'green' if node_obj.alive else 'red'
             plt.plot(pos[0], pos[1], marker='o', markersize=10, color=color)
             plt.text(pos[0], pos[1], str(i), fontsize=9, ha='center', va='center')
         
+        # Only plot links if nodes are within max_dist
         for edge in self.net.G.edges():
             n1 = self.net.G.nodes[edge[0]]['obj']
             n2 = self.net.G.nodes[edge[1]]['obj']
             dist = self.net.get_distance(n1, n2)
-            if n1.alive and n2.alive and dist <= self.max_dist: #on affiche que les vraies connections (dist<=max_dist) entre deux noeuds vivants
+            if n1.alive and n2.alive and dist <= self.max_dist:
                 plt.plot([n1.pos[0], n2.pos[0]], [n1.pos[1], n2.pos[1]], 'b-', alpha=0.3)
         
         plt.xlim(0, self.area_size)
         plt.ylim(0, self.area_size)
-        plt.title('Réseau (Vert=Actif, Rouge=Mort)')
-        plt.xlabel('Position en X')
-        plt.ylabel('Position en Y')
+        plt.title('Network Topology (Green=Alive, Red=Dead)')
+        plt.xlabel('X Position')
+        plt.ylabel('Y Position')
+        plt.grid(True)
+        
+        # Message Flow Over Time
+        plt.subplot(2, 2, 4)
+        for msg_type, color in zip(['sent', 'received', 'rreq', 'rrep'], 
+                                ['blue', 'green', 'red', 'purple']):
+            if msg_type in self.messages_history:
+                plt.plot(self.time_points, self.messages_history[msg_type], color, label=msg_type)
+        plt.xlabel('Time')
+        plt.ylabel('Message Count')
+        plt.title('Message Flow Over Time')
+        plt.legend()
         plt.grid(True)
         
         plt.tight_layout()
@@ -463,17 +533,13 @@ class Simulation:
         print("Saved results to aodv_debug_results.png")
 
 if __name__ == "__main__":
+    print("===== STARTING DEBUG SIMULATION =====")
     sim = Simulation(
-        nb_nodes=50,    # Small network for debugging
+        num_nodes=50,    # Small network for debugging
         area_size=100,
         max_dist=50,
-        conso=(0.05,0.2),
-        seuil = 4,
-        coeff_dist= 0.25,
-        coeff_bat= 1,
-        coeff_conso= 0.01,
-        ttl = 5
+        duration=100
     )
     sim.run()
-
+    
 #https://chat.deepseek.com/a/chat/s/e9f44a34-4df3-4d4d-b3d3-07ec7f5eb11e
