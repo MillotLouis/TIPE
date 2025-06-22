@@ -107,7 +107,7 @@
 #             if dist <= node.max_dist:
 #                 #else rrep perdu à ajouter au compteur
 #                 if self.update_battery(node,"RRE",dist):
-#                     yield self.env.timeout(0.001) #délai à modifier peut-être
+#                     yield self.env.   (0.001) #délai à modifier peut-être
 #                     self.rrep_sent += 1
 #                     self.G[next_hop]["obj"].pending.put(rrep)
 
