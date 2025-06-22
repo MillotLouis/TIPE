@@ -77,6 +77,8 @@ class Node:
             return #on discard si on a déjà vu : évite les **boucles** ♥
                    #éviter que les RREQs soient renvoyés à la source       
         
+        self.seen.add(seen_key)
+
         prev_node = self.network.G.nodes[rreq.prev_hop]["obj"]
         weight = self.network.calculate_weight(prev_node, self) #inclus la pénalité si batterie en dessous du seuil
         rreq.weight += weight
@@ -96,7 +98,6 @@ class Node:
             self.pending_rreqs[key].append(rreq)
             return
         
-        self.seen.add(seen_key)
         rreq.prev_hop = self.id
         self.env.process(self.network.broadcast_rreq(self, rreq))
 
@@ -154,10 +155,10 @@ class Node:
             self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + self.network.ttl)
 
     def collect_rreps(self, key):
-        yield self.env.timeout(1)
+        yield self.env.timeout(2)
         # On attend pour que tous les RREQs arrivent à la dest et soient stockés dans self.pending_rreqs[key]
         if key in self.pending_rreqs:
-            rreqs = self.pending_rreqs.pop(key)
+            rreqs = self.pending_rreqs.get(key)
             best_rreq = min(rreqs, key=lambda r: r.weight)
             self.send_rrep(best_rreq) #on envoie le meilleur
 
@@ -217,7 +218,7 @@ class Network:
         self.G.add_node(id, obj=new_node)
 
     def update_battery(self, node, msg_type, dist):
-        cons = self.conso[0] if msg_type == "RREQ" else self.conso[1]
+        cons = self.conso[0] if (msg_type == "RREQ" or msg_type == "RREP") else self.conso[1]
         energy_cost = self.coeff_conso * dist + cons
         node.battery = max(0, node.battery - energy_cost)
         self.energy_consumed += energy_cost
@@ -232,7 +233,7 @@ class Network:
         self.G.remove_edges_from(list(self.G.edges(node.id)))
         node.alive = False
         self.dead_nodes += 1
-        if self.dead_nodes >= self.nb_nodes / 2:
+        if self.dead_nodes >= self.nb_nodes / 4:
             self.stop = True #la moitié des noeuds sont morts on inqique qu'il faut arrêter la simulation au prochain check
 
     def get_distance(self, n1, n2):
@@ -293,7 +294,7 @@ class Network:
         dist = self.get_distance(node, next_node)
         
         if dist <= node.max_dist:
-            if self.update_battery(node, "RREQ", dist): 
+            if self.update_battery(node, "RREP", dist): 
                 yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))  #délai basé sur la distance, facteur arbitraire : 1ms / unité de distance
                 next_node.pending.put(rrep)
 
@@ -472,6 +473,7 @@ class Simulation:
         print("Saved results to aodv_debug_results.png")
 
 if __name__ == "__main__":
+    print("starting")
     sim = Simulation(
         nb_nodes=50,    
         area_size=100,
