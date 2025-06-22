@@ -255,11 +255,6 @@ class Network:
         neighbors = list(self.G.neighbors(node.id))
         
         for neighbor_id in neighbors:
-            jitter = random.uniform(0.01, 0.05) #on ajoute un "jitter" aléatoire avant chaque transmission pour
-                                                 #modéliser la réaliter et éviter les problèmes de simulation : 
-                                                 #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
-            yield self.env.timeout(jitter)
-            
             neighbor = self.G.nodes[neighbor_id]["obj"]
             if not neighbor.alive:
                 continue #si il est mort on passe
@@ -267,7 +262,10 @@ class Network:
             dist = self.get_distance(node, neighbor)
             if dist <= node.max_dist:
                 if self.update_battery(node, "RREQ", dist): #consomation + vérif de la batterie
-                    new_rreq = copy.deepcopy(rreq)          #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
+                    yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05)) #on ajoute un "jitter" aléatoire avant chaque transmission pour
+                                                                                      #modéliser la réalité et éviter les problèmes de simulation : 
+                                                                                      #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
+                    new_rreq = copy.deepcopy(rreq)  #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
                     neighbor.pending.put(new_rreq)
 
         
