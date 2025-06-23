@@ -4,6 +4,7 @@ from collections import defaultdict
 import simpy
 import copy
 import networkx as nx
+import numpy as np
 
 class Message:
     def __init__(self, typ, src_id, src_seq, dest_seq, dest_id, weight, prev_hop):
@@ -22,6 +23,7 @@ class Node:
         self.id = id
         self.pos = pos
         self.battery = initial_battery
+        self.initial_battery = initial_battery  # Store initial battery for metrics
         self.routing_table = {} # dest : {next_hop,seq_num,weight,expiry}
         self.seq_num = 0
         self.pending = simpy.Store(env)
@@ -173,7 +175,7 @@ class Node:
         
         if not self.reg_aodv:    
             # Calculate dynamic TTL based on battery level
-            dynamic_ttl = max(1, self.network.ttl * (self.battery/10000))
+            dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
             
             if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
                 self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + dynamic_ttl)
@@ -247,6 +249,12 @@ class Network:
         self.dead_nodes = 0
         self.seuiled = 0
         
+        # NEW METRICS
+        self.first_node_death_time = None
+        self.ten_percent_death_time = None
+        self.network_partition_time = None
+        self.death_times = []  # Track when each node dies
+        
 
     def add_node(self, id, pos, max_dist, reg_aodv, battery=100):
         """Marche pareil si reg_aodv ou pas"""
@@ -266,13 +274,58 @@ class Network:
         return node.battery > 0
 
     def _kill_node(self, node):
-        """Marche pareil si reg_aodv ou pas"""
-        yield self.env.timeout(0) #attend la fin du step de simulation pour pas supprimer un noeud quand on est en train de parcourir une liste le contenant
+        """Enhanced to track death metrics"""
+        yield self.env.timeout(0)
+        
+        # Remove edges and mark as dead
         self.G.remove_edges_from(list(self.G.edges(node.id)))
         node.alive = False
         self.dead_nodes += 1
+        
+        # Track death times for new metrics
+        self.death_times.append(self.env.now)
+        
+        # First Node Death (FND)
+        if self.first_node_death_time is None:
+            self.first_node_death_time = self.env.now
+            print(f"First node death at time {self.env.now:.2f}")
+        
+        # 10% Node Death
+        if self.ten_percent_death_time is None and self.dead_nodes >= self.nb_nodes * 0.1:
+            self.ten_percent_death_time = self.env.now
+            print(f"10% nodes dead at time {self.env.now:.2f}")
+        
+        # Check for network partition
+        if self.network_partition_time is None:
+            if self._is_network_partitioned():
+                self.network_partition_time = self.env.now
+                print(f"Network partitioned at time {self.env.now:.2f}")
+        
+        # Original stopping condition
         if self.dead_nodes >= self.nb_nodes / 2:
-            self.stop = True #la moitié des noeuds sont morts on inqique qu'il faut arrêter la simulation au prochain check
+            self.stop = True
+
+    def _is_network_partitioned(self):
+        """Check if network is partitioned (disconnected)"""
+        alive_nodes = [n for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
+        if len(alive_nodes) <= 1:
+            return True
+        
+        # Create subgraph with only alive nodes and valid connections
+        alive_subgraph = self.G.subgraph(alive_nodes).copy()
+        
+        # Remove edges that are too long (beyond max_dist)
+        edges_to_remove = []
+        for edge in alive_subgraph.edges():
+            n1 = self.G.nodes[edge[0]]['obj']
+            n2 = self.G.nodes[edge[1]]['obj']
+            if self.get_distance(n1, n2) > n1.max_dist:
+                edges_to_remove.append(edge)
+        
+        alive_subgraph.remove_edges_from(edges_to_remove)
+        
+        # Check if network is connected
+        return not nx.is_connected(alive_subgraph) if len(alive_subgraph.nodes()) > 0 else True
 
     def get_distance(self, n1, n2):
         """Marche pareil si reg_aodv ou pas"""
@@ -287,7 +340,7 @@ class Network:
         
         # Normalized weights (0-1 range)
         dist_norm = dist / n1.max_dist
-        bat_norm = 1 - (bat / 10000)  # Inverted battery (0=full, 1=empty)
+        bat_norm = 1 - (bat / 100000)  # Inverted battery (0=full, 1=empty)
         
         weight = (self.coeff_dist * dist_norm) + (self.coeff_bat * bat_norm)
 
@@ -299,6 +352,19 @@ class Network:
             weight += penalty
 
         return weight
+
+    def get_energy_stats(self):
+        """Calculate average remaining energy and standard deviation"""
+        alive_nodes = [self.G.nodes[n]['obj'] for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
+        
+        if not alive_nodes:
+            return 0, 0
+        
+        remaining_energies = [node.battery for node in alive_nodes]
+        avg_energy = np.mean(remaining_energies)
+        std_energy = np.std(remaining_energies)
+        
+        return avg_energy, std_energy
 
     def broadcast_rreq(self, node, rreq):
         """Marche pareil si reg_aodv ou pas"""
@@ -379,6 +445,8 @@ class Simulation:
         self.energy_history = []
         self.dead_nodes_history = []
         self.time_points = []
+        self.avg_energy_history = []  # NEW
+        self.std_energy_history = []  # NEW
 
         #création du réseau
         self.net = Network(
@@ -401,7 +469,7 @@ class Simulation:
                 pos = (random.uniform(0, self.area_size), random.uniform(0, self.area_size))
                 self.node_positions[i] = pos
             
-            self.net.add_node(i, pos, max_dist, battery=10000,reg_aodv=self.reg_aodv) #100 joules cf obsidian
+            self.net.add_node(i, pos, max_dist, battery=100000,reg_aodv=self.reg_aodv) #100 joules cf obsidian
         
         #création des noeuds
         self._create_links()
@@ -434,6 +502,11 @@ class Simulation:
             self.energy_history.append(self.net.energy_consumed)
             self.dead_nodes_history.append(self.net.dead_nodes)
             
+            # NEW: Track energy statistics
+            avg_energy, std_energy = self.net.get_energy_stats()
+            self.avg_energy_history.append(avg_energy)
+            self.std_energy_history.append(std_energy)
+            
             yield self.net.env.timeout(0.25)  # ce qui donne à peu près tous les 2 messages envoyés, pas déconnant
 
     def get_metrics(self):
@@ -448,7 +521,13 @@ class Simulation:
             "messages_forwarded" : self.net.messages_forwarded,
             "messages_initiated":self.net.messages_initiated,
             "rreq_forwarded":self.net.rreq_forwarded,
-            "seuiled":self.net.seuiled
+            "seuiled":self.net.seuiled,
+            # NEW METRICS
+            "first_node_death": self.net.first_node_death_time,
+            "ten_percent_death": self.net.ten_percent_death_time,
+            "network_partition": self.net.network_partition_time,
+            "final_avg_energy": self.avg_energy_history[-1] if self.avg_energy_history else 0,
+            "final_std_energy": self.std_energy_history[-1] if self.std_energy_history else 0,
         }
     
     def run(self):
@@ -457,11 +536,11 @@ class Simulation:
         self.net.env.process(self._monitor())
         
         # while not self.net.stop:
-        while self.net.env.now <= 300:
+        while self.net.env.now <= 3000:
             self.net.env.step()
         
         print("\n=== SIMULATION COMPLETE ===")
-        self.print_results()
+        # self.print_results()
         self.plot_results()
 
     def print_results(self):
@@ -477,37 +556,62 @@ class Simulation:
         print(f"RREP envoyés: {self.net.rrep_sent}")
         print(f"Seuiled: {self.net.seuiled}")
         
-        # # Print final node status
-        # print("\nNode Status:")
-        # for i in range(self.nb_nodes):
-        #     node = self.net.G.nodes[i]['obj']
-        #     status = "ALIVE" if node.alive else "DEAD"
-        #     print(f"Node {i}: {status}, Battery: {node.battery:.2f}, Position: {node.pos}")
-        #inutile et déjà dans le plt
+        # NEW METRICS OUTPUT
+        print(f"\n=== NEW METRICS ===")
+        print(f"First Node Death (FND): {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
+        print(f"10% Node Death: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
+        print(f"Network Partition: {self.net.network_partition_time:.2f}" if self.net.network_partition_time else "Network Partition: Not reached")
+        
+        if self.avg_energy_history:
+            print(f"Final Average Remaining Energy: {self.avg_energy_history[-1]:.2f}")
+            print(f"Final Energy Std Deviation: {self.std_energy_history[-1]:.2f}")
 
     def plot_results(self):
         if not self.time_points:
             print("No data to plot")
             return
             
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=(20, 12))
         
         # Energy and Dead Nodes
-        plt.subplot(2, 2, 1)
+        plt.subplot(2, 3, 1)
         plt.plot(self.time_points, self.energy_history, 'b-')
         plt.xlabel('Temps')
-        plt.ylabel('Énergie')
+        plt.ylabel('Énergie Consommée')
         plt.title('Consommation énergétique au cours du temps')
         plt.grid(True)
         
-        plt.subplot(2,2,2)
+        plt.subplot(2, 3, 2)
         plt.plot(self.time_points, self.dead_nodes_history, 'r-')
+        plt.xlabel('Temps')
         plt.ylabel('Noeuds morts')
         plt.title('Mort des noeuds au cours du temps')
+        
+        # Add vertical lines for key metrics
+        if self.net.first_node_death_time:
+            plt.axvline(x=self.net.first_node_death_time, color='orange', linestyle='--', label='FND')
+        if self.net.ten_percent_death_time:
+            plt.axvline(x=self.net.ten_percent_death_time, color='red', linestyle='--', label='10% Death')
+        if self.net.network_partition_time:
+            plt.axvline(x=self.net.network_partition_time, color='purple', linestyle='--', label='Partition')
+        plt.legend()
+        plt.grid(True)
+        
+        # NEW: Average Energy Over Time
+        plt.subplot(2, 3, 3)
+        plt.plot(self.time_points, self.avg_energy_history, 'g-', label='Avg Energy')
+        plt.fill_between(self.time_points, 
+                        [avg - std for avg, std in zip(self.avg_energy_history, self.std_energy_history)],
+                        [avg + std for avg, std in zip(self.avg_energy_history, self.std_energy_history)],
+                        alpha=0.3, color='g', label='±1 Std Dev')
+        plt.xlabel('Temps')
+        plt.ylabel('Énergie Restante')
+        plt.title('Énergie moyenne restante ± écart-type')
+        plt.legend()
         plt.grid(True)
         
         # Message Types
-        plt.subplot(2, 2, 3)
+        plt.subplot(2, 3, 4)
         msg_types = ['Messages initiés','envoyés', 'transmis', 'reçus', 'RREQs envoyés', 'RREPs envoyés']
         counts = [
             self.net.messages_initiated,
@@ -519,147 +623,160 @@ class Simulation:
         ]
         plt.bar(msg_types, counts, color=['cyan','blue', 'green', 'red', 'purple', 'orange'])
         plt.xlabel('Type')
-        plt.ylabel('Nombre')
-        plt.title('Statistiques de messages')
 
-        
-        plt.subplot(2, 2, 4)
-        #affichage du réseau
-        for i, pos in self.node_positions.items():
-            node_obj = self.net.G.nodes[i]['obj']
-            color = 'green' if node_obj.alive else 'red'
-            plt.plot(pos[0], pos[1], marker='o', markersize=10, color=color)
-            plt.text(pos[0], pos[1], str(i), fontsize=9, ha='center', va='center')
-        
-        for edge in self.net.G.edges():
-            n1 = self.net.G.nodes[edge[0]]['obj']
-            n2 = self.net.G.nodes[edge[1]]['obj']
-            dist = self.net.get_distance(n1, n2)
-            if n1.alive and n2.alive and dist <= self.max_dist: #on affiche que les vraies connections (dist<=max_dist) entre deux noeuds vivants
-                plt.plot([n1.pos[0], n2.pos[0]], [n1.pos[1], n2.pos[1]], 'b-', alpha=0.3)
-        
-        plt.xlim(0, self.area_size)
-        plt.ylim(0, self.area_size)
-        plt.title('Réseau (Vert=Actif, Rouge=Mort)')
-        plt.xlabel('Position en X')
-        plt.ylabel('Position en Y')
-        plt.grid(True)
-        
-        plt.tight_layout()
-        plt.savefig('aodv_debug_results.png')
-        # plt.get_current_fig_manager().full_screen_toggle() #plein écran mais marche pas
-        plt.show()
-        print("Saved results to aodv_debug_results.png")
-
-class BatchSimulation:
-    def __init__(self, param_combinations, nb_runs):
-        self.param_combinations = param_combinations
-        self.nb_runs = nb_runs
-        self.results = []
-
-    def run(self):
-        for params in self.param_combinations:
-            for run_id in range(self.nb_runs):
-                
-                #on crée une simu et donc un réseau de base pour pouvoir comparer les deux protocoles sur le même sinon pas significatif
-                base_sim = Simulation(**params, reg_aodv=False)
-                
-                node_positions = copy.deepcopy(base_sim.node_positions)
-                
-                #on fait tourner mon AODV
-                mod_sim = Simulation(
-                    **params, 
-                    reg_aodv=False,
-                    node_positions=node_positions,
-                )
-                mod_sim.run()
-                mod_metrics = mod_sim.get_metrics()
-                
-                #on fait tourner AODV
-                reg_sim = Simulation(
-                    **params, 
-                    reg_aodv=True,
-                    node_positions=node_positions,
-                )
-                reg_sim.run()
-                reg_metrics = reg_sim.get_metrics()
-                
-                self.results.append({
-                    "params": params,
-                    "run": run_id,
-                    "modified": mod_metrics,
-                    "regular": reg_metrics
-                })
-                
-        self.save_results()
-
-    def save_results(self):
-        if not self.results:
-            print("No results to save.")
-            return
-
-        metric_keys = set()
-        for res in self.results:
-            metric_keys.update(res['modified'].keys())
-            metric_keys.update(res['regular'].keys())
-        metric_keys = sorted(metric_keys)
-
-        header = ["Paramètres", "Numéro", "Protocole"] + metric_keys
-
-        with open("aodv_comparison.csv", "w") as f:
-            f.write(",".join(header) + "\n")
-            for i, res in enumerate(self.results):
-                param_id = f"Set{i+1}"
-                for proto, metrics in [("Modified", res['modified']), ("Regular", res['regular'])]:
-                    row = [param_id, str(res['run']), proto]
-                    row += [str(metrics.get(k, "")) for k in metric_keys]
-                    f.write(",".join(row) + "\n")
-        print("Results saved to aodv_comparison.csv")
-
-    def _average_metrics(self, params, protocol):
-        runs = [r[protocol] for r in self.results if r['params'] == params]
-        avg = {}
-        for metric in runs[0].keys():
-            values = [run[metric] for run in runs]
-            avg[metric] = sum(values) / len(values)
-        return avg
-
-    def plot_comparison(self):
-        print("\n=== AGGREGATED RESULTS ===")
-        for params in self.param_combinations:
-            mod_avg = self._average_metrics(params, "modified")
-            reg_avg = self._average_metrics(params, "regular")
-            
-            print(f"\nParameters: {params}")
-            print(f"Modified AODV - Duration: {mod_avg['duration']:.1f}, "
-                  f"Energy: {mod_avg['energy']:.1f}, Msg success: {mod_avg['msg_recv']/mod_avg['msg_sent']:.2%}")
-            print(f"Regular AODV  - Duration: {reg_avg['duration']:.1f}, "
-                  f"Energy: {reg_avg['energy']:.1f}, Msg success: {reg_avg['msg_recv']/reg_avg['msg_sent']:.2%}")
-            print(f"Improvement   - Lifetime: {(mod_avg['duration'] - reg_avg['duration'])/reg_avg['duration']:.1%}, "
-                  f"Energy: {(reg_avg['energy'] - mod_avg['energy'])/reg_avg['energy']:.1%}, "
-                  f"Msg sucess : {mod_avg['msg_recv']/mod_avg['msg_sent'] - reg_avg['msg_recv']/reg_avg['msg_sent']:.2%}")
-
+def run_comparison_simulations(num_runs=10):
+    """Run multiple simulations to compare regular AODV vs modified AODV"""
     
+    # Simulation parameters
+    params = {
+        'nb_nodes': 25,
+        'area_size': 800,
+        'max_dist': 250,
+        'conso': (1, 20),
+        'seuil': 750,
+        'coeff_dist': 0.6,
+        'coeff_bat': 0.2,
+        'coeff_conso': 0.005,
+        'ttl': 100
+    }
+    
+    # Store results for both algorithms
+    regular_aodv_results = []
+    modified_aodv_results = []
+    
+    print(f"Running {num_runs} simulations for each algorithm...")
+    
+    for run in range(num_runs):
+        print(f"\n=== RUN {run + 1}/{num_runs} ===")
+        
+        # Generate base node positions for fair comparison
+        base_positions = {}
+        for i in range(params['nb_nodes']):
+            base_positions[i] = (
+                random.uniform(0, params['area_size']), 
+                random.uniform(0, params['area_size'])
+            )
+        
+        # Run Regular AODV
+        print("Running Regular AODV...")
+        sim_regular = Simulation(
+            node_positions=base_positions,
+            reg_aodv=True,
+            **params
+        )
+        sim_regular.run()
+        regular_aodv_results.append(sim_regular.get_metrics())
+        
+        # Run Modified AODV with same positions
+        print("Running Modified AODV...")
+        sim_modified = Simulation(
+            node_positions=base_positions,
+            reg_aodv=False,
+            **params
+        )
+        sim_modified.run()
+        modified_aodv_results.append(sim_modified.get_metrics())
+    
+    # Calculate and display averaged results
+    print_averaged_results(regular_aodv_results, modified_aodv_results, num_runs)
+
+def calculate_average_metrics(results):
+    """Calculate average metrics from multiple simulation runs"""
+    if not results:
+        return {}
+    
+    # Get all metric keys from first result
+    metric_keys = results[0].keys()
+    averaged = {}
+    
+    for key in metric_keys:
+        # Handle None values (for metrics that might not be reached)
+        values = [r[key] for r in results if r[key] is not None]
+        if values:
+            averaged[key] = sum(values) / len(values)
+            averaged[f"{key}_count"] = len(values)  # How many runs reached this metric
+        else:
+            averaged[key] = None
+            averaged[f"{key}_count"] = 0
+    
+    return averaged
+
+def print_averaged_results(regular_results, modified_results, num_runs):
+    """Print comparison of averaged results"""
+    
+    regular_avg = calculate_average_metrics(regular_results)
+    modified_avg = calculate_average_metrics(modified_results)
+    
+    print(f"\n" + "="*60)
+    print(f"AVERAGED RESULTS OVER {num_runs} RUNS")
+    print("="*60)
+    
+    print(f"\n{'Metric':<25} {'Regular AODV':<15} {'Modified AODV':<15} {'Improvement':<12}")
+    print("-" * 70)
+    
+    # Main performance metrics
+    metrics_to_compare = [
+        ('duration', 'Duration', 'lower_better'),
+        ('dead_nodes', 'Dead Nodes', 'lower_better'),
+        ('energy', 'Energy Consumed', 'lower_better'),
+        ('msg_recv', 'Messages Received', 'higher_better'),
+        ('msg_sent', 'Messages Sent', 'context'),
+        ('rreq_sent', 'RREQ Sent', 'lower_better'),
+        ('rrep_sent', 'RREP Sent', 'context'),
+        ('messages_forwarded', 'Messages Forwarded', 'context'),
+        ('seuiled', 'Seuiled Events', 'lower_better')
+    ]
+    
+    for metric_key, display_name, preference in metrics_to_compare:
+        reg_val = regular_avg.get(metric_key, 0)
+        mod_val = modified_avg.get(metric_key, 0)
+        
+        if reg_val != 0:
+            if preference == 'lower_better':
+                improvement = ((reg_val - mod_val) / reg_val) * 100
+                improvement_str = f"{improvement:+.1f}%"
+            elif preference == 'higher_better':
+                improvement = ((mod_val - reg_val) / reg_val) * 100
+                improvement_str = f"{improvement:+.1f}%"
+            else:  # context
+                improvement_str = "N/A"
+        else:
+            improvement_str = "N/A"
+        
+        print(f"{display_name:<25} {reg_val:<15.2f} {mod_val:<15.2f} {improvement_str:<12}")
+    
+    # Special metrics (may not always be reached)
+    print(f"\n{'Special Metrics':<25} {'Regular AODV':<15} {'Modified AODV':<15} {'Runs Reached':<12}")
+    print("-" * 70)
+    
+    special_metrics = [
+        ('first_node_death', 'First Node Death'),
+        ('ten_percent_death', '10% Node Death'),
+        ('network_partition', 'Network Partition'),
+        ('final_avg_energy', 'Final Avg Energy'),
+        ('final_std_energy', 'Final Std Energy')
+    ]
+    
+    for metric_key, display_name in special_metrics:
+        reg_val = regular_avg.get(metric_key)
+        mod_val = modified_avg.get(metric_key)
+        reg_count = regular_avg.get(f"{metric_key}_count", 0)
+        mod_count = modified_avg.get(f"{metric_key}_count", 0)
+        
+        reg_str = f"{reg_val:.2f}" if reg_val is not None else "N/A"
+        mod_str = f"{mod_val:.2f}" if mod_val is not None else "N/A"
+        count_str = f"{reg_count}/{mod_count}"
+        
+        print(f"{display_name:<25} {reg_str:<15} {mod_str:<15} {count_str:<12}")
+    
+    # Calculate and display delivery ratio
+    reg_delivery_ratio = (regular_avg['msg_recv'] / regular_avg['messages_initiated']) * 100 if regular_avg['messages_initiated'] > 0 else 0
+    mod_delivery_ratio = (modified_avg['msg_recv'] / modified_avg['messages_initiated']) * 100 if modified_avg['messages_initiated'] > 0 else 0
+    
+    print(f"\n{'Delivery Ratio':<25} {reg_delivery_ratio:<15.1f}% {mod_delivery_ratio:<15.1f}% {'':<12}")
+    
+    print("\n" + "="*60)
 
 if __name__ == "__main__":
-    print("starting")
-    #cf obsidian pour valeurs
-    sim = Simulation(
-        nb_nodes=25,
-        area_size=800,
-        max_dist=400,
-        conso=(1,20),
-        seuil = 750,
-        coeff_dist= 0.6,
-        coeff_bat= 0.2,
-        coeff_conso= 0.005,
-        ttl = 100,
-        reg_aodv=True
-    )
-    sim.run()
-
-    # batch_sim = BatchSimulation(param_sets, nb_runs=2)
-    # batch_sim.run()
-    # batch_sim.plot_comparison() 
-
-#https://chat.deepseek.com/a/chat/s/e9f44a34-4df3-4d4d-b3d3-07ec7f5eb11e
+    print("Starting AODV Comparison Study")
+    run_comparison_simulations(num_runs=5)  # You can adjust the number of runs
