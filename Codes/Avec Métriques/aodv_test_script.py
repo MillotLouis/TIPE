@@ -15,9 +15,6 @@ class Message:
         self.weight = weight
         self.prev_hop = prev_hop
         
-    # def __repr__(self):
-    #     return (f"Message({self.type}, src={self.src_id}, dest={self.dest_id}, "
-    #             f"prev_hop={self.prev_hop}, weight={self.weight:.2f})")
 
 class Node:
     def __init__(self, env, id, pos, initial_battery, max_dist, network):
@@ -210,6 +207,7 @@ class Network:
         self.messages_sent = 0
         self.messages_received = 0
         self.rreq_sent = 0
+        self.rreq_forwarded = 0
         self.rrep_sent = 0
         self.energy_consumed = 0
         self.nb_nodes = nb_nodes
@@ -282,6 +280,7 @@ class Network:
                                                                                       #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
                 new_rreq = copy.deepcopy(rreq)  #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
                 neighbor.pending.put(new_rreq)
+                self.rreq_forwarded += 1
 
         
     def unicast_rrep(self, node, rrep):
@@ -341,7 +340,7 @@ class Simulation:
         for i in range(nb_nodes):
             pos = (random.uniform(0, area_size), random.uniform(0, area_size))
             self.node_positions[i] = pos
-            self.net.add_node(i, pos, max_dist, battery=random.uniform(900,1000))  
+            self.net.add_node(i, pos, max_dist, battery=100) #100 joules cf obsidian
         
         self._create_links()
         
@@ -400,6 +399,7 @@ class Simulation:
         print(f"Messages transmis: {self.net.messages_forwarded}")
         print(f"Messages reçus: {self.net.messages_received}")
         print(f"RREQ envoyés: {self.net.rreq_sent}")
+        print(f"RREQ transmis: {self.net.rreq_forwarded}")
         print(f"RREP envoyés: {self.net.rrep_sent}")
         print(f"Seuiled: {self.net.seuiled}")
         
@@ -473,17 +473,19 @@ class Simulation:
         
         plt.tight_layout()
         plt.savefig('aodv_debug_results.png')
+        # plt.get_current_fig_manager().full_screen_toggle() #plein écran mais marche pas
         plt.show()
         print("Saved results to aodv_debug_results.png")
 
 if __name__ == "__main__":
     print("starting")
+    #cf obsidian pour valeurs
     sim = Simulation(
-        nb_nodes=50,    
-        area_size=100,
-        max_dist=25,
+        nb_nodes=25,
+        area_size=800,
+        max_dist=250,
         conso=(0.01,0.2),
-        seuil = 4,
+        seuil = 5,
         coeff_dist= 0.25,
         coeff_bat= 1,
         coeff_conso= 0.01,
