@@ -629,7 +629,7 @@ def run_comparison_simulations(num_runs=10):
     
     # Simulation parameters
     params = {
-        'nb_nodes': 25,
+        'nb_nodes': 40,
         'area_size': 800,
         'max_dist': 250,
         'conso': (1, 20),
@@ -777,6 +777,205 @@ def print_averaged_results(regular_results, modified_results, num_runs):
     
     print("\n" + "="*60)
 
+def calculate_optimal_max_dist(nb_nodes, area_size, connectivity_factor=1.2):
+    """
+    Calculate optimal max_dist based on network density to ensure connectivity
+    connectivity_factor > 1 ensures some redundancy in connections
+    """
+    # Area per node
+    area_per_node = (area_size ** 2) / nb_nodes
+    
+    # Radius for circular area per node
+    radius_per_node = (area_per_node / 3.14159) ** 0.5
+    
+    # Max distance should be larger to ensure connectivity
+    optimal_max_dist = radius_per_node * connectivity_factor * 2
+    
+    # Ensure it's not larger than area_size (unrealistic)
+    return min(optimal_max_dist, area_size * 0.7)
+
+def run_density_analysis(density_configs=None, num_runs=3):
+    """
+    Run simulations across different network densities
+    density_configs: list of (nb_nodes, max_dist) tuples, if None uses calculated values
+    """
+    
+    if density_configs is None:
+        # Define density configurations: (nb_nodes, area_size)
+        area_size = 800
+        node_counts = [10, 15, 20, 25, 30, 35, 40]
+        
+        density_configs = []
+        for nb_nodes in node_counts:
+            max_dist = calculate_optimal_max_dist(nb_nodes, area_size)
+            density_configs.append((nb_nodes, max_dist))
+    
+    # Base simulation parameters
+    base_params = {
+        'area_size': 800,
+        'conso': (1, 20),
+        'seuil': 750,
+        'coeff_dist': 0.6,
+        'coeff_bat': 0.2,
+        'coeff_conso': 0.005,
+        'ttl': 100
+    }
+    
+    # Store results for analysis
+    density_results = {
+        'configs': [],
+        'regular_aodv': [],
+        'modified_aodv': []
+    }
+    
+    print(f"Running density analysis with {num_runs} runs per configuration...")
+    print(f"{'Nodes':<8} {'Max Dist':<12} {'Density':<12} {'Avg Degree':<12}")
+    print("-" * 50)
+    
+    for nb_nodes, max_dist in density_configs:
+        # Calculate network density metrics
+        network_density = nb_nodes / (base_params['area_size'] ** 2) * 1000000  # nodes per km²
+        avg_theoretical_degree = (nb_nodes - 1) * (3.14159 * (max_dist ** 2)) / (base_params['area_size'] ** 2)
+        
+        print(f"{nb_nodes:<8} {max_dist:<12.0f} {network_density:<12.2f} {avg_theoretical_degree:<12.1f}")
+        
+        # Store configuration
+        config_info = {
+            'nb_nodes': nb_nodes,
+            'max_dist': max_dist,
+            'density': network_density,
+            'avg_degree': avg_theoretical_degree
+        }
+        density_results['configs'].append(config_info)
+        
+        # Run simulations for this density
+        regular_results = []
+        modified_results = []
+        
+        for run in range(num_runs):
+            print(f"  Running density {nb_nodes} nodes, run {run + 1}/{num_runs}...")
+            
+            # Generate base positions
+            base_positions = {}
+            for i in range(nb_nodes):
+                base_positions[i] = (
+                    random.uniform(0, base_params['area_size']), 
+                    random.uniform(0, base_params['area_size'])
+                )
+            
+            # Simulation parameters for this density
+            sim_params = {
+                **base_params,
+                'nb_nodes': nb_nodes,
+                'max_dist': max_dist,
+                'node_positions': base_positions
+            }
+            
+            # Regular AODV
+            sim_regular = Simulation(reg_aodv=True, **sim_params)
+            sim_regular.run()
+            regular_results.append(sim_regular.get_metrics())
+            
+            # Modified AODV
+            sim_modified = Simulation(reg_aodv=False, **sim_params)
+            sim_modified.run()
+            modified_results.append(sim_modified.get_metrics())
+        
+        # Calculate averages for this density
+        regular_avg = calculate_average_metrics(regular_results)
+        modified_avg = calculate_average_metrics(modified_results)
+        
+        density_results['regular_aodv'].append(regular_avg)
+        density_results['modified_aodv'].append(modified_avg)
+    
+    # Print density analysis results
+    print_density_analysis(density_results)
+    
+    return density_results
+
+def print_density_analysis(results):
+    """Print comprehensive density analysis results"""
+    
+    print(f"\n" + "="*80)
+    print("DENSITY ANALYSIS RESULTS")
+    print("="*80)
+    
+    # Header
+    print(f"\n{'Nodes':<6} {'Density':<8} {'Regular AODV':<45} {'Modified AODV':<45}")
+    print(f"{'Count':<6} {'(n/km²)':<8} {'Duration':<8} {'Dead':<6} {'Energy':<8} {'Del%':<8} {'RREQ':<8} {'Duration':<8} {'Dead':<6} {'Energy':<8} {'Del%':<8} {'RREQ':<8}")
+    print("-" * 110)
+    
+    for i, config in enumerate(results['configs']):
+        reg = results['regular_aodv'][i]
+        mod = results['modified_aodv'][i]
+        
+        # Calculate delivery ratios
+        reg_delivery = (reg['msg_recv'] / reg['messages_initiated']) * 100 if reg['messages_initiated'] > 0 else 0
+        mod_delivery = (mod['msg_recv'] / mod['messages_initiated']) * 100 if mod['messages_initiated'] > 0 else 0
+        
+        print(f"{config['nb_nodes']:<6} {config['density']:<8.1f} "
+              f"{reg['duration']:<8.1f} {reg['dead_nodes']:<6.0f} {reg['energy']:<8.0f} {reg_delivery:<8.1f} {reg['rreq_sent']:<8.0f} "
+              f"{mod['duration']:<8.1f} {mod['dead_nodes']:<6.0f} {mod['energy']:<8.0f} {mod_delivery:<8.1f} {mod['rreq_sent']:<8.0f}")
+    
+    # Improvement analysis
+    print(f"\n" + "="*80)
+    print("IMPROVEMENT ANALYSIS (Modified vs Regular)")
+    print("="*80)
+    print(f"{'Nodes':<6} {'Duration':<10} {'Energy':<10} {'Dead Nodes':<12} {'Delivery':<10} {'RREQ Sent':<12}")
+    print("-" * 65)
+    
+    for i, config in enumerate(results['configs']):
+        reg = results['regular_aodv'][i]
+        mod = results['modified_aodv'][i]
+        
+        # Calculate improvements (positive = better for modified)
+        duration_imp = ((reg['duration'] - mod['duration']) / reg['duration']) * 100 if reg['duration'] > 0 else 0
+        energy_imp = ((reg['energy'] - mod['energy']) / reg['energy']) * 100 if reg['energy'] > 0 else 0
+        dead_imp = ((reg['dead_nodes'] - mod['dead_nodes']) / max(reg['dead_nodes'], 1)) * 100
+        
+        reg_delivery = (reg['msg_recv'] / reg['messages_initiated']) * 100 if reg['messages_initiated'] > 0 else 0
+        mod_delivery = (mod['msg_recv'] / mod['messages_initiated']) * 100 if mod['messages_initiated'] > 0 else 0
+        delivery_imp = mod_delivery - reg_delivery
+        
+        rreq_imp = ((reg['rreq_sent'] - mod['rreq_sent']) / reg['rreq_sent']) * 100 if reg['rreq_sent'] > 0 else 0
+        
+        print(f"{config['nb_nodes']:<6} {duration_imp:<+9.1f}% {energy_imp:<+9.1f}% {dead_imp:<+11.1f}% {delivery_imp:<+9.1f}% {rreq_imp:<+11.1f}%")
+    
+    # Network lifetime metrics
+    print(f"\n" + "="*80)
+    print("NETWORK LIFETIME METRICS")
+    print("="*80)
+    print(f"{'Nodes':<6} {'Regular AODV':<35} {'Modified AODV':<35}")
+    print(f"{'Count':<6} {'FND':<8} {'10%Death':<10} {'Partition':<10} {'FND':<8} {'10%Death':<10} {'Partition':<10}")
+    print("-" * 80)
+    
+    for i, config in enumerate(results['configs']):
+        reg = results['regular_aodv'][i]
+        mod = results['modified_aodv'][i]
+        
+        reg_fnd = f"{reg['first_node_death']:.1f}" if reg['first_node_death'] else "N/A"
+        reg_10p = f"{reg['ten_percent_death']:.1f}" if reg['ten_percent_death'] else "N/A"
+        reg_part = f"{reg['network_partition']:.1f}" if reg['network_partition'] else "N/A"
+        
+        mod_fnd = f"{mod['first_node_death']:.1f}" if mod['first_node_death'] else "N/A"
+        mod_10p = f"{mod['ten_percent_death']:.1f}" if mod['ten_percent_death'] else "N/A"
+        mod_part = f"{mod['network_partition']:.1f}" if mod['network_partition'] else "N/A"
+        
+        print(f"{config['nb_nodes']:<6} {reg_fnd:<8} {reg_10p:<10} {reg_part:<10} {mod_fnd:<8} {mod_10p:<10} {mod_part:<10}")
+
 if __name__ == "__main__":
-    print("Starting AODV Comparison Study")
-    run_comparison_simulations(num_runs=5)  # You can adjust the number of runs
+    print("Starting AODV Density Analysis Study")
+    
+    # You can choose which analysis to run:
+    
+    # Option 1: Basic comparison with fixed parameters
+    run_comparison_simulations(num_runs=3)
+    
+    # Option 2: Density analysis (recommended)
+    # run_density_analysis(num_runs=3)
+    
+    # Option 3: Custom density configurations
+    # custom_configs = [(25, 250), (30, 200), (40, 150), (50, 100)]
+    # run_density_analysis(density_configs=custom_configs, num_runs=3)
+
+    
