@@ -629,9 +629,10 @@ def run_comparison_simulations(num_runs=10):
     
     # Simulation parameters
     params = {
+        'nb_nodes': 25,
         'nb_nodes': 40,
         'area_size': 800,
-        'max_dist': 250,
+        'max_dist': 400,
         'conso': (1, 20),
         'seuil': 750,
         'coeff_dist': 0.6,
@@ -963,238 +964,9 @@ def print_density_analysis(results):
         
         print(f"{config['nb_nodes']:<6} {reg_fnd:<8} {reg_10p:<10} {reg_part:<10} {mod_fnd:<8} {mod_10p:<10} {mod_part:<10}")
 
-
-def plot_node_scaling_analysis(node_counts, area_size=800, max_dist=400, nb_runs=3):
-    """
-    Plots performance improvements of modified AODV vs regular AODV as node count varies.
-    
-    Parameters:
-    - node_counts: list of node counts to test
-    - area_size: fixed area size for all simulations
-    - max_dist: fixed maximum transmission distance
-    - nb_runs: number of runs per configuration for averaging
-    """
-    
-    # Add safe run method to Simulation class
-    add_safe_run_method()
-    
-    # Storage for results
-    dead_nodes_improvement_list = []
-    first_death_improvement_list = []
-    ten_percent_death_improvement_list = []
-    delivery_rate_improvement_list = []
-    
-    # Fixed parameters
-    base_params = {
-        'area_size': area_size,
-        'max_dist': max_dist,
-        'conso': (1, 20),
-        'seuil': 750,
-        'coeff_dist': 0.6,
-        'coeff_bat': 0.2,
-        'coeff_conso': 0.005,
-        'ttl': 100
-    }
-    
-    print("Starting node scaling analysis...")
-    
-    for nb_nodes in node_counts:
-        print(f"\nTesting with {nb_nodes} nodes...")
-        
-        # Storage for this node count
-        mod_results = []
-        reg_results = []
-        
-        for run in range(nb_runs):
-            print(f"  Run {run + 1}/{nb_runs}")
-            
-            # Create base simulation to get consistent node positions
-            base_sim = Simulation(nb_nodes=nb_nodes, **base_params, reg_aodv=False)
-            node_positions = base_sim.node_positions.copy()
-            
-            # Run modified AODV
-            try:
-                mod_sim = Simulation(
-                    nb_nodes=nb_nodes,
-                    node_positions=node_positions,
-                    reg_aodv=False,
-                    **base_params
-                )
-                mod_sim.run_safe()
-                mod_metrics = mod_sim.get_metrics()
-                
-                # Calculate additional metrics for modified AODV
-                mod_first_death = get_first_death_time(mod_sim)
-                mod_ten_percent_death = get_ten_percent_death_time(mod_sim, nb_nodes)
-                mod_delivery_rate = mod_metrics['msg_recv'] / max(mod_metrics['messages_initiated'], 1)
-                
-                mod_results.append({
-                    'dead_nodes': mod_metrics['dead_nodes'],
-                    'first_death': mod_first_death,
-                    'ten_percent_death': mod_ten_percent_death,
-                    'delivery_rate': mod_delivery_rate
-                })
-            except Exception as e:
-                print(f"    Error in modified AODV run {run}: {e}")
-                # Use default values if simulation fails
-                mod_results.append({
-                    'dead_nodes': nb_nodes,  # Assume all nodes died
-                    'first_death': 0,
-                    'ten_percent_death': 0,
-                    'delivery_rate': 0
-                })
-            
-            # Run regular AODV
-            try:
-                reg_sim = Simulation(
-                    nb_nodes=nb_nodes,
-                    node_positions=node_positions,
-                    reg_aodv=True,
-                    **base_params
-                )
-                reg_sim.run_safe()
-                reg_metrics = reg_sim.get_metrics()
-                
-                # Calculate additional metrics for regular AODV
-                reg_first_death = get_first_death_time(reg_sim)
-                reg_ten_percent_death = get_ten_percent_death_time(reg_sim, nb_nodes)
-                reg_delivery_rate = reg_metrics['msg_recv'] / max(reg_metrics['messages_initiated'], 1)
-                
-                reg_results.append({
-                    'dead_nodes': reg_metrics['dead_nodes'],
-                    'first_death': reg_first_death,
-                    'ten_percent_death': reg_ten_percent_death,
-                    'delivery_rate': reg_delivery_rate
-                })
-            except Exception as e:
-                print(f"    Error in regular AODV run {run}: {e}")
-                # Use default values if simulation fails
-                reg_results.append({
-                    'dead_nodes': nb_nodes,  # Assume all nodes died
-                    'first_death': 0,
-                    'ten_percent_death': 0,
-                    'delivery_rate': 0
-                })
-        
-        # Calculate averages
-        mod_avg = {metric: np.mean([r[metric] for r in mod_results]) for metric in mod_results[0].keys()}
-        reg_avg = {metric: np.mean([r[metric] for r in reg_results]) for metric in reg_results[0].keys()}
-        
-        # Calculate improvements (positive = better for modified AODV)
-        dead_improvement = (reg_avg['dead_nodes'] - mod_avg['dead_nodes']) / max(reg_avg['dead_nodes'], 1) * 100
-        first_death_improvement = (mod_avg['first_death'] - reg_avg['first_death']) / max(reg_avg['first_death'], 1) * 100
-        ten_percent_improvement = (mod_avg['ten_percent_death'] - reg_avg['ten_percent_death']) / max(reg_avg['ten_percent_death'], 1) * 100
-        delivery_improvement = (mod_avg['delivery_rate'] - reg_avg['delivery_rate']) * 100  # Percentage points
-        
-        dead_nodes_improvement_list.append(dead_improvement)
-        first_death_improvement_list.append(first_death_improvement)
-        ten_percent_death_improvement_list.append(ten_percent_improvement)
-        delivery_rate_improvement_list.append(delivery_improvement)
-        
-        print(f"  Results: Dead nodes: {dead_improvement:.1f}%, "
-              f"First death: {first_death_improvement:.1f}%, "
-              f"10% death: {ten_percent_improvement:.1f}%, "
-              f"Delivery: {delivery_improvement:.1f}pp")
-    
-    # Create the plot
-    plt.figure(figsize=(15, 10))
-    
-    # Plot 1: Dead nodes improvement
-    plt.subplot(2, 2, 1)
-    plt.plot(node_counts, dead_nodes_improvement_list, 'ro-', linewidth=2, markersize=6)
-    plt.xlabel('Number of Nodes')
-    plt.ylabel('Dead Nodes Improvement (%)')
-    plt.title('Reduction in Dead Nodes vs Node Count')
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
-    
-    # Plot 2: First death time improvement
-    plt.subplot(2, 2, 2)
-    plt.plot(node_counts, first_death_improvement_list, 'bo-', linewidth=2, markersize=6)
-    plt.xlabel('Number of Nodes')
-    plt.ylabel('First Death Time Improvement (%)')
-    plt.title('Delay in First Node Death vs Node Count')
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
-    
-    # Plot 3: 10% death time improvement
-    plt.subplot(2, 2, 3)
-    plt.plot(node_counts, ten_percent_death_improvement_list, 'go-', linewidth=2, markersize=6)
-    plt.xlabel('Number of Nodes')
-    plt.ylabel('10% Death Time Improvement (%)')
-    plt.title('Delay in 10% Node Death vs Node Count')
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
-    
-    # Plot 4: Delivery rate improvement
-    plt.subplot(2, 2, 4)
-    plt.plot(node_counts, delivery_rate_improvement_list, 'mo-', linewidth=2, markersize=6)
-    plt.xlabel('Number of Nodes')
-    plt.ylabel('Delivery Rate Improvement (pp)')
-    plt.title('Message Delivery Rate vs Node Count')
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
-    
-    plt.tight_layout()
-    plt.savefig('aodv_node_scaling_analysis.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    # Print summary
-    print(f"\n=== SCALING ANALYSIS SUMMARY ===")
-    print(f"Node counts tested: {node_counts}")
-    print(f"Average improvements:")
-    print(f"  Dead nodes reduction: {np.mean(dead_nodes_improvement_list):.1f}%")
-    print(f"  First death delay: {np.mean(first_death_improvement_list):.1f}%")
-    print(f"  10% death delay: {np.mean(ten_percent_death_improvement_list):.1f}%")
-    print(f"  Delivery rate: {np.mean(delivery_rate_improvement_list):.1f} percentage points")
-
-
-def get_first_death_time(simulation):
-    """Extract the time of first node death from simulation history"""
-    if not simulation.dead_nodes_history or not simulation.time_points:
-        return simulation.net.env.now
-    
-    for i, dead_count in enumerate(simulation.dead_nodes_history):
-        if dead_count > 0:
-            return simulation.time_points[i]
-    return simulation.net.env.now  # No deaths occurred
-
-
-def get_ten_percent_death_time(simulation, total_nodes):
-    """Extract the time when 10% of nodes died"""
-    if not simulation.dead_nodes_history or not simulation.time_points:
-        return simulation.net.env.now
-        
-    threshold = max(1, int(0.1 * total_nodes))
-    for i, dead_count in enumerate(simulation.dead_nodes_history):
-        if dead_count >= threshold:
-            return simulation.time_points[i]
-    return simulation.net.env.now  # Threshold not reached
-
-
-def add_safe_run_method():
-    """Add a safe run method to the Simulation class"""
-    def run_safe(self):
-        print("===== STARTING SIMULATION =====")
-        self.net.env.process(self._random_communication())
-        self.net.env.process(self._monitor())
-        
-        max_time = 300
-        try:
-            while not self.net.stop and self.net.env.now < max_time:
-                if not self.net.env._queue:  # Check if event queue is empty
-                    print(f"No more events at time {self.net.env.now:.2f}")
-                    break
-                self.net.env.step()
-        except Exception as e:
-            print(f"Simulation stopped due to: {e} at time {self.net.env.now:.2f}")
-        
-        print(f"Simulation ended at time {self.net.env.now:.2f}")
-    
-    Simulation.run_safe = run_safe
-
-
 if __name__ == "__main__":
+    print("Starting AODV Comparison Study")
+    # run_comparison_simulations(num_runs=5)  # You can adjust the number of runs
     print("Starting AODV Density Analysis Study")
     
     # You can choose which analysis to run:
@@ -1209,5 +981,4 @@ if __name__ == "__main__":
     # custom_configs = [(25, 250), (30, 200), (40, 150), (50, 100)]
     # run_density_analysis(density_configs=custom_configs, num_runs=3)
 
-    # node_counts = [10, 15, 20, 25, 30, 35, 40]
-    # plot_node_scaling_analysis(node_counts, nb_runs=2)  # Use 2 runs for faster testing
+    

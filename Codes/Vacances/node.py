@@ -3,8 +3,6 @@ from collections import defaultdict
 import simpy
 import networkx as nx
 
-from network import Network
-from network import Message
 
 class Node:
     def __init__(self, env, id, pos, initial_battery, max_dist, network, reg_aodv):
@@ -43,6 +41,7 @@ class Node:
                 self.handle_data(msg)
 
     def init_rreq(self, dest_id):
+        from network import Message
         self.seq_num += 1 # IMPORTANT ! 
         self.network.rreq_sent += 1
 
@@ -135,6 +134,7 @@ class Node:
             self.env.process(self.network.unicast_rrep(self, rrep))
 
     def send_rrep(self, rreq):
+        from network import Message
         """Marche pareil si reg_aodv ou pas"""
         #appelé quand on est la destination d'un RREQ
         self.seq_num += 1
@@ -192,6 +192,7 @@ class Node:
             self.env.process(self.network.forward_data(self, data))
 
     def send_data(self, dest_id):
+        from network import Message
         """Marche pareil si reg_aodv ou pas"""
         msg = Message(
             typ="DATA",

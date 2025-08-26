@@ -41,7 +41,6 @@ class Network:
         self.dead_nodes = 0
         self.seuiled = 0
         
-        # NEW METRICS
         self.first_node_death_time = None
         self.ten_percent_death_time = None
         self.network_partition_time = None
