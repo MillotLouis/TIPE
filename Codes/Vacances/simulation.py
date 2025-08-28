@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import random
+import numpy as np
 
 from network import Network
 
@@ -149,7 +150,7 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
             )
         
         #Simulation avec AODV classique
-        print("starting reg aodv sim")
+        print("\nstarting reg aodv sim")
         sim_reg = Simulation(
             node_positions=positions,
             reg_aodv=True,
@@ -159,18 +160,19 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         sim_reg.run()
         reg_aodv_res.append(sim_reg.get_metrics())
 
-        #Simulation avec AODV 
-        print("starting mod aodv sim")
+        #Simulation avec AODV modifié
+        print("\nstarting mod aodv sim")
         sim_mod = Simulation(
             node_positions=positions,
-            reg_aodv=True,
+            reg_aodv=False,
             init_bat=100000, #pour ne pas avoir de valeurs trop petites dans les consommations
             **params
         )
         sim_mod.run()
         mod_aodv_res.append(sim_mod.get_metrics())
 
-    print_avg_results(reg_aodv_res,mod_aodv_res,nb_runs)
+    # print_avg_results(reg_aodv_res,mod_aodv_res,nb_runs)
+    return {"reg":reg_aodv_res,"mod":mod_aodv_res}
 
 def calc_avg_metrics(res):
     metric_keys = res[0].keys() #on récupère les métriques sur lesquelles on doit calc la moyenne
@@ -219,16 +221,46 @@ def print_avg_results(reg_res,mod_res,nb_runs):
     print("\n" + "="*60)
 
 
+def densité(pas,max_dist,params):
+    n_min = (params["size"]/max_dist)**2*np.pi #correspond à peu près à 1 noeud par cercle de max_dist de rayon
+    print(n_min)
+    nb_nodes_array = []
+    res_reg_array = []
+    res_mod_array = []
+    for nb_nodes in (0.7*n_min,1.5*n_min,pas):
+        nb_nodes = round(nb_nodes)
+        nb_nodes_array.append(nb_nodes)
+        result = run_comparison_simulations(nb_nodes=nb_nodes,max_dist=max_dist,**params)
+        res_reg_array.append(calc_avg_metrics(result["reg"]))
+        res_mod_array.append(calc_avg_metrics(result["mod"]))
+    plt.figure()
+    plt.plot(nb_nodes_array,[res["first_node_death"] for res in res_reg_array],label="Regular")
+    plt.plot(nb_nodes_array,[res["first_node_death"] for res in res_mod_array],label="Modified")
+    plt.legend()
+    plt.show()
+
 if __name__ == "__main__":
-    run_comparison_simulations(
-        nb_runs=2,
-        nb_nodes=25,
-        size=800,
-        max_dist= 400,
-        conso=(1,20),
-        seuil=1000, #correspond à 1% avec 100% initialement
-        coeff_dist=0.6,
-        coeff_bat=0.2,
-        coeff_conso=0.005,
-        ttl=100
-    ) 
+    # run_comparison_simulations(
+    #     nb_runs=3,
+    #     nb_nodes=25,
+    #     size=800,
+    #     max_dist= 400,
+    #     conso=(1,20),
+    #     seuil=750, #correspond à 0.75% avec 100% initialement
+    #     coeff_dist=0.6,
+    #     coeff_bat=0.2,
+    #     coeff_conso=0.005,
+    #     ttl=100
+    # ) 
+    params = {
+        "nb_runs": 1,
+        "size": 800,
+        "conso": (1, 20),
+        "seuil": 750, # correspond à 0.75% avec 100% initialement
+        "coeff_dist": 0.6,
+        "coeff_bat": 0.2,
+        "coeff_conso": 0.005,
+        "ttl": 100
+    }
+    densité(5,250,params)
+    
