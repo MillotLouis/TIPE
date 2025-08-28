@@ -239,28 +239,163 @@ def densité(pas,max_dist,params):
     plt.legend()
     plt.show()
 
+# --- Parallélisation des runs sans couper les prints ni toucher à Simulation ---
+from multiprocessing import Pool, cpu_count
+import math
+
+def _one_point(args):
+    (nb_nodes, max_dist, params) = args
+
+    res = run_comparison_simulations(
+        nb_nodes=nb_nodes,
+        max_dist=max_dist,
+        **params
+    )
+    reg_avg = calc_avg_metrics(res["reg"])
+    mod_avg = calc_avg_metrics(res["mod"])
+    return (nb_nodes, reg_avg, mod_avg)
+
+def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None, plot=True):
+    size = params["size"]
+    n_min = (size / max_dist)**2 * math.pi
+    n_lo = max(2, int(round(factor_min * n_min)))
+    n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
+    nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
+
+    tasks = [(n, max_dist, params) for n in nb_nodes_list]
+
+    if procs is None:
+        procs = max(1, cpu_count() - 1)
+
+    # Lancement en parallèle
+    with Pool(processes=procs) as pool:
+        results = pool.map(_one_point, tasks)
+
+    # Trie les résultats par nb_nodes
+    results.sort(key=lambda t: t[0])
+
+    # Construit les tableaux + calcule η
+    nb_nodes_array = []
+    reg_first_death, mod_first_death = [], []
+    reg_dr, mod_dr = [], []
+    reg_ten_percent_death, mod_ten_percent_death = [], []
+    reg_network_partition, mod_network_partition = [], []
+    reg_energy, mod_energy = [], []
+    reg_std, mod_std = [], []
+
+
+    for (N, reg_avg, mod_avg) in results:
+        nb_nodes_array.append(N)
+
+        reg_first_death.append(reg_avg.get("first_node_death", None))
+        mod_first_death.append(mod_avg.get("first_node_death", None))
+        reg_dr.append(reg_avg.get("msg_recv", 0) / reg_avg.get("messages_initiated",1) * 100)
+        mod_dr.append(mod_avg.get("msg_recv", 0) / mod_avg.get("messages_initiated", 1) * 100)
+
+        reg_ten_percent_death.append(reg_avg.get("ten_percent_death", None))
+        mod_ten_percent_death.append(mod_avg.get("ten_percent_death", None))
+
+        reg_network_partition.append(reg_avg.get("network_partition", None))
+        mod_network_partition.append(mod_avg.get("network_partition", None))
+
+        reg_energy.append(reg_avg.get("energy", None))
+        mod_energy.append(mod_avg.get("energy", None))
+
+        reg_std.append(reg_avg.get("final_std_bat", None))
+        mod_std.append(mod_avg.get("final_std_bat", None))
+
+
+
+    if plot:
+        # 1) Résilience
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Temps (first_node_death)")
+        plt.legend()
+        plt.show()
+
+        # 2) Delivery ratio
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Delivery ratio (%)")
+        plt.legend()
+        plt.show()
+        
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_ten_percent_death, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_ten_percent_death, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Temps (ten_percent_death)")
+        plt.legend()
+        plt.show()
+
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_network_partition, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_network_partition, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Temps (network partition)")
+        plt.legend()
+        plt.show()
+
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_energy, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_energy, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Énergie totale consommée")
+        plt.legend()
+        plt.show()
+
+        plt.figure()
+        plt.plot(nb_nodes_array, reg_std, marker='o', label="Regular")
+        plt.plot(nb_nodes_array, mod_std, marker='s', label="Modified")
+        plt.xlabel("nb_nodes")
+        plt.ylabel("Écart type énergie finale")
+        plt.legend()
+        plt.show() 
+
+
 if __name__ == "__main__":
-    # run_comparison_simulations(
-    #     nb_runs=3,
-    #     nb_nodes=25,
-    #     size=800,
-    #     max_dist= 400,
-    #     conso=(1,20),
-    #     seuil=750, #correspond à 0.75% avec 100% initialement
-    #     coeff_dist=0.6,
-    #     coeff_bat=0.2,
-    #     coeff_conso=0.005,
-    #     ttl=100
-    # ) 
     params = {
-        "nb_runs": 1,
+        "nb_runs": 3,
         "size": 800,
         "conso": (1, 20),
-        "seuil": 750, # correspond à 0.75% avec 100% initialement
+        "seuil": 750,
         "coeff_dist": 0.6,
         "coeff_bat": 0.2,
         "coeff_conso": 0.005,
         "ttl": 100
     }
-    densité(5,250,params)
+    # Limite procs si tu veux garder une console lisible
+    out = densite_parallel(pas=5, max_dist=250, params=params, plot=True)
+
+
+
+# if __name__ == "__main__":
+#     # run_comparison_simulations(
+#     #     nb_runs=3,
+#     #     nb_nodes=25,
+#     #     size=800,
+#     #     max_dist= 400,
+#     #     conso=(1,20),
+#     #     seuil=750, #correspond à 0.75% avec 100% initialement
+#     #     coeff_dist=0.6,
+#     #     coeff_bat=0.2,
+#     #     coeff_conso=0.005,
+#     #     ttl=100
+#     # ) 
+#     params = {
+#         "nb_runs": 1,
+#         "size": 800,
+#         "conso": (1, 20),
+#         "seuil": 750, # correspond à 0.75% avec 100% initialement
+#         "coeff_dist": 0.6,
+#         "coeff_bat": 0.2,
+#         "coeff_conso": 0.005,
+#         "ttl": 100
+#     }
+#     densité(5,250,params)
     
