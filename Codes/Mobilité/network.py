@@ -207,8 +207,11 @@ class Network:
             
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist:
-            if self.update_battery(node, "DATA", dist):
+            if self.update_battery(node, "DATA", dist if not self.reg_aodv else node.max_dist):
                 self.messages_forwarded += 1
                 
                 yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
                 next_node.pending.put(data)
+
+
+

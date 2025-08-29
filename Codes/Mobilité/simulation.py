@@ -1,11 +1,15 @@
 import matplotlib.pyplot as plt
 import random
 import numpy as np
+import os
+import subprocess
+import gzip
+import shutil
 
 from network import Network
 
 class Simulation:
-    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,reg_aodv,init_bat, node_positions = None,bonnmotion=None):
+    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,reg_aodv,init_bat, node_positions = None,bonnmotion=None,traffic_seed=None):
         self.nb_nodes = nb_nodes
         self.area_size = area_size
         self.max_dist = max_dist
@@ -16,6 +20,7 @@ class Simulation:
         self.init_bat = init_bat
         self.avg_bat_history = []
         self.std_bat_history = []
+        self.trafic_seed = traffic_seed
 
         #création du réseau
         self.net = Network(
@@ -40,9 +45,13 @@ class Simulation:
             
             self.net.add_node(id=i, pos=pos, max_dist=max_dist, battery=self.init_bat,reg_aodv=self.reg_aodv)
 
-                
-        #création des noeuds
+        #création des liens
         self._create_links()
+
+        # Garde: ne jamais laisser "files" arriver dans _bm_replay
+        if bonnmotion and "files" in bonnmotion:
+            bonnmotion = dict(bonnmotion)
+            bonnmotion.pop("files", None)
 
         if bonnmotion:
             self.net.env.process(self._bm_replay(**bonnmotion))
@@ -51,16 +60,17 @@ class Simulation:
         for i in range(self.nb_nodes):
             for j in range(i + 1, self.nb_nodes):
                 self.net.G.add_edge(i, j)
-        # crée un réseau complet : toutes les connexions possibles sont crées mais pas utilisées car la distance est verifiée dans les fct de transmission
+        # réseau complet : toutes les connexions possibles sont créées mais la distance est vérifiée au moment de la transmission
 
     def _random_communication(self):
         """Simule des communications tant que la simulation n'est pas terminée"""
+        rng = random.Random(self.traffic_seed)
         while not self.net.stop:
-            src_id = random.randint(0, self.nb_nodes-1)
-            dest_id = random.randint(0, self.nb_nodes-1)
+            src_id = rng.randint(0, self.nb_nodes-1)
+            dest_id = rng.randint(0, self.nb_nodes-1)
             
             while dest_id == src_id:
-                dest_id = random.randint(0, self.nb_nodes-1)
+                dest_id = rng.randint(0, self.nb_nodes-1)
             #on choisit deux noeuds différents
 
             src_node = self.net.G.nodes[src_id]['obj']
@@ -71,7 +81,7 @@ class Simulation:
 
     def _monitor(self):
         while not self.net.stop:
-            self.time_points.append(self.net.env.now) #points temporels pour ploter lels données
+            self.time_points.append(self.net.env.now) #points temporels pour ploter les données
             self.energy_history.append(self.net.energy_consumed) #total d'énergie consommée
             self.dead_nodes_history.append(self.net.dead_nodes) #nb de noeuds morts
             
@@ -108,14 +118,12 @@ class Simulation:
         """
         Rejoue une trace BM en mettant à jour node.pos en continu.
         - time_scale: BM_t = SimPy_t / time_scale
-        * 1.0  => 1s SimPy = 1s BM
-        * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM) => mobilité très lente côté BM
-        * 100  => 1s SimPy = 100s BM => mobilité accélérée
+          * 1.0  => 1s SimPy = 1s BM
+          * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM) => mobilité très lente côté BM
+          * 100  => 1s SimPy = 100s BM => mobilité accélérée
         - space_scale: échelle spatiale, offset: translation (dx,dy)
         - node_map: remap optionnel {id_BM -> id_graphe}
         """
-        import math
-
         traces = self._bm_parse_movements(file)
 
         def map_id(bm_id):
@@ -205,12 +213,6 @@ class Simulation:
         self.net.env.process(self._monitor()) # on démarre le monitoring pour récolter les données durant la simulation
         while not self.net.stop: # and self.net.env.now <= 10000
             self.net.env.step()
-        # if self.net.env.now >= 10000:
-        #     print("-"*50)
-        #     print("####### Attention #######")
-        #     print("La simulation a atteint 10000u de temps sans avoir 10% des noeuds morts")
-        #     print("Surement un problème")
-        #     print("-"*50)
 
     def print_results(self):
         print(f"Durée: {self.net.env.now:.2f} unités de temps")
@@ -226,8 +228,8 @@ class Simulation:
         print(f"Mort premier noeud: {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
         print(f"Mort 10% noeuds: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
         print(f"Partition du réseau: {self.net.network_partition_time:.2f}" if self.net.network_partition_time else "Network Partition: Not reached")
-        print(f"Moyenne batterie finale: {self.avg_energy_history[-1]:.2f}")
-        print(f"Écart type batterie finale: {self.std_energy_history[-1]:.2f}")
+        print(f"Moyenne batterie finale: {self.avg_bat_history[-1]:.2f}")
+        print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
 
 ## Comparaison des protocoles ##
 
@@ -249,30 +251,43 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
 
     for i in range(nb_runs):
         seed_i = seed_base + i
-        random.seed(seed_i)   
-        np.random.seed(seed_i) #Pour avoir un jitter et des envois de messages identiques
 
-        bm_cfg["file"] = f"rw{i}.movements"
+        # Choix du fichier BM pour ce run :
+        bm_cfg_run = None
+        if bm_cfg:
+            bm_cfg_run = dict(bm_cfg)  # copie superficielle
+            bm_files = bm_cfg_run.pop("files", None)  # RETIRE 'files' (clé non attendue par _bm_replay)
+            if bm_files:
+                bm_cfg_run["file"] = bm_files[i % len(bm_files)]
+            else:
+                if not bm_cfg_run.get("file"):
+                    bm_cfg_run["file"] = f"rw{i}.movements"
 
-        positions = {} #sauvegarder la position des noeuds pour avoir la même pour les deux simulations sinon on peut pas comparer
-        for i in range(params["nb_nodes"]):
-            # génération aléatoire
-            positions[i] = (
+        positions = {} # mêmes positions initiales pour les deux simulations
+        for i_node in range(params["nb_nodes"]):
+            positions[i_node] = (
                 random.uniform(0, params['area_size']), 
                 random.uniform(0, params['area_size'])
             )
         
+        random.seed(seed_i)   
+        np.random.seed(seed_i)
+
         #Simulation avec AODV classique
         print("\nstarting reg aodv sim")
         sim_reg = Simulation(
             node_positions=positions,
             reg_aodv=True,
             init_bat=100000,
-            bonnmotion=bm_cfg,
+            bonnmotion=bm_cfg_run,
+            traffic_seed=seed_i,
             **params
         )
         sim_reg.run()
         reg_aodv_res.append(sim_reg.get_metrics())
+
+        random.seed(seed_i)   
+        np.random.seed(seed_i)
 
         #Simulation avec AODV modifié
         print("\nstarting mod aodv sim")
@@ -280,13 +295,13 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
             node_positions=positions,
             reg_aodv=False,
             init_bat=100000, #pour ne pas avoir de valeurs trop petites dans les consommations
-            bonnmotion=bm_cfg,
+            bonnmotion=bm_cfg_run,
+            traffic_seed=seed_i,
             **params
         )
         sim_mod.run()
         mod_aodv_res.append(sim_mod.get_metrics())
 
-    # print_avg_results(reg_aodv_res,mod_aodv_res,nb_runs)
     return {"reg":reg_aodv_res,"mod":mod_aodv_res}
 
 def calc_avg_metrics(res):
@@ -309,7 +324,7 @@ def print_avg_results(reg_res,mod_res,nb_runs):
     print(f"\n\nMoyennes sur {nb_runs} simulations")
     print("="*60)
 
-    print(f"\n{"Métrique":<25} {"Regular AODV":<15} {"Count Reg":<12} {"Modified AODV":<15} {"Count Mod":<12} {"Changement":<12}")
+    print(f"\n{'Métrique':<25} {'Regular AODV':<15} {'Count Reg':<12} {'Modified AODV':<15} {'Count Mod':<12} {'Changement':<12}")
     print("-" * 94)
 
     reg_avg = calc_avg_metrics(reg_res)
@@ -329,39 +344,116 @@ def print_avg_results(reg_res,mod_res,nb_runs):
         print(f"{key:<25} {reg_val_str:<15} {count_reg:<12} {mod_val_str:<15} {count_mod:<12} {improvement_str:<12}")
 
     reg_delivery_ratio = (reg_avg['msg_recv'] / reg_avg['messages_initiated']) * 100 if reg_avg['messages_initiated'] > 0 else 0
-    mod_delivery_ratio = (mod_avg['msg_recv'] / mod_avg['messages_initiated']) * 100 if mod_avg['messages_initiated'] > 0 else 0
+    mod_delivery_ratio = (mod_avg['msg_recv'] / mod_avg['messages_initiated']) * 100 if mod_avg['messages_initiited'] > 0 else 0
     
-    print(f"\n{'Delivery Ratio':<25} {reg_delivery_ratio:<15.1f}% {"":<12} {mod_delivery_ratio:<15.1f}% {"":<12} {'':<12}")
+    print(f"\n{'Delivery Ratio':<25} {reg_delivery_ratio:<15.1f}% {'':<12} {mod_delivery_ratio:<15.1f}% {'':<12} {'':<12}")
 
     print("\n" + "="*60)
 
-# --- Parallélisation des runs sans couper les prints ni toucher à Simulation ---
+# --- Parallélisation des runs + génération BM intégrée ---
 from multiprocessing import Pool, cpu_count
 import math
 
 def _one_point(args):
-    (nb_nodes, max_dist, params) = args
+    (nb_nodes, max_dist, params, bm_files_for_this_N) = args
+
+    # prépare le bm_cfg en injectant la liste de fichiers pour ce N
+    bm_cfg = params.get("bm_cfg", {}).copy() if params.get("bm_cfg") else {}
+    bm_cfg["files"] = bm_files_for_this_N
 
     res = run_comparison_simulations(
         nb_nodes=nb_nodes,
         max_dist=max_dist,
-        **params
+        nb_runs=params["nb_runs"],
+        size=params["size"],
+        conso=params["conso"],
+        seuil=params["seuil"],
+        coeff_dist=params["coeff_dist"],
+        coeff_bat=params["coeff_bat"],
+        coeff_conso=params["coeff_conso"],
+        ttl=params["ttl"],
+        seed_base=params.get("seed_base", 12345),
+        bm_cfg=bm_cfg
     )
     reg_avg = calc_avg_metrics(res["reg"])
     mod_avg = calc_avg_metrics(res["mod"])
     return (nb_nodes, reg_avg, mod_avg)
 
-def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None):
+def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
+                              bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
+                              duration=5000, X=400, Y=400, vmin=1.0, vmax=2.0, pause=5, o=2):
+    """
+    Génère nb_runs traces pour une valeur de nb_nodes.
+    Commande demandée :
+      bm -f "<out_dir>\{nb_nodes}rw{n_simu}" RandomWaypoint -n {nb_nodes} -d 5000 -x 400 -y 400 -l 1.0 -h 2.0 -p 5 -o 2
+    Retourne la liste complète des chemins .movements (décompressés).
+    """
+    os.makedirs(out_dir, exist_ok=True)
+    movements_files = []
+
+    for n_simu in range(nb_runs):
+        base = os.path.join(out_dir, f"{nb_nodes}rw{n_simu}")
+        # 1) Générer avec BM
+        cmd = [
+            bm_exe,
+            "-f", base,
+            "RandomWaypoint",
+            "-n", str(nb_nodes),
+            "-d", str(duration),
+            "-x", str(X),
+            "-y", str(Y),
+            "-l", str(vmin),
+            "-h", str(vmax),
+            "-p", str(pause),
+            "-o", str(o),
+        ]
+        print("CMD>", " ".join(f'"{c}"' if " " in c else c for c in cmd))
+        subprocess.run(cmd, check=True)
+
+        # 2) Décompresser .movements.gz vers .movements
+        gz_path = base + ".movements.gz"
+        mov_path = base + ".movements"
+        if os.path.exists(gz_path):
+            with gzip.open(gz_path, "rb") as f_in, open(mov_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            os.remove(gz_path)
+        # 3) Optionnel : supprimer le .params pour ne garder que .movements
+        params_path = base + ".params"
+        if os.path.exists(params_path):
+            os.remove(params_path)
+
+        movements_files.append(mov_path)
+
+    return movements_files
+
+def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None,
+                     bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité"):
+    """
+    Fait la même chose qu'avant, mais :
+      - génère d'abord, pour chaque N, les 'nb_runs' traces via BonnMotion
+      - passe la liste des fichiers à run_comparison_simulations pour que les deux protocoles rejouent les mêmes chemins
+    """
     size = params["size"]
     n_min = (size / max_dist)**2 * math.pi
     n_lo = max(2, int(round(factor_min * n_min)))
     n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
     nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
 
-    tasks = [(n, max_dist, params) for n in nb_nodes_list]
-
     if procs is None:
         procs = max(1, cpu_count() - 1)
+
+    tasks = []
+    for N in nb_nodes_list:
+        # --- Génère les nb_runs traces pour ce N ---
+        bm_files_for_this_N = _bm_generate_traces_for_N(
+            nb_nodes=N,
+            nb_runs=params["nb_runs"],
+            out_dir=bm_out_dir,
+            bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
+            duration=5000, X=400, Y=400, vmin=1.0, vmax=2.0, pause=5, o=2
+        )
+        # Empile la tâche pour le pool
+        tasks.append((N, max_dist, params, bm_files_for_this_N))
 
     # Lancement en parallèle
     with Pool(processes=procs) as pool:
@@ -378,15 +470,14 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     reg_energy, mod_energy = [], []
     reg_std, mod_std = [], []
 
-
     for (N, reg_avg, mod_avg) in results:
         nb_nodes_array.append(N)
 
         reg_first_death.append(reg_avg.get("first_node_death", None))
         mod_first_death.append(mod_avg.get("first_node_death", None))
 
-        reg_dr.append(reg_avg.get("msg_recv", 0) / reg_avg.get("messages_initiated",1) * 100)
-        mod_dr.append(mod_avg.get("msg_recv", 0) / mod_avg.get("messages_initiated", 1) * 100)
+        reg_dr.append(reg_avg.get("msg_recv", 0) / max(1, reg_avg.get("messages_initiated",1)) * 100)
+        mod_dr.append(mod_avg.get("msg_recv", 0) / max(1, mod_avg.get("messages_initiated",1)) * 100)
 
         reg_ten_percent_death.append(reg_avg.get("ten_percent_death", None))
         mod_ten_percent_death.append(mod_avg.get("ten_percent_death", None))
@@ -441,32 +532,36 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
 if __name__ == "__main__":
     
     bm_cfg = {
-    "file": "",  # généré par bm RandomWaypoint ou autre
-    "time_scale": 0.01,       # 1 s BM = 100 s SimPy
-    "space_scale": 1.0,
-    "offset": (0.0, 0.0),
-    "clamp_to_area": True,
-    "start_at": 0.0,
-    "dt": 0.1
-}
+        "file": "",  # sera remplacé par chaque fichier généré OU par "files" injecté dans densite_parallel
+        "time_scale": 0.01,       # 1 s BM = 100 s SimPy
+        "space_scale": 1.0,
+        "offset": (0.0, 0.0),
+        "clamp_to_area": True,
+        "start_at": 0.0,
+        "dt": 0.1
+    }
     
-    res = run_comparison_simulations(
-    nb_runs=10, nb_nodes=20, size=800, max_dist=250,
-    conso=(1,20), seuil=750, coeff_dist=0.6, coeff_bat=0.2,
-    coeff_conso=0.005, ttl=100,seed_base=12345,
-    bm_cfg=bm_cfg
-)
+    # Exemple simple : 10 runs sur N=20 sans densité parallèle
+    # res = run_comparison_simulations(
+    #     nb_runs=10, nb_nodes=20, size=800, max_dist=250,
+    #     conso=(1,20), seuil=750, coeff_dist=0.6, coeff_bat=0.2,
+    #     coeff_conso=0.005, ttl=100,seed_base=12345,
+    #     bm_cfg=bm_cfg
+    # )
+    # print_avg_results(res["reg"],res["mod"],10)
     
-    print_avg_results(res["reg"],res["mod"],1)
-    
-    # params = {
-    #     "nb_runs": 5,
-    #     "size": 800,
-    #     "conso": (1, 20),
-    #     "seuil": 750,
-    #     "coeff_dist": 0.6,
-    #     "coeff_bat": 0.2,
-    #     "coeff_conso": 0.005,
-    #     "ttl": 100
-    # }
-    # out = densite_parallel(pas=2, max_dist=250, params=params,factor_min=0.5, factor_max=3)
+    # Exemple d'appel de densite_parallel (avec génération BM intégrée) :
+    params = {
+        "nb_runs": 5,
+        "size": 800,
+        "conso": (1, 20),
+        "seuil": 750,
+        "coeff_dist": 0.6,
+        "coeff_bat": 0.2,
+        "coeff_conso": 0.005,
+        "ttl": 100,
+        "seed_base": 12345,
+        "bm_cfg": bm_cfg
+    }
+    out = densite_parallel(pas=5, max_dist=250, params=params, factor_min=0.7, factor_max=2,
+                           bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
