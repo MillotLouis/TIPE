@@ -80,12 +80,13 @@ class Network:
         if self.ten_percent_death_time is None and self.dead_nodes >= self.nb_nodes * 0.1:
             self.ten_percent_death_time = self.env.now
             print(f"10% nodes dead at time {self.env.now:.2f}")
-            self.stop = True
         
         if self.network_partition_time is None:
             if self._is_network_partitioned():
                 self.network_partition_time = self.env.now
                 print(f"Network partitioned at time {self.env.now:.2f}")
+                self.stop = True
+
         
 
     def _is_network_partitioned(self):
