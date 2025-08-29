@@ -65,7 +65,6 @@ class Network:
         return node.battery > 0
 
     def _kill_node(self, node):
-        """Enhanced to track death metrics"""
         yield self.env.timeout(0)
         
         self.G.remove_edges_from(list(self.G.edges(node.id)))
@@ -81,17 +80,15 @@ class Network:
         if self.ten_percent_death_time is None and self.dead_nodes >= self.nb_nodes * 0.1:
             self.ten_percent_death_time = self.env.now
             print(f"10% nodes dead at time {self.env.now:.2f}")
+            self.stop = True
         
         if self.network_partition_time is None:
             if self._is_network_partitioned():
                 self.network_partition_time = self.env.now
                 print(f"Network partitioned at time {self.env.now:.2f}")
         
-        if self.dead_nodes >= self.nb_nodes / 2:
-            self.stop = True
 
     def _is_network_partitioned(self):
-        """Check if network is partitioned (disconnected)"""
         alive_nodes = [n for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
         if len(alive_nodes) <= 1:
             return True

@@ -101,9 +101,14 @@ class Simulation:
     def run(self):
         self.net.env.process(self._random_communication()) # on démarre les communications
         self.net.env.process(self._monitor()) # on démarre le monitoring pour récolter les données durant la simulation
-        while not self.net.stop and self.net.env.now <= 3000:
+        while not self.net.stop and self.net.env.now <= 10000:
             self.net.env.step()
-
+        if self.net.env.now >= 10000:
+            print("-"*50)
+            print("####### Attention #######")
+            print("La simulation a atteint 10000u de temps sans avoir 10% des noeuds morts")
+            print("Surement un problème")
+            print("-"*50)
 
     def print_results(self):
         print(f"Durée: {self.net.env.now:.2f} unités de temps")
@@ -220,25 +225,6 @@ def print_avg_results(reg_res,mod_res,nb_runs):
 
     print("\n" + "="*60)
 
-
-def densité(pas,max_dist,params):
-    n_min = (params["size"]/max_dist)**2*np.pi #correspond à peu près à 1 noeud par cercle de max_dist de rayon
-    print(n_min)
-    nb_nodes_array = []
-    res_reg_array = []
-    res_mod_array = []
-    for nb_nodes in (0.7*n_min,1.5*n_min,pas):
-        nb_nodes = round(nb_nodes)
-        nb_nodes_array.append(nb_nodes)
-        result = run_comparison_simulations(nb_nodes=nb_nodes,max_dist=max_dist,**params)
-        res_reg_array.append(calc_avg_metrics(result["reg"]))
-        res_mod_array.append(calc_avg_metrics(result["mod"]))
-    plt.figure()
-    plt.plot(nb_nodes_array,[res["first_node_death"] for res in res_reg_array],label="Regular")
-    plt.plot(nb_nodes_array,[res["first_node_death"] for res in res_mod_array],label="Modified")
-    plt.legend()
-    plt.show()
-
 # --- Parallélisation des runs sans couper les prints ni toucher à Simulation ---
 from multiprocessing import Pool, cpu_count
 import math
@@ -255,7 +241,7 @@ def _one_point(args):
     mod_avg = calc_avg_metrics(res["mod"])
     return (nb_nodes, reg_avg, mod_avg)
 
-def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None, plot=True):
+def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None):
     size = params["size"]
     n_min = (size / max_dist)**2 * math.pi
     n_lo = max(2, int(round(factor_min * n_min)))
@@ -304,10 +290,6 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
         reg_std.append(reg_avg.get("final_std_bat", None))
         mod_std.append(mod_avg.get("final_std_bat", None))
 
-
-
-    if plot:
-        # 1) Résilience
         plt.figure()
         plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
         plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
@@ -316,7 +298,6 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
         plt.legend()
         plt.show()
 
-        # 2) Delivery ratio
         plt.figure()
         plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
         plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
@@ -360,7 +341,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
 
 if __name__ == "__main__":
     params = {
-        "nb_runs": 3,
+        "nb_runs": 5,
         "size": 800,
         "conso": (1, 20),
         "seuil": 750,
@@ -369,33 +350,4 @@ if __name__ == "__main__":
         "coeff_conso": 0.005,
         "ttl": 100
     }
-    # Limite procs si tu veux garder une console lisible
-    out = densite_parallel(pas=5, max_dist=250, params=params, plot=True)
-
-
-
-# if __name__ == "__main__":
-#     # run_comparison_simulations(
-#     #     nb_runs=3,
-#     #     nb_nodes=25,
-#     #     size=800,
-#     #     max_dist= 400,
-#     #     conso=(1,20),
-#     #     seuil=750, #correspond à 0.75% avec 100% initialement
-#     #     coeff_dist=0.6,
-#     #     coeff_bat=0.2,
-#     #     coeff_conso=0.005,
-#     #     ttl=100
-#     # ) 
-#     params = {
-#         "nb_runs": 1,
-#         "size": 800,
-#         "conso": (1, 20),
-#         "seuil": 750, # correspond à 0.75% avec 100% initialement
-#         "coeff_dist": 0.6,
-#         "coeff_bat": 0.2,
-#         "coeff_conso": 0.005,
-#         "ttl": 100
-#     }
-#     densité(5,250,params)
-    
+    out = densite_parallel(pas=2, max_dist=250, params=params,factor_min=0.5, factor_max=3)
