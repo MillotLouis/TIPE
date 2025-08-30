@@ -20,7 +20,7 @@ class Simulation:
         self.init_bat = init_bat
         self.avg_bat_history = []
         self.std_bat_history = []
-        self.trafic_seed = traffic_seed
+        self.traffic_seed = traffic_seed
 
         #création du réseau
         self.net = Network(
@@ -344,7 +344,7 @@ def print_avg_results(reg_res,mod_res,nb_runs):
         print(f"{key:<25} {reg_val_str:<15} {count_reg:<12} {mod_val_str:<15} {count_mod:<12} {improvement_str:<12}")
 
     reg_delivery_ratio = (reg_avg['msg_recv'] / reg_avg['messages_initiated']) * 100 if reg_avg['messages_initiated'] > 0 else 0
-    mod_delivery_ratio = (mod_avg['msg_recv'] / mod_avg['messages_initiated']) * 100 if mod_avg['messages_initiited'] > 0 else 0
+    mod_delivery_ratio = (mod_avg['msg_recv'] / mod_avg['messages_initiated']) * 100 if mod_avg['messages_initiated'] > 0 else 0
     
     print(f"\n{'Delivery Ratio':<25} {reg_delivery_ratio:<15.1f}% {'':<12} {mod_delivery_ratio:<15.1f}% {'':<12} {'':<12}")
 
@@ -375,6 +375,7 @@ def _one_point(args):
         seed_base=params.get("seed_base", 12345),
         bm_cfg=bm_cfg
     )
+
     reg_avg = calc_avg_metrics(res["reg"])
     mod_avg = calc_avg_metrics(res["mod"])
     return (nb_nodes, reg_avg, mod_avg)
@@ -450,11 +451,15 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
             nb_runs=params["nb_runs"],
             out_dir=bm_out_dir,
             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-            duration=5000, X=400, Y=400, vmin=1.0, vmax=2.0, pause=5, o=2
+            duration=5000, X=800, Y=800, vmin=1.0, vmax=2.0, pause=5, o=2
         )
         # Empile la tâche pour le pool
         tasks.append((N, max_dist, params, bm_files_for_this_N))
 
+    print(f"[densite] n_min={n_min:.2f}  n_lo={n_lo}  n_hi={n_hi}  pas={pas}")
+    print(f"[densite] nb_nodes_list={nb_nodes_list}")
+    print(f"[densite] nb_runs_par_N={params['nb_runs']}  => total_runs_par_protocole={len(nb_nodes_list)*params['nb_runs']}")
+    
     # Lancement en parallèle
     with Pool(processes=procs) as pool:
         results = pool.map(_one_point, tasks)
@@ -462,13 +467,13 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     # Trie les résultats par nb_nodes
     results.sort(key=lambda t: t[0])
 
-    # Construit les tableaux + calcule η
     nb_nodes_array = []
     reg_first_death, mod_first_death = [], []
     reg_dr, mod_dr = [], []
     reg_ten_percent_death, mod_ten_percent_death = [], []
     reg_energy, mod_energy = [], []
     reg_std, mod_std = [], []
+    reg_final_energy,mod_final_energy = [], []
 
     for (N, reg_avg, mod_avg) in results:
         nb_nodes_array.append(N)
@@ -487,6 +492,9 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
 
         reg_std.append(reg_avg.get("final_std_bat", None))
         mod_std.append(mod_avg.get("final_std_bat", None))
+
+        reg_final_energy.append(reg_avg.get("final_avg_bat", None))
+        mod_final_energy.append(mod_avg.get("final_avg_bat", None))
 
     plt.figure()
     plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
@@ -517,6 +525,14 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     plt.plot(nb_nodes_array, mod_energy, marker='s', label="Modified")
     plt.xlabel("nb_nodes")
     plt.ylabel("Énergie totale consommée")
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_final_energy, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_final_energy, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Énergie résiduelle moyenne")
     plt.legend()
     plt.show()
 
@@ -565,3 +581,5 @@ if __name__ == "__main__":
     }
     out = densite_parallel(pas=5, max_dist=250, params=params, factor_min=0.7, factor_max=2,
                            bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
+
+

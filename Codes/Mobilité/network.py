@@ -189,7 +189,7 @@ class Network:
         dist = self.get_distance(node, next_node)
         
         if dist <= node.max_dist:
-            if self.update_battery(node, "RREP", dist): 
+            if self.update_battery(node, "RREP", dist if not self.reg_aodv else node.max_dist): 
                 yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))  #délai basé sur la distance, facteur arbitraire : 1ms / unité de distance
                 next_node.pending.put(rrep)
 
