@@ -44,6 +44,7 @@ class Network:
         self.first_node_death_time = None
         self.ten_percent_death_time = None
         self.network_partition_time = None
+        self.fifty_percent_death_time = None
         self.death_times = []  
         
 
@@ -80,6 +81,10 @@ class Network:
         if self.ten_percent_death_time is None and self.dead_nodes >= self.nb_nodes * 0.1:
             self.ten_percent_death_time = self.env.now
             print(f"10% nodes dead at time {self.env.now:.2f}")
+
+        if self.fifty_percent_death_time is None and self.dead_nodes >= self.nb_nodes * 0.5:
+            self.fifty_percent_death_time = self.env.now
+            print(f"50% nodes dead at time {self.env.now:.2f}")
             self.stop = True
         
         # if self.network_partition_time is None:

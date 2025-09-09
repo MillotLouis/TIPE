@@ -205,7 +205,8 @@ class Simulation:
             "ten_percent_death": self.net.ten_percent_death_time,
             "network_partition": self.net.network_partition_time,
             "final_avg_bat": self.avg_bat_history[-1],
-            "final_std_bat": self.std_bat_history[-1]
+            "final_std_bat": self.std_bat_history[-1],
+            "fifty_percent_death": self.net.fifty_percent_death_time
         }
     
     def run(self):
@@ -474,6 +475,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     reg_energy, mod_energy = [], []
     reg_std, mod_std = [], []
     reg_final_energy,mod_final_energy = [], []
+    reg_fifty_percent_death, mod_fifty_percent_death = [], []
 
     for (N, reg_avg, mod_avg) in results:
         nb_nodes_array.append(N)
@@ -496,43 +498,50 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
         reg_final_energy.append(reg_avg.get("final_avg_bat", None))
         mod_final_energy.append(mod_avg.get("final_avg_bat", None))
 
+        reg_fifty_percent_death.append(reg_avg.get("fifty_percent_death", None))
+        mod_fifty_percent_death.append(mod_avg.get("fifty_percent_death", None))
+
+
     plt.figure()
     plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
     plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
     plt.xlabel("nb_nodes")
-    plt.ylabel("Temps (first_node_death)")
+    plt.ylabel("Temps (first node death)")
     plt.legend()
     plt.show()
 
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Delivery ratio (%)")
-    plt.legend()
-    plt.show()
     
     plt.figure()
     plt.plot(nb_nodes_array, reg_ten_percent_death, marker='o', label="Regular")
     plt.plot(nb_nodes_array, mod_ten_percent_death, marker='s', label="Modified")
     plt.xlabel("nb_nodes")
-    plt.ylabel("Temps (ten_percent_death)")
+    plt.ylabel("Temps (10% death)")
     plt.legend()
     plt.show()
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_fifty_percent_death, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_fifty_percent_death, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Temps (50% death)")
+    plt.legend()
+    plt.show()
+    plt.figure()
+
+
+    plt.plot(nb_nodes_array, reg_final_energy, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_final_energy, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Énergie résiduelle moyenne")
+    plt.legend()
+    plt.show()
+
 
     plt.figure()
     plt.plot(nb_nodes_array, reg_energy, marker='o', label="Regular")
     plt.plot(nb_nodes_array, mod_energy, marker='s', label="Modified")
     plt.xlabel("nb_nodes")
     plt.ylabel("Énergie totale consommée")
-    plt.legend()
-    plt.show()
-
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_final_energy, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_final_energy, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Énergie résiduelle moyenne")
     plt.legend()
     plt.show()
 
@@ -544,6 +553,13 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     plt.legend()
     plt.show() 
 
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Delivery ratio (%)")
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     
@@ -579,7 +595,7 @@ if __name__ == "__main__":
         "seed_base": 12345,
         "bm_cfg": bm_cfg
     }
-    out = densite_parallel(pas=5, max_dist=250, params=params, factor_min=0.7, factor_max=2,
+    out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=1.5, factor_max=1.5,
                            bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
 
 
