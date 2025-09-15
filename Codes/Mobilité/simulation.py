@@ -5,6 +5,7 @@ import os
 import subprocess
 import gzip
 import shutil
+import bisect
 
 from network import Network
 
@@ -21,6 +22,10 @@ class Simulation:
         self.avg_bat_history = []
         self.std_bat_history = []
         self.traffic_seed = traffic_seed
+        self.window_size = 100.0
+        self.window_ratio_gen = []
+        self.window_ratio_send = []
+
 
         #création du réseau
         self.net = Network(
@@ -50,8 +55,7 @@ class Simulation:
 
         # Garde: ne jamais laisser "files" arriver dans _bm_replay
         if bonnmotion and "files" in bonnmotion:
-            bonnmotion = dict(bonnmotion)
-            bonnmotion.pop("files", None)
+            bonnmotion = {k: v for k, v in bonnmotion.items() if k != "files"}
 
         if bonnmotion:
             self.net.env.process(self._bm_replay(**bonnmotion))
@@ -88,7 +92,32 @@ class Simulation:
             avg_bat, std_bat = self.net.get_energy_stats()
             self.avg_bat_history.append(avg_bat) # moyenne de batterie des noeuds
             self.std_bat_history.append(std_bat) #écart type de batterie des noeuds
-            
+
+            ## Delivery ratio ##
+            t = self.net.env.now
+            W = self.window_size
+            start_t = t - W
+
+            def _ratio_from_time_list(time_list):
+                if not time_list:
+                    return 0.0
+                times_only = [ti for (ti, _) in time_list]
+                lo = bisect.bisect_left(times_only, start_t)
+                hi = bisect.bisect_right(times_only, t)
+                keys_in_win = [time_list[i][1] for i in range(lo, hi)]
+                sent_win = len(keys_in_win)
+                if sent_win == 0:
+                    return 0.0
+                delivered = sum(
+                    1 for k in keys_in_win
+                    if self.net.data_log.get(k) and self.net.data_log[k]['t_recv'] is not None and self.net.data_log[k]['t_recv'] <= t
+                )
+                return 100.0 * delivered / sent_win
+
+            self.window_ratio_gen.append(_ratio_from_time_list(self.net.data_init_times))
+            self.window_ratio_send.append(_ratio_from_time_list(self.net.data_send_times))
+
+
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
     def _bm_parse_movements(self, path):
@@ -234,7 +263,7 @@ class Simulation:
 
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,seed_base,bm_cfg=None):
+def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,seed_base,bm_cfg=None,plot_dr=False, plot_mode='last'):
     reg_aodv_res = []
     mod_aodv_res = []
 
@@ -250,19 +279,49 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         'ttl': ttl
     }
 
+        # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
+    bm_files = None
+    if bm_cfg:
+        # priorités : files > file > génération
+        if bm_cfg.get("files"):
+            bm_files = bm_cfg["files"]
+        elif bm_cfg.get("file"):
+            bm_files = [bm_cfg["file"]] * nb_runs
+        else:
+            # Génération auto
+            out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
+            bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
+            duration = bm_cfg.get("duration", 5000)
+            X = bm_cfg.get("X", size)
+            Y = bm_cfg.get("Y", size)
+            vmin = bm_cfg.get("vmin", 1.0)
+            vmax = bm_cfg.get("vmax", 2.0)
+            pause = bm_cfg.get("pause", 5)
+            o = bm_cfg.get("o", 2)
+            bm_files = _bm_generate_traces_for_N(
+                nb_nodes=nb_nodes,
+                nb_runs=nb_runs,
+                out_dir=out_dir,
+                bm_exe=bm_exe,
+                duration=duration, X=X, Y=Y,
+                vmin=vmin, vmax=vmax, pause=pause, o=o
+            )
+
+
+    last_pair = None  # pour tracer à la fin si besoin
+
     for i in range(nb_runs):
         seed_i = seed_base + i
 
-        # Choix du fichier BM pour ce run :
+        # -- BM pour ce run
         bm_cfg_run = None
         if bm_cfg:
-            bm_cfg_run = dict(bm_cfg)  # copie superficielle
-            bm_files = bm_cfg_run.pop("files", None)  # RETIRE 'files' (clé non attendue par _bm_replay)
+            bm_cfg_run = {k: v for k, v in bm_cfg.items()
+                          if k not in ("files","out_dir","bm_exe","duration","X","Y","vmin","vmax","pause","o")}
             if bm_files:
                 bm_cfg_run["file"] = bm_files[i % len(bm_files)]
             else:
-                if not bm_cfg_run.get("file"):
-                    bm_cfg_run["file"] = f"rw{i}.movements"
+                bm_cfg_run = None
 
         positions = {} # mêmes positions initiales pour les deux simulations
         for i_node in range(params["nb_nodes"]):
@@ -302,6 +361,14 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         )
         sim_mod.run()
         mod_aodv_res.append(sim_mod.get_metrics())
+
+        last_pair = (sim_reg, sim_mod)
+
+        if plot_dr and plot_mode == 'each':
+            plot_windowed_delivery_over_time(sim_reg, sim_mod, W=sim_reg.window_size)
+    if plot_dr and plot_mode in ('last', 'final') and last_pair is not None:
+        sim_reg, sim_mod = last_pair
+        plot_windowed_delivery_over_time(sim_reg, sim_mod, W=sim_reg.window_size)
 
     return {"reg":reg_aodv_res,"mod":mod_aodv_res}
 
@@ -502,6 +569,8 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
         mod_fifty_percent_death.append(mod_avg.get("fifty_percent_death", None))
 
 
+
+
     plt.figure()
     plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
     plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
@@ -561,6 +630,29 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     plt.legend()
     plt.show()
 
+def plot_windowed_delivery_over_time(sim_reg, sim_mod ,W=None):
+    import matplotlib.pyplot as plt
+    if W is None: W = sim_reg.window_size
+
+    plt.figure()
+    plt.plot(sim_reg.time_points, sim_reg.window_ratio_gen, label="AODV classique (t_gen)")
+    plt.plot(sim_mod.time_points, sim_mod.window_ratio_gen, label="AODV modifié (t_gen)")
+    plt.xlabel("Temps")
+    plt.ylabel("Taux de délivrance (%)")
+    plt.title(f"Taux glissant basé sur t_gen (fenêtre={W})")
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.plot(sim_reg.time_points, sim_reg.window_ratio_send, label="AODV classique (t_send)")
+    plt.plot(sim_mod.time_points, sim_mod.window_ratio_send, label="AODV modifié (t_send)")
+    plt.xlabel("Temps")
+    plt.ylabel("Taux de délivrance (%)")
+    plt.title(f"Taux glissant basé sur t_send (fenêtre={W})")
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
     
     bm_cfg = {
@@ -573,6 +665,14 @@ if __name__ == "__main__":
         "dt": 0.1
     }
     
+    res = run_comparison_simulations(
+        nb_runs=1, nb_nodes=20, size=800, max_dist=250,
+        conso=(1,20), seuil=750, coeff_dist=0.6, coeff_bat=0.2,
+        coeff_conso=0.005, ttl=100, seed_base=12345, bm_cfg=bm_cfg,
+        plot_dr=True,          # << active le plot
+        plot_mode='last'       # 'each' pour tracer à chaque run
+    )
+
     # Exemple simple : 10 runs sur N=20 sans densité parallèle
     # res = run_comparison_simulations(
     #     nb_runs=10, nb_nodes=20, size=800, max_dist=250,
@@ -583,19 +683,19 @@ if __name__ == "__main__":
     # print_avg_results(res["reg"],res["mod"],10)
     
     # Exemple d'appel de densite_parallel (avec génération BM intégrée) :
-    params = {
-        "nb_runs": 5,
-        "size": 800,
-        "conso": (1, 20),
-        "seuil": 750,
-        "coeff_dist": 0.6,
-        "coeff_bat": 0.2,
-        "coeff_conso": 0.005,
-        "ttl": 100,
-        "seed_base": 12345,
-        "bm_cfg": bm_cfg
-    }
-    out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=1.5, factor_max=1.5,
-                           bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
+    # params = {
+    #     "nb_runs": 5,
+    #     "size": 800,
+    #     "conso": (1, 20),
+    #     "seuil": 750,
+    #     "coeff_dist": 0.6,
+    #     "coeff_bat": 0.2,
+    #     "coeff_conso": 0.005,
+    #     "ttl": 100,
+    #     "seed_base": 12345,
+    #     "bm_cfg": bm_cfg
+    # }
+    # out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=1.5, factor_max=1.5,
+    #                        bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
 
 

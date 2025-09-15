@@ -46,6 +46,9 @@ class Network:
         self.network_partition_time = None
         self.fifty_percent_death_time = None
         self.death_times = []  
+        self.data_log = {}              # (src_id, data_seq) -> {'t_init': float, 't_send': float|None, 't_recv': float|None}
+        self.data_init_times = []       # [(t_init, key)]
+        self.data_send_times = []       # [(t_send, key)]
         
 
     def add_node(self, id, pos, max_dist, reg_aodv, battery=100):
@@ -217,6 +220,25 @@ class Network:
                 
                 yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
                 next_node.pending.put(data)
+
+    def log_data_init(self, src_id, data_seq, t_init):
+        key = (src_id, data_seq)
+        self.data_log[key] = {'t_init': t_init, 't_send': None, 't_recv': None}
+        self.data_init_times.append((t_init, key))
+
+    def log_data_send(self, src_id, data_seq, t_send):
+        key = (src_id, data_seq)
+        e = self.data_log.get(key)
+        if e and e['t_send'] is None:
+            e['t_send'] = t_send
+            self.data_send_times.append((t_send, key))
+
+    def log_data_recv(self, src_id, data_seq, t_recv):
+        key = (src_id, data_seq)
+        e = self.data_log.get(key)
+        if e and e['t_recv'] is None:
+            e['t_recv'] = t_recv
+
 
 
 

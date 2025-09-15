@@ -24,6 +24,7 @@ class Node:
         self.MAX_DUPLICATES = 3 #on s'autorise 3 RREQs par (src_id,src_seq) 
         self.WEIGHT_SEUIL = 1.3
         self.env.process(self.process_messages())
+        self.data_seq = 0
 
     def process_messages(self):
         while self.alive:
@@ -128,6 +129,7 @@ class Node:
                 for msg in self.to_be_sent[rrep.src_id]:
                     self.env.process(self.network.forward_data(self, msg))
                     self.network.messages_sent += 1
+                    self.network.log_data_send(self.id, msg.src_seq, self.env.now)
                 del self.to_be_sent[rrep.src_id]
         else:
             rrep.prev_hop = self.id 
@@ -163,7 +165,6 @@ class Node:
         current = self.routing_table.get(dest, (None, -1, float('inf'), 0))
         
         if not self.reg_aodv:    
-            # Calculate dynamic TTL based on battery level
             dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
             
             if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
@@ -188,27 +189,32 @@ class Node:
         """Marche pareil si reg_aodv ou pas"""
         if data.dest_id == self.id:
             self.network.messages_received += 1
+            self.network.log_data_recv(data.src_id, data.src_seq, self.env.now)
+
         else:
             self.env.process(self.network.forward_data(self, data))
 
     def send_data(self, dest_id):
         from network import Message
         """Marche pareil si reg_aodv ou pas"""
+        self.data_seq += 1
         msg = Message(
             typ="DATA",
             src_id=self.id,
-            src_seq=-1,
+            src_seq=self.data_seq,
             dest_id=dest_id,
             dest_seq=-1,
             weight=-1,
             prev_hop=self.id,
         )
         self.network.messages_initiated += 1
+        self.network.log_data_init(self.id, self.data_seq, self.env.now)
 
-        if dest_id in self.routing_table and self.routing_table.get(msg.dest_id, (None, 0, 0, 0))[3] > self.env.now:
+        if dest_id in self.routing_table and self.routing_table.get(msg.dest_id, (None, 0, 0, 0))[3] >= self.env.now:
             #si la route existe et est toujours valide ie si la date d'expiration n'est pas encore dépassée
             self.network.messages_sent += 1
             self.env.process(self.network.forward_data(self, msg))
+            self.network.log_data_send(self.id, msg.src_seq, self.env.now)
         else:
             #si route inexistante ou plus valide
             self.to_be_sent[dest_id].append(msg)
