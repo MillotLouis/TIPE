@@ -8,28 +8,61 @@ from node import Node
 
 class Message:
     def __init__(self, typ, src_id, src_seq, dest_seq, dest_id, weight, prev_hop):
-        self.type = typ
-        self.src_id = src_id
-        self.src_seq = src_seq
-        self.dest_seq = dest_seq
-        self.dest_id = dest_id
-        self.weight = weight
-        self.prev_hop = prev_hop
+        self.type = typ             
+        """ type de message : requête donc "RREQ" ou "RREP" ou bien data : "DATA" """
+        
+        self.src_id = src_id        
+        """ identifiant de l'émetteur du message """
+        
+        self.src_seq = src_seq      
+        """ numéro de séquence de la source au moment de l'émission """
+        
+        self.dest_seq = dest_seq    
+        """  dernier numéro de séquence connu (par la source) du destinataire au moment de l'émission """
+        # ne sert pas pour l'instant, utile pour réponses intermédiaires
+        
+        self.dest_id = dest_id      
+        """ identifiant du destinataire"""
+        
+        self.weight = weight        
+        """ poids de la route empruntée par ce message, sera augmenté au fil des propagations """
+        
+        self.prev_hop = prev_hop    
+        """ dernier noeud par lequel le message a été forwardé """
 
 class Network:
-    def __init__(self, conso, seuil, coeff_dist, coeff_bat, coeff_conso, nb_nodes, ttl, reg_aodv):
-        self.env = simpy.Environment()
-        self.G = nx.Graph()
-        self.conso = conso
-        self.seuil = seuil
-        self.coeff_dist = coeff_dist
-        self.coeff_bat = coeff_bat
-        self.coeff_conso = coeff_conso
-        self.ttl = ttl
-        self.stop = False
-        self.reg_aodv = reg_aodv
+    def __init__(self, conso, seuil, coeff_dist_weight, coeff_bat_weight, coeff_dist_bat, nb_nodes, ttl, reg_aodv):
+        self.env = simpy.Environment()                   
+        """ Environnement simpy """
         
-        self.messages_forwarded = 0
+        self.G = nx.Graph()                              
+        """ Graphe du réseau """
+        
+        self.conso = conso                               
+        """ consomation pour la transmition de requêtes / données : (req,donnée) """
+        
+        self.seuil = seuil                               
+        """ seuil à partir duquel on applique la pénalité sur le poids des routes """
+        
+        self.coeff_dist_weight = coeff_dist_weight       
+        """ coefficient de pondération : poids calculé avec dist_normalisée * coeff_dist_weight + ... """
+        
+        self.coeff_bat_weight = coeff_bat_weight         
+        """ coefficient de pondération : poids calculé avec ... + batt_normalisée * coeff_bat_weight  """
+        
+        self.coeff_dist_bat = coeff_dist_bat             
+        """ coefficient de pondération : consommation calculée avec ... + coeff_dist_bat * dist """
+        
+        self.ttl = ttl                                   
+        """ ttl des routes """
+        
+        self.stop = False                                
+        """ passé à True quand on veut que la simulation s'arrête """
+        
+        self.reg_aodv = reg_aodv                         
+        """ True si on utilise AODV et false sinon """
+        
+        self.messages_forwarded = 0                       
         self.messages_initiated = 0
         self.messages_sent = 0
         self.messages_received = 0
@@ -39,36 +72,52 @@ class Network:
         self.energy_consumed = 0
         self.nb_nodes = nb_nodes
         self.dead_nodes = 0
-        self.seuiled = 0
+        self.seuiled = 0                                 
+        """ Nombre de routes pénalisées car en dessous du seuil """
         
         self.first_node_death_time = None
         self.ten_percent_death_time = None
-        self.network_partition_time = None
         self.fifty_percent_death_time = None
-        self.death_times = []  
-        self.data_log = {}              # (src_id, data_seq) -> {'t_init': float, 't_send': float|None, 't_recv': float|None}
-        self.data_init_times = []       # [(t_init, key)]
-        self.data_send_times = []       # [(t_send, key)]
+        self.death_times = []                            
+        """ Liste des dates auxquelles des noeuds sont morts  """
         
-
+        # Pour calculer le delivery ratio
+        self.data_log = {}              
+        """ (src_id, data_seq) -> {'t_init': float, 't_send': float|None, 't_recv': float|None} """
+        
+        self.data_init_times = []       
+        """ [(t_init, key)] """
+        
+        self.data_send_times = []       
+        """ [(t_send, key)] """
+        
     def add_node(self, id, pos, max_dist, reg_aodv, battery=100):
-        """Marche pareil si reg_aodv ou pas"""
+        """
+        Ajoute un noeud au réseau
+        Marche pareil si reg_aodv ou pas
+        """
         new_node = Node(self.env, id, pos, battery, max_dist, self,reg_aodv)
         self.G.add_node(id, obj=new_node)
 
     def update_battery(self, node, msg_type, dist):
-        """Marche pareil si reg_aodv ou pas"""
-        cons = self.conso[0] if (msg_type == "RREQ" or msg_type == "RREP") else self.conso[1]
-        energy_cost = self.coeff_conso * dist + cons
+        """
+        Met à jour la batterie et tue le noeud si il n'en a plus 
+        Marche pareil si reg_aodv ou pas
+        """
+        cons = self.conso[0] if (msg_type[:2] == "RR") else self.conso[1]
+        energy_cost = self.coeff_dist_bat * dist + cons
         node.battery = max(0, node.battery - energy_cost)
         self.energy_consumed += energy_cost
         
-        if node.battery <= 0 and node.alive:
+        if node.battery == 0 and node.alive:
             self.env.process(self._kill_node(node))
         
         return node.battery > 0
 
     def _kill_node(self, node):
+        """
+        Tue un noeud, comptabilise cette mort dans les métriques et enlève toutes les connexions le concernant
+        """
         yield self.env.timeout(0)
         
         self.G.remove_edges_from(list(self.G.edges(node.id)))
@@ -90,36 +139,16 @@ class Network:
             print(f"50% nodes dead at time {self.env.now:.2f}")
             self.stop = True
         
-        # if self.network_partition_time is None:
-        #     if self._is_network_partitioned():
-        #         self.network_partition_time = self.env.now
-        #         print(f"Network partitioned at time {self.env.now:.2f}")
-
-        
-
-    # def _is_network_partitioned(self):
-    #     alive_nodes = [n for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
-    #     if len(alive_nodes) <= 1:
-    #         return True
-        
-    #     alive_subgraph = self.G.subgraph(alive_nodes).copy()
-        
-    #     edges_to_remove = []
-    #     for edge in alive_subgraph.edges():
-    #         n1 = self.G.nodes[edge[0]]['obj']
-    #         n2 = self.G.nodes[edge[1]]['obj']
-    #         if self.get_distance(n1, n2) > n1.max_dist:
-    #             edges_to_remove.append(edge)
-        
-    #     alive_subgraph.remove_edges_from(edges_to_remove)
-        
-    #     return not nx.is_connected(alive_subgraph) if len(alive_subgraph.nodes()) > 0 else True
 
     def get_distance(self, n1, n2):
         """Marche pareil si reg_aodv ou pas"""
         return ((n2.pos[0] - n1.pos[0])**2 + (n2.pos[1] - n1.pos[1])**2)**0.5
 
     def calculate_weight(self, n1, n2):
+        """
+        Calcule le poids d'un saut
+        Dépend de reg_aodv
+        """
         if self.reg_aodv:
             return 1
         
@@ -127,9 +156,9 @@ class Network:
         dist = self.get_distance(n1, n2)
         
         dist_norm = dist / n1.max_dist
-        bat_norm = 1 - (bat / 100000)
+        bat_norm = 1 - (bat / n1.initial_battery)
         
-        weight = (self.coeff_dist * dist_norm) + (self.coeff_bat * bat_norm)
+        weight = (self.coeff_dist_weight * dist_norm) + (self.coeff_bat_weight * bat_norm)
 
         if bat < self.seuil:
             self.seuiled += 1
@@ -140,7 +169,10 @@ class Network:
         return weight
 
     def get_energy_stats(self):
-        """Calculate average remaining energy and standard deviation"""
+        """
+        Calcule la batterie restante moyenne dans le réseau
+        Calcule l'écart type sur ↑
+        """
         alive_nodes = [self.G.nodes[n]['obj'] for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
         
         if not alive_nodes:
@@ -153,7 +185,10 @@ class Network:
         return avg_energy, std_energy
 
     def broadcast_rreq(self, node, rreq):
-        """Marche pareil si reg_aodv ou pas"""
+        """
+        Broadcast une RREQ à tous les noeuds à portée de node
+        Marche pareil si reg_aodv ou pas
+        """
         neighbors = list(self.G.neighbors(node.id))
         
         valid_neighbors = []
@@ -183,7 +218,10 @@ class Network:
 
         
     def unicast_rrep(self, node, rrep):
-        """Marche pareil si reg_aodv ou pas"""
+        """
+        Permet de renvoyer la RREP à la source
+        Marche pareil si reg_aodv ou pas
+        """
         next_hop = node.routing_table.get(rrep.dest_id, (None, 0, 0, 0))[0]
         
         if next_hop is None:
@@ -202,7 +240,10 @@ class Network:
                 next_node.pending.put(rrep)
 
     def forward_data(self, node, data):
-        """Marche pareil si reg_aodv ou pas"""
+        """
+        Transmet des paquets de type DATA selon la route stockée dans les noeuds
+        Marche pareil si reg_aodv ou pas
+        """
         next_hop = node.routing_table.get(data.dest_id, (None, 0, 0, 0))[0]
         data.prev_hop = node.id
         

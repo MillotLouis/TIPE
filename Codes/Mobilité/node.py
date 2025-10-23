@@ -6,25 +6,62 @@ import networkx as nx
 
 class Node:
     def __init__(self, env, id, pos, initial_battery, max_dist, network, reg_aodv):
-        self.env = env
-        self.id = id
-        self.pos = pos
-        self.battery = initial_battery
-        self.initial_battery = initial_battery  # Store initial battery for metrics
-        self.routing_table = {} # dest : {next_hop,seq_num,weight,expiry}
-        self.seq_num = 0
-        self.pending = simpy.Store(env)
-        self.max_dist = max_dist
-        self.alive = True
-        self.network = network
-        self.seen = set() if reg_aodv else {} # (rreq.src_id, rreq.src_seq) : (compteur,meilleur poids)
-        self.pending_rreqs = {}
-        self.to_be_sent = defaultdict(list)
-        self.reg_aodv = reg_aodv #True si on utilise le AODV classique et False si on utilise le mien
-        self.MAX_DUPLICATES = 3 #on s'autorise 3 RREQs par (src_id,src_seq) 
-        self.WEIGHT_SEUIL = 1.3
-        self.env.process(self.process_messages())
+        self.env = env                             
+        """environnement simpy"""
+        
+        self.id = id                               
+        """id du noeud"""
+        
+        self.pos = pos                             
+        """ position (x,y) du noeud """
+        
+        self.battery = initial_battery             
+        """ batterie du noeud """
+        
+        self.initial_battery = initial_battery     
+        """ Garde en mémoire la batterie initiale pour des calculs """
+        
+        self.routing_table = {}                    
+        """ dest : {next_hop,seq_num,weight,expiry} """
+        
+        self.seq_num = 0                           
+        """ numéro de séquence du noeud """
+        
+        self.pending = simpy.Store(env)            
+        """ requêtes en attente """
+        
+        self.max_dist = max_dist                   
+        """distance max d'émission / portée du noeud"""
+        
+        self.alive = True                          
+        """ True si le noeud est vivant False si il est mort """
+        
+        self.network = network                     
+        """ Classe network dont fait partie le noeud """
+        
+        self.seen = set() if reg_aodv else {}      
+        """ (rreq.src_id, rreq.src_seq) : (compteur,meilleur poids) """
+        
+        self.collected_rreqs = {}                  
+        """ Liste des rreqs collectés une fois que le premier est arrivé à la dest """
+        
+        self.to_be_sent = defaultdict(list)        
+        """ Dictionnaire contenant la liste des messages à envoyer à chaque noeud """ 
+        #default_dict permet de créer une liste vide comme valeur si une clé n'existe pas mais est accedé dans le dico
+        
+        self.reg_aodv = reg_aodv                   
+        """ True si on utilise le AODV classique et False si on utilise le mien """
+        
+        self.MAX_DUPLICATES = 3                    
+        """ On s'autorise 3 RREQs max par (src_id,src_seq)  """
+        
+        self.WEIGHT_SEUIL = 1.3                    
+        """ Seuil à partir duquel on considère avoir vu une vraie amélioration """ 
+        
         self.data_seq = 0
+        """identique au numéro de séquence mais pour les messages"""
+
+        self.env.process(self.process_messages())
 
     def process_messages(self):
         while self.alive:
@@ -91,10 +128,10 @@ class Node:
             # Collecte des rreps si on est la destination
             if self.id == rreq.dest_id: #Si on est la destination du RREQ
                 key = (rreq.src_id, rreq.src_seq)
-                if key not in self.pending_rreqs:
-                    self.pending_rreqs[key] = []
+                if key not in self.collected_rreqs:
+                    self.collected_rreqs[key] = []
                     self.env.process(self.collect_rreps(key)) # on commence la collecte des RREPs
-                self.pending_rreqs[key].append(rreq)
+                self.collected_rreqs[key].append(rreq)
                 return
             
         
@@ -165,10 +202,10 @@ class Node:
         current = self.routing_table.get(dest, (None, -1, float('inf'), 0))
         
         if not self.reg_aodv:    
-            dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
+            # dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
             
             if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
-                self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + dynamic_ttl)
+                self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + self.network.ttl)
 
         else:
             if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]): #si la route est plus fraiche ou aussi fraiche avec un poids moindre
@@ -178,10 +215,10 @@ class Node:
     def collect_rreps(self, key):
         """Appelé uniquement si reg_aodv = False"""
         yield self.env.timeout(0.2)
-        # On attend pour que tous les RREQs arrivent à la dest et soient stockés dans self.pending_rreqs[key]
+        # On attend pour que tous les RREQs arrivent à la dest et soient stockés dans self.collected_rreqs[key]
         
-        if key in self.pending_rreqs:
-            rreqs = self.pending_rreqs.get(key)
+        if key in self.collected_rreqs:
+            rreqs = self.collected_rreqs.get(key)
             best_rreq = min(rreqs, key=lambda r: r.weight)
             self.send_rrep(best_rreq) #on envoie le meilleur
 

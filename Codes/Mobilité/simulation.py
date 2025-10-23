@@ -10,30 +10,50 @@ import bisect
 from network import Network
 
 class Simulation:
-    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,reg_aodv,init_bat, node_positions = None,bonnmotion=None,traffic_seed=None):
-        self.nb_nodes = nb_nodes
-        self.area_size = area_size
-        self.max_dist = max_dist
-        self.reg_aodv = reg_aodv #true si on utilise AODV et false sinon
-        self.energy_history = []
-        self.dead_nodes_history = []
-        self.time_points = []
-        self.init_bat = init_bat
-        self.avg_bat_history = []
-        self.std_bat_history = []
-        self.traffic_seed = traffic_seed
-        self.window_size = 100.0
-        self.window_ratio_gen = []
+    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,reg_aodv,init_bat, node_positions = None,bonnmotion=None,traffic_seed=None):
+        self.nb_nodes = nb_nodes           
+        """ Nombre de noeuds de la simulation """
+        
+        self.area_size = area_size         
+        """ Taille de la carte : area_size*area_size """
+        
+        self.max_dist = max_dist           
+        """ Distance max à laquelle un noeud peut transmettre """
+        
+        self.reg_aodv = reg_aodv           
+        """  True si on utilise AODV et false sinon """
+        
+        # self.energy_history = []         ## Pas utile je crois 
+        # self.dead_nodes_history = []     ## idem
+        self.time_points = []              
+        """ Abscisse pour plot les résultats au cours du temps  """
+        
+        self.init_bat = init_bat           
+        """ batterie initiale pour tous les noeuds """
+        
+        self.avg_bat_history = []          
+        """ utile mais sert que pour batterie moyenne finale, pas besoin d'historique  """
+        
+        self.std_bat_history = []          
+        """utile mais sert que pour écart type final, pas besoin d'historique"""
+        
+        self.traffic_seed = traffic_seed   
+        """ seed pour le générateur aléatoire de messages """
+        
+        self.window_size = 100.0           
+        """ Taille de la fenêtre glissante pour représenter le delivery ratio """
+        
+        self.window_ratio_gen = []         # ?
         self.window_ratio_send = []
 
 
         #création du réseau
         self.net = Network(
-            conso=conso,
-            seuil=seuil,
-            coeff_dist=coeff_dist,
-            coeff_bat=coeff_bat,
-            coeff_conso=coeff_conso,
+            conso=conso,                   
+            seuil=seuil,                
+            coeff_dist_weight=coeff_dist_weight,
+            coeff_bat_weight=coeff_bat_weight,
+            coeff_dist_bat=coeff_dist_bat,
             nb_nodes=nb_nodes,
             ttl=ttl,
             reg_aodv = reg_aodv
@@ -52,6 +72,9 @@ class Simulation:
 
         #création des liens
         self._create_links()
+        self.positions_start = None
+        self.track_ids = [1,2,3,4]
+        self.traj = {nid: [] for nid in self.track_ids}
 
         # Garde: ne jamais laisser "files" arriver dans _bm_replay
         if bonnmotion and "files" in bonnmotion:
@@ -117,6 +140,11 @@ class Simulation:
             self.window_ratio_gen.append(_ratio_from_time_list(self.net.data_init_times))
             self.window_ratio_send.append(_ratio_from_time_list(self.net.data_send_times))
 
+            if self.track_ids:
+                for nid in self.track_ids:  
+                    node = self.net.G.nodes[nid]['obj']
+                    x, y = node.pos
+                    self.traj[nid].append((t, x, y))
 
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
@@ -167,6 +195,7 @@ class Simulation:
                 t0, x0, y0 = seq[0]
                 self.net.G.nodes[nid]['obj'].pos = (x0 * space_scale + offset[0],
                                                     y0 * space_scale + offset[1])
+        self.positions_start = {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
 
         # Pointeurs de segments
         seg_idx = {bm_id: 0 for bm_id in traces}
@@ -232,7 +261,6 @@ class Simulation:
             "seuiled":self.net.seuiled,
             "first_node_death": self.net.first_node_death_time,
             "ten_percent_death": self.net.ten_percent_death_time,
-            "network_partition": self.net.network_partition_time,
             "final_avg_bat": self.avg_bat_history[-1],
             "final_std_bat": self.std_bat_history[-1],
             "fifty_percent_death": self.net.fifty_percent_death_time
@@ -257,13 +285,73 @@ class Simulation:
         print(f"Seuiled: {self.net.seuiled}")
         print(f"Mort premier noeud: {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
         print(f"Mort 10% noeuds: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
-        print(f"Partition du réseau: {self.net.network_partition_time:.2f}" if self.net.network_partition_time else "Network Partition: Not reached")
         print(f"Moyenne batterie finale: {self.avg_bat_history[-1]:.2f}")
         print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
 
+    def plot_positions_before_after(self, title="Positions des nœuds"):
+        import matplotlib.pyplot as plt
+
+        start = self.positions_start or {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
+        end   = {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
+
+        # utilitaire pour scatter + labels
+        def _scatter_with_labels(ax, positions, subtitle):
+            xs, ys = [], []
+            ids = sorted(positions.keys())
+            for nid in ids:
+                x, y = positions[nid]
+                xs.append(x); ys.append(y)
+            ax.scatter(xs, ys, s=25)
+            # labels (IDs)
+            for nid in ids:
+                x, y = positions[nid]
+                ax.text(x, y, str(nid), fontsize=8, ha="center", va="bottom")
+            ax.set_title(subtitle)
+            ax.set_xlabel("x"); ax.set_ylabel("y")
+            ax.set_xlim(0, self.area_size); ax.set_ylim(0, self.area_size)
+            ax.set_aspect("equal", adjustable="box")
+            ax.grid(True, linestyle=":", alpha=0.3)
+
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        _scatter_with_labels(axes[0], start, "Avant simulation")
+        _scatter_with_labels(axes[1], end,   "Après simulation")
+
+        fig.suptitle(title)
+        fig.tight_layout()
+        plt.show()
+
+    def plot_paths(self, ids=None, title="Trajectoires de quelques nœuds"):
+        ids = list(ids) if ids is not None else self.track_ids
+
+        # Nuage des positions finales de tous les nœuds (gris clair)
+        fig, ax = plt.subplots(figsize=(6.5, 6.5))
+        all_pos = [self.net.G.nodes[n]['obj'].pos for n in self.net.G.nodes]
+        ax.scatter([p[0] for p in all_pos], [p[1] for p in all_pos], s=18, alpha=0.25, label="Autres nœuds (final)")
+
+        # Trajectoires pour les nœuds choisis
+        for nid in ids:
+            pts = self.traj.get(nid, [])
+            if len(pts) < 2: 
+                continue
+            xs = [x for _, x, _ in pts]
+            ys = [y for _, _, y in pts]
+            ax.plot(xs, ys, linewidth=1.8, label=f"nœud {nid}")
+            ax.scatter([xs[0]], [ys[0]], marker="^", s=40)   # départ
+            ax.scatter([xs[-1]], [ys[-1]], marker="o", s=40) # arrivée
+            ax.text(xs[-1], ys[-1], str(nid), fontsize=9, ha="left", va="bottom")
+
+        ax.set_title(title)
+        ax.set_xlabel("x"); ax.set_ylabel("y")
+        ax.set_xlim(0, self.area_size); ax.set_ylim(0, self.area_size)
+        ax.set_aspect("equal", adjustable="box"); ax.grid(True, linestyle=":", alpha=0.3)
+        ax.legend(loc="best")
+        plt.tight_layout()
+        plt.show()
+
+
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist,coeff_bat,coeff_conso,ttl,seed_base,bm_cfg=None,plot_dr=False, plot_mode='last'):
+def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,bm_cfg=None,plot_dr=False, plot_mode='last'):
     reg_aodv_res = []
     mod_aodv_res = []
 
@@ -273,9 +361,9 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         'max_dist': max_dist,
         'conso': conso,
         'seuil': seuil,
-        'coeff_dist': coeff_dist,
-        'coeff_bat': coeff_bat,
-        'coeff_conso': coeff_conso,
+        'coeff_dist_weight': coeff_dist_weight,
+        'coeff_bat_weight': coeff_bat_weight,
+        'coeff_dist_bat': coeff_dist_bat,
         'ttl': ttl
     }
 
@@ -345,6 +433,8 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         )
         sim_reg.run()
         reg_aodv_res.append(sim_reg.get_metrics())
+        # sim_reg.plot_positions_before_after()
+        # sim_reg.plot_paths()
 
         random.seed(seed_i)   
         np.random.seed(seed_i)
@@ -361,6 +451,8 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         )
         sim_mod.run()
         mod_aodv_res.append(sim_mod.get_metrics())
+        # sim_mod.plot_positions_before_after()
+        # sim_mod.plot_paths()
 
         last_pair = (sim_reg, sim_mod)
 
@@ -369,6 +461,8 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
     if plot_dr and plot_mode in ('last', 'final') and last_pair is not None:
         sim_reg, sim_mod = last_pair
         plot_windowed_delivery_over_time(sim_reg, sim_mod, W=sim_reg.window_size)
+    
+
 
     return {"reg":reg_aodv_res,"mod":mod_aodv_res}
 
@@ -436,9 +530,9 @@ def _one_point(args):
         size=params["size"],
         conso=params["conso"],
         seuil=params["seuil"],
-        coeff_dist=params["coeff_dist"],
-        coeff_bat=params["coeff_bat"],
-        coeff_conso=params["coeff_conso"],
+        coeff_dist_weight=params["coeff_dist_weight"],
+        coeff_bat_weight=params["coeff_bat_weight"],
+        coeff_dist_bat=params["coeff_dist_bat"],
         ttl=params["ttl"],
         seed_base=params.get("seed_base", 12345),
         bm_cfg=bm_cfg
@@ -450,7 +544,7 @@ def _one_point(args):
 
 def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
                               bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-                              duration=5000, X=400, Y=400, vmin=1.0, vmax=2.0, pause=5, o=2):
+                              duration=5000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
     """
     Génère nb_runs traces pour une valeur de nb_nodes.
     Commande demandée :
@@ -504,6 +598,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     """
     size = params["size"]
     n_min = (size / max_dist)**2 * math.pi
+    print(n_min)
     n_lo = max(2, int(round(factor_min * n_min)))
     n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
     nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
@@ -665,37 +760,37 @@ if __name__ == "__main__":
         "dt": 0.1
     }
     
-    res = run_comparison_simulations(
-        nb_runs=1, nb_nodes=20, size=800, max_dist=250,
-        conso=(1,20), seuil=750, coeff_dist=0.6, coeff_bat=0.2,
-        coeff_conso=0.005, ttl=100, seed_base=12345, bm_cfg=bm_cfg,
-        plot_dr=True,          # << active le plot
-        plot_mode='last'       # 'each' pour tracer à chaque run
-    )
+    # res = run_comparison_simulations(
+    #     nb_runs=1, nb_nodes=20, size=800, max_dist=250,
+    #     conso=(1,20), seuil=750, coeff_dist_weight=0.6, coeff_bat_weight=0.2,
+    #     coeff_dist_bat=0.005, ttl=100, seed_base=12345, bm_cfg=bm_cfg,
+    #     plot_dr=True,          # << active le plot
+    #     plot_mode='last'       # 'each' pour tracer à chaque run
+    # )
 
     # Exemple simple : 10 runs sur N=20 sans densité parallèle
     # res = run_comparison_simulations(
     #     nb_runs=10, nb_nodes=20, size=800, max_dist=250,
-    #     conso=(1,20), seuil=750, coeff_dist=0.6, coeff_bat=0.2,
-    #     coeff_conso=0.005, ttl=100,seed_base=12345,
+    #     conso=(1,20), seuil=750, coeff_dist_weight=0.6, coeff_bat_weight=0.2,
+    #     coeff_dist_bat=0.005, ttl=100,seed_base=12345,
     #     bm_cfg=bm_cfg
     # )
     # print_avg_results(res["reg"],res["mod"],10)
     
     # Exemple d'appel de densite_parallel (avec génération BM intégrée) :
-    # params = {
-    #     "nb_runs": 5,
-    #     "size": 800,
-    #     "conso": (1, 20),
-    #     "seuil": 750,
-    #     "coeff_dist": 0.6,
-    #     "coeff_bat": 0.2,
-    #     "coeff_conso": 0.005,
-    #     "ttl": 100,
-    #     "seed_base": 12345,
-    #     "bm_cfg": bm_cfg
-    # }
-    # out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=1.5, factor_max=1.5,
-    #                        bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
+    params = {
+        "nb_runs": 2,
+        "size": 800,
+        "conso": (1, 20),
+        "seuil": 750,
+        "coeff_dist_weight": 0.6,
+        "coeff_bat_weight": 0.2,
+        "coeff_dist_bat": 0.005,
+        "ttl": 100,
+        "seed_base": 12345,
+        "bm_cfg": bm_cfg
+    }
+    out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=0.5, factor_max=0.8,
+                           bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
 
 
