@@ -23,19 +23,11 @@ class Simulation:
         self.reg_aodv = reg_aodv           
         """  True si on utilise AODV et false sinon """
         
-        # self.energy_history = []         ## Pas utile je crois 
-        # self.dead_nodes_history = []     ## idem
         self.time_points = []              
         """ Abscisse pour plot les résultats au cours du temps  """
         
         self.init_bat = init_bat           
         """ batterie initiale pour tous les noeuds """
-        
-        self.avg_bat_history = []          
-        """ utile mais sert que pour batterie moyenne finale, pas besoin d'historique  """
-        
-        self.std_bat_history = []          
-        """utile mais sert que pour écart type final, pas besoin d'historique"""
         
         self.traffic_seed = traffic_seed   
         """ seed pour le générateur aléatoire de messages """
@@ -87,7 +79,6 @@ class Simulation:
         for i in range(self.nb_nodes):
             for j in range(i + 1, self.nb_nodes):
                 self.net.G.add_edge(i, j)
-        # réseau complet : toutes les connexions possibles sont créées mais la distance est vérifiée au moment de la transmission
 
     def _random_communication(self):
         """Simule des communications tant que la simulation n'est pas terminée"""
@@ -112,10 +103,6 @@ class Simulation:
             self.energy_history.append(self.net.energy_consumed) #total d'énergie consommée
             self.dead_nodes_history.append(self.net.dead_nodes) #nb de noeuds morts
             
-            avg_bat, std_bat = self.net.get_energy_stats()
-            self.avg_bat_history.append(avg_bat) # moyenne de batterie des noeuds
-            self.std_bat_history.append(std_bat) #écart type de batterie des noeuds
-
             ## Delivery ratio ##
             t = self.net.env.now
             W = self.window_size
@@ -171,7 +158,7 @@ class Simulation:
         return traces
 
     def _bm_replay(self, file, time_scale=1.0, space_scale=1.0, offset=(0.0, 0.0),
-               clamp_to_area=True, start_at=0.0, dt=0.05, node_map=None):
+               clamp_to_area=True, dt=0.05, node_map=None):
         """
         Rejoue une trace BM en mettant à jour node.pos en continu.
         - time_scale: BM_t = SimPy_t / time_scale
@@ -200,8 +187,7 @@ class Simulation:
         # Pointeurs de segments
         seg_idx = {bm_id: 0 for bm_id in traces}
 
-        # Démarrage différé
-        yield self.net.env.timeout(start_at)
+
 
         # Boucle principale
         while not self.net.stop:
@@ -247,6 +233,7 @@ class Simulation:
 
 
     def get_metrics(self):
+        final_avg_bat, final_std_bat = self.net.get_energy_stats()
         return {
             "dead_nodes": self.net.dead_nodes,
             "energy": self.net.energy_consumed,
@@ -261,8 +248,8 @@ class Simulation:
             "seuiled":self.net.seuiled,
             "first_node_death": self.net.first_node_death_time,
             "ten_percent_death": self.net.ten_percent_death_time,
-            "final_avg_bat": self.avg_bat_history[-1],
-            "final_std_bat": self.std_bat_history[-1],
+            "final_avg_bat": final_avg_bat,
+            "final_std_bat": final_std_bat,
             "fifty_percent_death": self.net.fifty_percent_death_time
         }
     

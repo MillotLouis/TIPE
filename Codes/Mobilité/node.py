@@ -80,7 +80,7 @@ class Node:
 
     def init_rreq(self, dest_id):
         from network import Message
-        self.seq_num += 1 # IMPORTANT ! 
+        self.seq_num += 1 
         self.network.rreq_sent += 1
 
         rreq = Message(
