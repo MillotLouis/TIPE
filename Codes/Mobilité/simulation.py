@@ -97,41 +97,49 @@ class Simulation:
             
             yield self.net.env.timeout(0.1) #petit délai pour pas flood
 
+    def _windowed_ratio(time_list, start_t, end_t, data_log):
+        """Calcule le delivery ratio sur la fenêtre [start_t,end_t]"""
+        if not time_list:
+            return 0.0
+
+        times_only = [ti for (ti, _) in time_list] # Tous les temps d'envoi/d'initialisation de messages
+        lo = bisect.bisect_left(times_only, start_t) # Permet de déterminer l'indice dans la liste ↑ de start_t
+        hi = bisect.bisect_right(times_only, end_t)  # ---------------------------------------------- end_t
+        
+        if lo >= hi:
+            return 0.0
+
+        keys_in_win = [time_list[i][1] for i in range(lo, hi)] #Toutes les keys des messages envoyés dans la fenêtre considérée
+        delivered = sum(
+            1
+            for key in keys_in_win
+            if (entry := data_log.get(key)) # Permet d'affecter entry et de tester en même temps si il n'est pas None
+            and entry['t_recv'] is not None
+            and entry['t_recv'] <= end_t
+        )
+        return 100.0 * delivered / len(keys_in_win)
+
     def _monitor(self):
         while not self.net.stop:
-            self.time_points.append(self.net.env.now) #points temporels pour ploter les données
-            self.energy_history.append(self.net.energy_consumed) #total d'énergie consommée
-            self.dead_nodes_history.append(self.net.dead_nodes) #nb de noeuds morts
+            current_time = self.net.env.now
+            self.time_points.append(current_time) #points temporels pour ploter les données
             
-            ## Delivery ratio ##
-            t = self.net.env.now
-            W = self.window_size
-            start_t = t - W
-
-            def _ratio_from_time_list(time_list):
-                if not time_list:
-                    return 0.0
-                times_only = [ti for (ti, _) in time_list]
-                lo = bisect.bisect_left(times_only, start_t)
-                hi = bisect.bisect_right(times_only, t)
-                keys_in_win = [time_list[i][1] for i in range(lo, hi)]
-                sent_win = len(keys_in_win)
-                if sent_win == 0:
-                    return 0.0
-                delivered = sum(
-                    1 for k in keys_in_win
-                    if self.net.data_log.get(k) and self.net.data_log[k]['t_recv'] is not None and self.net.data_log[k]['t_recv'] <= t
-                )
-                return 100.0 * delivered / sent_win
-
-            self.window_ratio_gen.append(_ratio_from_time_list(self.net.data_init_times))
-            self.window_ratio_send.append(_ratio_from_time_list(self.net.data_send_times))
+            start_t = current_time - self.window_size
+            self.window_ratio_gen.append(
+                self._windowed_ratio(self.net.data_init_times, start_t, current_time, self.net.data_log)
+            )
+            self.window_ratio_send.append(
+                self._windowed_ratio(self.net.data_send_times, start_t, current_time, self.net.data_log)
+            )
 
             if self.track_ids:
-                for nid in self.track_ids:  
-                    node = self.net.G.nodes[nid]['obj']
+                for nid in self.track_ids:
+                    if nid not in self.net.G:
+                        continue
+                    node = self.net.G.nodes[nid]['obj']                 # Permet de visualiser les trajectoires
                     x, y = node.pos
-                    self.traj[nid].append((t, x, y))
+                    self.traj[nid].append((current_time, x, y))
+            
 
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
@@ -147,55 +155,42 @@ class Simulation:
                 if not parts:
                     traces[i] = []
                     continue
-                if len(parts) % 3 != 0:
-                    raise ValueError(f"Ligne {i}: le nombre d'éléments n'est pas multiple de 3")
                 it = iter(parts)
                 seq = []
                 for t, x, y in zip(it, it, it):
                     seq.append((float(t), float(x), float(y)))
-                seq.sort(key=lambda p: p[0])
+                seq.sort(key=lambda p: p[0]) #Trie la liste par temps
                 traces[i] = seq
         return traces
 
-    def _bm_replay(self, file, time_scale=1.0, space_scale=1.0, offset=(0.0, 0.0),
-               clamp_to_area=True, dt=0.05, node_map=None):
+    def _bm_replay(self, file, time_scale=1.0):
         """
         Rejoue une trace BM en mettant à jour node.pos en continu.
         - time_scale: BM_t = SimPy_t / time_scale
           * 1.0  => 1s SimPy = 1s BM
-          * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM) => mobilité très lente côté BM
-          * 100  => 1s SimPy = 100s BM => mobilité accélérée
-        - space_scale: échelle spatiale, offset: translation (dx,dy)
-        - node_map: remap optionnel {id_BM -> id_graphe}
+          * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM)
+          * 100  => 1s SimPy = 100s BM
         """
         traces = self._bm_parse_movements(file)
 
-        def map_id(bm_id):
-            return node_map.get(bm_id, bm_id) if node_map else bm_id
-
-        # Position initiale d'après le premier waypoint
-        for bm_id, seq in traces.items():
+        # Position initiale d'après le premier waypoint (sans échelle/offset)
+        for nid, seq in traces.items():
             if not seq:
                 continue
-            nid = map_id(bm_id)
             if nid in self.net.G.nodes:
-                t0, x0, y0 = seq[0]
-                self.net.G.nodes[nid]['obj'].pos = (x0 * space_scale + offset[0],
-                                                    y0 * space_scale + offset[1])
+                _, x0, y0 = seq[0]
+                self.net.G.nodes[nid]['obj'].pos = (x0, y0)
         self.positions_start = {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
 
-        # Pointeurs de segments
         seg_idx = {bm_id: 0 for bm_id in traces}
+        dt = 0.05  # pas de temps fixe
 
-
-
-        # Boucle principale
         while not self.net.stop:
             sim_t = self.net.env.now
             bm_t = sim_t / max(1e-12, time_scale)
 
             for bm_id, seq in traces.items():
-                nid = map_id(bm_id)
+                nid = bm_id  # identité
                 if nid not in self.net.G.nodes or not seq:
                     continue
 
@@ -220,12 +215,9 @@ class Simulation:
                     x = x0 + u * (x1 - x0)
                     y = y0 + u * (y1 - y0)
 
-                nx = x * space_scale + offset[0]
-                ny = y * space_scale + offset[1]
-
-                if clamp_to_area:
-                    nx = min(max(nx, 0.0), self.area_size)
-                    ny = min(max(ny, 0.0), self.area_size)
+                # Clamp par défaut aux bornes de la zone
+                nx = min(max(x, 0.0), self.area_size)
+                ny = min(max(y, 0.0), self.area_size)
 
                 node.pos = (nx, ny)
 
@@ -259,21 +251,21 @@ class Simulation:
         while not self.net.stop: # and self.net.env.now <= 10000
             self.net.env.step()
 
-    def print_results(self):
-        print(f"Durée: {self.net.env.now:.2f} unités de temps")
-        print(f"Noeuds morts: {self.net.dead_nodes}/{self.nb_nodes}")
-        print(f"Énergie consommée: {self.net.energy_consumed:.2f}")
-        print(f"Messages envoyés: {self.net.messages_sent}")
-        print(f"Messages transmis: {self.net.messages_forwarded}")
-        print(f"Messages reçus: {self.net.messages_received}")
-        print(f"RREQ envoyés: {self.net.rreq_sent}")
-        print(f"RREQ transmis: {self.net.rreq_forwarded}")
-        print(f"RREP envoyés: {self.net.rrep_sent}")
-        print(f"Seuiled: {self.net.seuiled}")
-        print(f"Mort premier noeud: {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
-        print(f"Mort 10% noeuds: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
-        print(f"Moyenne batterie finale: {self.avg_bat_history[-1]:.2f}")
-        print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
+    # def print_results(self):
+    #     print(f"Durée: {self.net.env.now:.2f} unités de temps")
+    #     print(f"Noeuds morts: {self.net.dead_nodes}/{self.nb_nodes}")
+    #     print(f"Énergie consommée: {self.net.energy_consumed:.2f}")
+    #     print(f"Messages envoyés: {self.net.messages_sent}")
+    #     print(f"Messages transmis: {self.net.messages_forwarded}")
+    #     print(f"Messages reçus: {self.net.messages_received}")
+    #     print(f"RREQ envoyés: {self.net.rreq_sent}")
+    #     print(f"RREQ transmis: {self.net.rreq_forwarded}")
+    #     print(f"RREP envoyés: {self.net.rrep_sent}")
+    #     print(f"Seuiled: {self.net.seuiled}")
+    #     print(f"Mort premier noeud: {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
+    #     print(f"Mort 10% noeuds: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
+    #     print(f"Moyenne batterie finale: {self.:.2f}")
+    #     print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
 
     def plot_positions_before_after(self, title="Positions des nœuds"):
         import matplotlib.pyplot as plt
@@ -308,6 +300,7 @@ class Simulation:
         plt.show()
 
     def plot_paths(self, ids=None, title="Trajectoires de quelques nœuds"):
+        """Permet de visualiser la trajectoire des noeuds renseignés dans ids"""
         ids = list(ids) if ids is not None else self.track_ids
 
         # Nuage des positions finales de tous les nœuds (gris clair)
