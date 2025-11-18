@@ -20,11 +20,12 @@ share: true
 - [ ] Ajouter une consommation de batterie à la reception ? Me paraît négligeable comparé à emission [Consommation radios tactiques](https://chatgpt.com/c/684e8756-d540-8011-a4ac-28612f8f2609) à voir
 	- Serait potentiellement plus que émission ? [Optimisation AODV Réseau Ad-Hoc](https://chatgpt.com/c/68595b82-9e04-8011-81ab-587a8c4fb44a)
 	- **Non** voir plus bas, paramètres de simulation
-- [ ] Ajouter réponse des noeuds intermédiaires
-	https://chatgpt.com/g/g-p-68ae01179a9c819188df4800374ab039-louis/c/68fa54f8-4f28-832c-9d4f-c56ed61d3cfe
 - [x] Ajouter modèle de mobilité
 - [x] Pour compter nombre de paquets perdus : à chaque fois qu'un nœud mort reçoit un message (Pas une RREQ) qu'il est censé forwarder alors on incrémente et on compare aux nombre de paquets perdus avec AODV classique qui empruntera possiblement des noeuds avec peu de batterie qui peuvent donc mourir avant la fin du TTL sur une route enregistrée
 - [ ] **Rajouter TTL ?**
+- [ ] Ajouter réponse des noeuds intermédiaires
+	https://chatgpt.com/g/g-p-68ae01179a9c819188df4800374ab039-louis/c/68fa54f8-4f28-832c-9d4f-c56ed61d3cfe
+	- [ ] Il faudrait ajouter un TTL alors pour pas que des routes pas optimales soient gardées trop longtemps
 ___
 1. Dans la réalité, AODV est utilisé dans des réseaux de noeuds mobiles donc des connexions se font et se défont donc le protocole AODV est utilisé uniquement afin de recréer une route ou en créer une si elle n'existe pas.
 	Ici comme pas de déplacements pour l'instant je définis un TTL pour les routes afin de simuler ces créations de routes quand il y a effectivement des déplacements. cf : [AODV](./Technos%20acutelles/AODV.md)
