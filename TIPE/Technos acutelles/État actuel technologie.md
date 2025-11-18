@@ -1,7 +1,7 @@
 ---
 share: true
 ---
-![600](../../Pasted/Pasted%20image%2020250314135053.png)
+![600](../../Z%20-%20Pasted/Z%20-%20MP2I/Pasted%20image%2020250314135053.png)
 Aussi *Link-State* : comme AODV basé sur chemin le plus court et ou le plus rapide en fonction du debit.
 ___
 ## Protocoles Naïfs :
