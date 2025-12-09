@@ -8,6 +8,8 @@ $\Rightarrow$ ad hoc network, infrastructure-less network
 
 > Un **réseau ad hoc** (généralement appelé [MANet](https://geekflare.com/fr/mobile-ad-hoc-network/) (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
+---
+J'ai choisi pour ma part de modifier le critère de choix de chemin avec une pondération comprenant à la fois la batterie résiduelle et les distance séparant deux noeuds intermédiaires sur la route ainsi qu'une forte pénalisation appliquée aux routes empruntant un noeud sous un seuil de batterie défini. Finalement 
 ___
 **[État actuel technologie](./Technos%20acutelles/%C3%89tat%20actuel%20technologie.md)**
 ___
@@ -17,6 +19,7 @@ ___
 >[!question] Objectif
 >Solution de routage se basant sur les technologies actuelles améliorant la durée de vie du réseau en réduisant la consommation énergétique : [Objectifs](./Objectifs.md)
 
+[Analyse des résultats](../Analyse.md) 
 ___
 (Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./Abandonn%C3%A9/Id%C3%A9es%20Protocole.md)**) 
 ___
@@ -36,4 +39,18 @@ https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 **Sources/thèses/papers sur le sujet :**
 [A Composite Mobility Model for Ad Hoc Networks in Disaster Areas - CentraleSupélec](https://centralesupelec.hal.science/hal-00589846v1)
 [AODV-EOCW: An Energy-Optimized Combined Weighting AODV Protocol for Mobile Ad Hoc Networks](https://www.mdpi.com/1424-8220/23/15/6759)
-[Un protocole de routage ER-AODV à basse consomation energie pour les rm ad hoc.pdf](https://dspace.univ-ouargla.dz/jspui/bitstream/123456789/11997/1/Un%20protocole%20de%20routage%20ER-AODV%20%C3%A0%20basse%20consomation%20energie%20pour%20les%20rm%20ad%20hoc.pdf)
+[Un protocole de routage ER-AODV à basse consommation energétique pour les rm ad hoc.pdf](https://dspace.univ-ouargla.dz/jspui/bitstream/123456789/11997/1/Un%20protocole%20de%20routage%20ER-AODV%20%C3%A0%20basse%20consomation%20energie%20pour%20les%20rm%20ad%20hoc.pdf)
+[Energy Consumption Evaluation of AODV and AOMDV Routing Protocols](https://thesai.org/Downloads/Volume9No8/Paper_35-Energy_Consumption_Evaluation_of_AODV.pdf?utm_source=chatgpt.com)
+
+
+--- 
+#### Liens pour synchro github : 
+[Résultats](../R%C3%A9sultats.md)
+[Questions](../Questions.md)
+[Protocole (batterie)](./Protocole%20(batterie).md)
+[Objectifs](./Objectifs.md)
+[Modélisation](./Mod%C3%A9lisation.md)
+[Changelog](../Changelog.md)
+[Avancement](../Avancement.md)
+[Analyse des résultats](../Analyse.md)
+[À faire dans code](../%C3%80%20faire%20dans%20code.md)
