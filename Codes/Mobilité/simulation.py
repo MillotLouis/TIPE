@@ -171,9 +171,8 @@ class Simulation:
           * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM)
           * 100  => 1s SimPy = 100s BM
         """
-        traces = self._bm_parse_movements(file)
+        traces = self._bm_parse_movements(file) # Dico de listes de tuples (t,x,y)
 
-        # Position initiale d'après le premier waypoint (sans échelle/offset)
         for nid, seq in traces.items():
             if not seq:
                 continue
@@ -536,7 +535,7 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
 
     for n_simu in range(nb_runs):
         base = os.path.join(out_dir, f"{nb_nodes}rw{n_simu}")
-        # 1) Générer avec BM
+        # Générer avec BM
         cmd = [
             bm_exe,
             "-f", base,
@@ -553,14 +552,15 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
         print("CMD>", " ".join(f'"{c}"' if " " in c else c for c in cmd))
         subprocess.run(cmd, check=True)
 
-        # 2) Décompresser .movements.gz vers .movements
+        # Décompresser .movements.gz vers .movements
         gz_path = base + ".movements.gz"
         mov_path = base + ".movements"
         if os.path.exists(gz_path):
             with gzip.open(gz_path, "rb") as f_in, open(mov_path, "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
             os.remove(gz_path)
-        # 3) Optionnel : supprimer le .params pour ne garder que .movements
+        
+        # Supprimer le .params pour ne garder que .movements
         params_path = base + ".params"
         if os.path.exists(params_path):
             os.remove(params_path)
@@ -645,7 +645,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
 
 
 
-
+    # Affichage / ploting 
     plt.figure()
     plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
     plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
@@ -733,11 +733,6 @@ if __name__ == "__main__":
     bm_cfg = {
         "file": "",  # sera remplacé par chaque fichier généré OU par "files" injecté dans densite_parallel
         "time_scale": 0.01,       # 1 s BM = 100 s SimPy
-        "space_scale": 1.0,
-        "offset": (0.0, 0.0),
-        "clamp_to_area": True,
-        "start_at": 0.0,
-        "dt": 0.1
     }
     
     # res = run_comparison_simulations(
