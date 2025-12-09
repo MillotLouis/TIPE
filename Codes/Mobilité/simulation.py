@@ -171,18 +171,20 @@ class Simulation:
           * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM)
           * 100  => 1s SimPy = 100s BM
         """
-        traces = self._bm_parse_movements(file) # Dico de listes de tuples (t,x,y)
+        all_traces = self._bm_parse_movements(file) # Dico de listes de tuples (t,x,y)
+        traces = {}
+        indexes = {}
 
-        for nid, seq in traces.items():
-            if not seq:
-                continue
-            if nid in self.net.G.nodes:
-                _, x0, y0 = seq[0]
-                self.net.G.nodes[nid]['obj'].pos = (x0, y0)
-        self.positions_start = {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
+        #Positions de départ
+        for nid, seq in all_traces.items():
+            if nid in self.net.G.nodes and seq:
+                traces[nid] = seq
+                indexes[nid] = 0
+                self.net.G.nodes[nid]['obj'].pos = seq[0][1:]
+        self.positions_start = {n: self.net.G.nodes[n]['obj'].pos for n in self.net.G.nodes}
 
         seg_idx = {bm_id: 0 for bm_id in traces}
-        dt = 0.05  # pas de temps fixe
+        dt = 0.05  # pas de temps
 
         while not self.net.stop:
             sim_t = self.net.env.now
@@ -358,7 +360,7 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
             # Génération auto
             out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
             bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
-            duration = bm_cfg.get("duration", 5000)
+            duration = bm_cfg.get("duration", 500000)
             X = bm_cfg.get("X", size)
             Y = bm_cfg.get("Y", size)
             vmin = bm_cfg.get("vmin", 1.0)
@@ -523,7 +525,7 @@ def _one_point(args):
 
 def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
                               bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-                              duration=5000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
+                              duration=500000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
     """
     Génère nb_runs traces pour une valeur de nb_nodes.
     Commande demandée :
@@ -594,7 +596,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
             nb_runs=params["nb_runs"],
             out_dir=bm_out_dir,
             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-            duration=5000, X=800, Y=800, vmin=1.0, vmax=2.0, pause=5, o=2
+            duration=500000, X=size, Y=size, vmin=1.0, vmax=2.0, pause=5, o=2
         )
         # Empile la tâche pour le pool
         tasks.append((N, max_dist, params, bm_files_for_this_N))
