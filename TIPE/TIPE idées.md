@@ -17,12 +17,17 @@ ___
 > Aujourd'hui aucun programme ne combine vraiment tout cela : batterie restante, position, historique de fiabilité (trajectoire prédite : random waypoint mais probablement trop compliqué)
 
 >[!question] Objectif
->Solution de routage se basant sur les technologies actuelles améliorant la durée de vie du réseau en réduisant la consommation énergétique : [Objectifs](./Objectifs.md)
+>Solution de routage se basant sur les technologies actuelles améliorant la durée de vie du réseau en réduisant la consommation énergétique : [Objectifs](Objectifs.md)
 
 [Analyse des résultats](../Analyse.md) 
 ___
 (Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./OLD/Abandonn%C3%A9/Id%C3%A9es%20Protocole.md)**) 
 ___
+
+**Déplacements :**
+[panisson/pymobility: python implementation of mobility models](https://github.com/panisson/pymobility)
+[seemoo-lab/natural-disaster-mobility: Natural Disaster Mobility Model and Scenarios in the ONE](https://github.com/seemoo-lab/natural-disaster-mobility)
+	
 
 **Cycles et boucles** :
 - *count to infinity*
@@ -48,10 +53,9 @@ https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 [Résultats](../R%C3%A9sultats.md)
 [Questions](../Questions.md)
 [Protocole (batterie)](./Protocole%20(batterie).md)
-[Objectifs](./Objectifs.md)
-[Modélisation](./Mod%C3%A9lisation.md)
 [Changelog](../Changelog.md)
 [Avancement](../Avancement.md)
 [Analyse des résultats](../Analyse.md)
 [À faire dans code](../%C3%80%20faire%20dans%20code.md)
 [MCOT](../MCOT.md)
+[Idées améliorations](../Id%C3%A9es%20am%C3%A9liorations.md)
