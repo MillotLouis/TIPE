@@ -1,0 +1,16 @@
+---
+share: true
+---
+- [Paramètres simulation](./Protocole%20(batterie).md)
+	- Avoir vraie rapport consommation message de contrôle / données
+- **Devient pire après 50 % pk ? [Analyse](./Analyse.md) => hybride**
+- Comment faire des simulations [Analyse](./Analyse.md)
+	- Paramètres à faire varier :
+		- Densité (nb_noeuds)
+		- Portée 
+		- **Coefficients de pondération : batterie / distance /** 
+		- TTL
+		- MAX_DUPLICATES ?
+- [Avancement](./Avancement.md)
+- Ajouter réponse des noeuds intermédiaires
+- Modifier modèle de mobilité
