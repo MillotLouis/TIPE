@@ -4,7 +4,7 @@ share: true
 [TIPE Louis Millot](https://millotlouis.github.io/TIPE/)
 ___
 Si sinistre ou catastrophe naturelle ou opération secours milieu isolé ou opération militaire $\Rightarrow$ réseaux traditionnels pas dispos donc faut un P2P pour faire communiquer secouristes, drones, équipements….
-$\Rightarrow$ ad hoc network, infrastructure-less network
+	$\Rightarrow$ ad hoc network, infrastructure-less network
 
 > Un **réseau ad hoc** (généralement appelé [MANet](https://geekflare.com/fr/mobile-ad-hoc-network/) (*mobile ad hoc network*)) est un réseau décentralisé où les appareils (nœuds) communiquent directement entre eux, sans dépendre d'une infrastructure fixe (comme un routeur ou un point d'accès Wi-Fi). Il est souvent utilisé dans des situations où une configuration rapide et flexible est nécessaire, comme en milieu militaire, dans des zones sinistrées, ou pour des connexions temporaires entre appareils mobiles.
 
@@ -21,7 +21,7 @@ ___
 
 [Analyse des résultats](../Analyse.md) 
 ___
-(Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./Abandonn%C3%A9/Id%C3%A9es%20Protocole.md)**) 
+(Abandonné car trop compliqué pour l'instant : **[Idées Protocole](./OLD/Abandonn%C3%A9/Id%C3%A9es%20Protocole.md)**) 
 ___
 
 **Cycles et boucles** :
@@ -54,3 +54,4 @@ https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 [Avancement](../Avancement.md)
 [Analyse des résultats](../Analyse.md)
 [À faire dans code](../%C3%80%20faire%20dans%20code.md)
+[MCOT](../MCOT.md)
