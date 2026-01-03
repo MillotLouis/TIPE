@@ -64,8 +64,7 @@ class Simulation:
 
         #création des liens
         self._create_links()
-        self.positions_start = None
-        self.track_ids = [1,2,3,4]
+        
         self.traj = {nid: [] for nid in self.track_ids}
 
         # Garde: ne jamais laisser "files" arriver dans _bm_replay
@@ -143,11 +142,7 @@ class Simulation:
 
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
-    def _bm_parse_movements(self, path):
-        """
-        Lit un fichier BonnMotion 'par nœud' où chaque ligne = t0 x0 y0 t1 x1 y1 ...
-        Retour: {node_id: [(t, x, y), ...]} trié par t croissant.
-        """
+    """     def _bm_parse_movements(self, path):
         traces = {}
         with open(path, "r") as f:
             for i, line in enumerate(f):
@@ -161,16 +156,9 @@ class Simulation:
                     seq.append((float(t), float(x), float(y)))
                 seq.sort(key=lambda p: p[0]) #Trie la liste par temps
                 traces[i] = seq
-        return traces
+        return traces """
 
-    def _bm_replay(self, file, time_scale=1.0):
-        """
-        Rejoue une trace BM en mettant à jour node.pos en continu.
-        - time_scale: BM_t = SimPy_t / time_scale
-          * 1.0  => 1s SimPy = 1s BM
-          * 0.01 => 1s SimPy = 0.01s BM (donc 100s SimPy = 1s BM)
-          * 100  => 1s SimPy = 100s BM
-        """
+    """     def _bm_replay(self, file, time_scale=1.0):
         all_traces = self._bm_parse_movements(file) # Dico de listes de tuples (t,x,y)
         traces = {}
         indexes = {}
@@ -223,6 +211,76 @@ class Simulation:
                 node.pos = (nx, ny)
 
             yield self.net.env.timeout(dt)
+    """
+
+
+    def _bm_replay(self, file, time_scale=1.0):
+        """
+        Rejoue les déplacements
+        """
+        traces = {}
+        with open(file, "r") as f:
+            for nid, line in enumerate(f):
+                vals = [float(v) for v in line.split()]
+                if not vals or nid not in self.net.G.nodes:
+                    continue
+                # Crée des triplets (t, x, y)
+                traces[nid] = list(zip(vals[0::3], vals[1::3], vals[2::3]))
+
+        # Place tout les noeuds au départ
+        indexes = {nid: 0 for nid in traces} # Curseur de lecture pour chaque noeud
+        for nid, seq in traces.items():
+            x0, y0 = seq[0][1], seq[0][2]
+            self.net.G.nodes[nid]['obj'].pos = (x0, y0)
+        
+        dt = 0.5
+
+        # Boucle principale de mouvement
+        while not self.net.stop:
+            sim_t = self.net.env.now
+
+            for nid, seq in traces.items():
+                node = self.net.G.nodes[nid]['obj']
+                if not node.alive:
+                    continue
+
+                # --- Logique du curseur (INDEXES) ---
+                # On avance le curseur 'idx' quand le segment actuel est fini
+                # seq[idx] est le point de départ du segment actuel
+                # seq[idx+1] est le point d'arrivée (la prochaine destination)
+                idx = indexes[nid]
+                
+                # Tant qu'il reste des points ET que le temps actuel dépasse l'arrivée du segment
+                while idx + 1 < len(seq) and sim_t >= seq[idx + 1][0]:
+                    idx += 1
+                
+                indexes[nid] = idx # Sauvegarde la nouvelle position du curseur
+
+                # --- Interpolation ---
+                if idx + 1 < len(seq):
+                    # On est entre le point idx (A) et idx+1 (B)
+                    t_start, x_start, y_start = seq[idx]
+                    t_end, x_end, y_end = seq[idx + 1]
+
+                    # Si on est bien dans l'intervalle de temps (et pas avant le début)
+                    if sim_t >= t_start:
+                        # Pourcentage du trajet effectué (u va de 0 à 1)
+                        total_duration = t_end - t_start
+                        if total_duration > 0:
+                            u = (sim_t - t_start) / total_duration
+                            
+                            # Formule : Pos = Départ + u * (Arrivée - Départ)
+                            new_x = x_start + u * (x_end - x_start)
+                            new_y = y_start + u * (y_end - y_start)
+                            node.pos = (new_x, new_y)
+                else:
+                    # Plus de points futurs, le noeud reste à sa dernière position connue
+                    _, last_x, last_y = seq[-1]
+                    node.pos = (last_x, last_y)
+
+            yield self.net.env.timeout(dt)
+
+
 
 
     def get_metrics(self):
@@ -268,37 +326,6 @@ class Simulation:
     #     print(f"Moyenne batterie finale: {self.:.2f}")
     #     print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
 
-    def plot_positions_before_after(self, title="Positions des nœuds"):
-        import matplotlib.pyplot as plt
-
-        start = self.positions_start or {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
-        end   = {nid: self.net.G.nodes[nid]['obj'].pos for nid in self.net.G.nodes}
-
-        # utilitaire pour scatter + labels
-        def _scatter_with_labels(ax, positions, subtitle):
-            xs, ys = [], []
-            ids = sorted(positions.keys())
-            for nid in ids:
-                x, y = positions[nid]
-                xs.append(x); ys.append(y)
-            ax.scatter(xs, ys, s=25)
-            # labels (IDs)
-            for nid in ids:
-                x, y = positions[nid]
-                ax.text(x, y, str(nid), fontsize=8, ha="center", va="bottom")
-            ax.set_title(subtitle)
-            ax.set_xlabel("x"); ax.set_ylabel("y")
-            ax.set_xlim(0, self.area_size); ax.set_ylim(0, self.area_size)
-            ax.set_aspect("equal", adjustable="box")
-            ax.grid(True, linestyle=":", alpha=0.3)
-
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-        _scatter_with_labels(axes[0], start, "Avant simulation")
-        _scatter_with_labels(axes[1], end,   "Après simulation")
-
-        fig.suptitle(title)
-        fig.tight_layout()
-        plt.show()
 
     def plot_paths(self, ids=None, title="Trajectoires de quelques nœuds"):
         """Permet de visualiser la trajectoire des noeuds renseignés dans ids"""
@@ -330,6 +357,55 @@ class Simulation:
         plt.show()
 
 
+def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
+                            bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
+                            duration=5000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
+    """
+    Génère nb_runs traces pour une valeur de nb_nodes.
+    Commande demandée :
+    bm -f "<out_dir>\{nb_nodes}rw{n_simu}" RandomWaypoint -n {nb_nodes} -d 5000 -x 400 -y 400 -l 1.0 -h 2.0 -p 5 -o 2
+    Retourne la liste complète des chemins .movements (décompressés).
+    """
+    os.makedirs(out_dir, exist_ok=True)
+    movements_files = []
+
+    for n_simu in range(nb_runs):
+        base = os.path.join(out_dir, f"{nb_nodes}rw{n_simu}")
+        # Générer avec BM
+        cmd = [
+            bm_exe,
+            "-f", base,
+            "RandomWaypoint",
+            "-n", str(nb_nodes),
+            "-d", str(duration),
+            "-x", str(),
+            "-y", str(Y),
+            "-l", str(vmin),
+            "-h", str(vmax),
+            "-p", str(pause),
+            "-o", str(o),
+        ]
+        print("CMD>", " ".join(f'"{c}"' if " " in c else c for c in cmd))
+        subprocess.run(cmd, check=True)
+
+        # Décompresser .movements.gz vers .movements
+        gz_path = base + ".movements.gz"
+        mov_path = base + ".movements"
+        if os.path.exists(gz_path):
+            with gzip.open(gz_path, "rb") as f_in, open(mov_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            os.remove(gz_path)
+        
+        # Supprimer le .params pour ne garder que .movements
+        params_path = base + ".params"
+        if os.path.exists(params_path):
+            os.remove(params_path)
+
+        movements_files.append(mov_path)
+
+    return movements_files
+
+
 ## Comparaison des protocoles ##
 
 def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,bm_cfg=None,plot_dr=False, plot_mode='last'):
@@ -349,32 +425,24 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
     }
 
         # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
-    bm_files = None
-    if bm_cfg:
-        # priorités : files > file > génération
-        if bm_cfg.get("files"):
-            bm_files = bm_cfg["files"]
-        elif bm_cfg.get("file"):
-            bm_files = [bm_cfg["file"]] * nb_runs
-        else:
-            # Génération auto
-            out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
-            bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
-            duration = bm_cfg.get("duration", 500000)
-            X = bm_cfg.get("X", size)
-            Y = bm_cfg.get("Y", size)
-            vmin = bm_cfg.get("vmin", 1.0)
-            vmax = bm_cfg.get("vmax", 2.0)
-            pause = bm_cfg.get("pause", 5)
-            o = bm_cfg.get("o", 2)
-            bm_files = _bm_generate_traces_for_N(
-                nb_nodes=nb_nodes,
-                nb_runs=nb_runs,
-                out_dir=out_dir,
-                bm_exe=bm_exe,
-                duration=duration, X=X, Y=Y,
-                vmin=vmin, vmax=vmax, pause=pause, o=o
-            )
+    out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
+    bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
+    duration = bm_cfg.get("duration", 500000)
+    X = bm_cfg.get("X", size)
+    Y = bm_cfg.get("Y", size)
+    vmin = bm_cfg.get("vmin", 1.0)
+    vmax = bm_cfg.get("vmax", 2.0)
+    pause = bm_cfg.get("pause", 5)
+    o = bm_cfg.get("o", 2)
+    bm_files = _bm_generate_traces_for_N(
+        nb_nodes=nb_nodes,
+        size = size,
+        nb_runs=nb_runs,
+        out_dir=out_dir,
+        bm_exe=bm_exe,
+        duration=duration, X=X, Y=Y,
+        vmin=vmin, vmax=vmax, pause=pause, o=o
+    )
 
 
     last_pair = None  # pour tracer à la fin si besoin
@@ -523,53 +591,7 @@ def _one_point(args):
     mod_avg = calc_avg_metrics(res["mod"])
     return (nb_nodes, reg_avg, mod_avg)
 
-def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,
-                              bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-                              duration=500000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
-    """
-    Génère nb_runs traces pour une valeur de nb_nodes.
-    Commande demandée :
-      bm -f "<out_dir>\{nb_nodes}rw{n_simu}" RandomWaypoint -n {nb_nodes} -d 5000 -x 400 -y 400 -l 1.0 -h 2.0 -p 5 -o 2
-    Retourne la liste complète des chemins .movements (décompressés).
-    """
-    os.makedirs(out_dir, exist_ok=True)
-    movements_files = []
 
-    for n_simu in range(nb_runs):
-        base = os.path.join(out_dir, f"{nb_nodes}rw{n_simu}")
-        # Générer avec BM
-        cmd = [
-            bm_exe,
-            "-f", base,
-            "RandomWaypoint",
-            "-n", str(nb_nodes),
-            "-d", str(duration),
-            "-x", str(X),
-            "-y", str(Y),
-            "-l", str(vmin),
-            "-h", str(vmax),
-            "-p", str(pause),
-            "-o", str(o),
-        ]
-        print("CMD>", " ".join(f'"{c}"' if " " in c else c for c in cmd))
-        subprocess.run(cmd, check=True)
-
-        # Décompresser .movements.gz vers .movements
-        gz_path = base + ".movements.gz"
-        mov_path = base + ".movements"
-        if os.path.exists(gz_path):
-            with gzip.open(gz_path, "rb") as f_in, open(mov_path, "wb") as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            os.remove(gz_path)
-        
-        # Supprimer le .params pour ne garder que .movements
-        params_path = base + ".params"
-        if os.path.exists(params_path):
-            os.remove(params_path)
-
-        movements_files.append(mov_path)
-
-    return movements_files
 
 def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None,
                      bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité"):
@@ -593,6 +615,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
         # --- Génère les nb_runs traces pour ce N ---
         bm_files_for_this_N = _bm_generate_traces_for_N(
             nb_nodes=N,
+            size = size,
             nb_runs=params["nb_runs"],
             out_dir=bm_out_dir,
             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
