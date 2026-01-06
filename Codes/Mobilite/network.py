@@ -1,7 +1,6 @@
 import random
 import simpy
 import copy
-import networkx as nx
 import numpy as np
 
 from node import Node
@@ -35,8 +34,8 @@ class Network:
         self.env = simpy.Environment()                   
         """ Environnement simpy """
         
-        self.G = nx.Graph()                              
-        """ Graphe du réseau """
+        self.G = {}                             
+        """ Graphe du réseau représenté par un dictionnaire node_id : node_obj """
         
         self.conso = conso                               
         """ consomation pour la transmition de requêtes / données : (req,donnée) """
@@ -97,7 +96,7 @@ class Network:
         Marche pareil si reg_aodv ou pas
         """
         new_node = Node(self.env, id, pos, battery, max_dist, self,reg_aodv)
-        self.G.add_node(id, obj=new_node)
+        self.G[id] = new_node
 
     def update_battery(self, node, msg_type, dist):
         """
@@ -120,7 +119,6 @@ class Network:
         """
         yield self.env.timeout(0)
         
-        self.G.remove_edges_from(list(self.G.edges(node.id)))
         node.alive = False
         self.dead_nodes += 1
         
@@ -173,7 +171,7 @@ class Network:
         Calcule la batterie restante moyenne dans le réseau
         Calcule l'écart type sur ↑
         """
-        alive_nodes = [self.G.nodes[n]['obj'] for n in self.G.nodes() if self.G.nodes[n]['obj'].alive]
+        alive_nodes = [node for node in self.G.values() if node.alive]
         
         if not alive_nodes:
             return 0, 0
@@ -189,32 +187,20 @@ class Network:
         Broadcast une RREQ à tous les noeuds à portée de node
         Marche pareil si reg_aodv ou pas
         """
-        neighbors = list(self.G.neighbors(node.id))
-        
-        valid_neighbors = []
-        for neighbor_id in neighbors:
-            neighbor = self.G.nodes[neighbor_id]["obj"]
-            if not neighbor.alive:
+        # if valid_neighbors != []:
+        #     max_dist = max(dist for _, dist in valid_neighbors) if not self.reg_aodv else node.max_dist
+        #     if not self.update_battery(node, "RREQ", max_dist): return #on consomme la batterie une seule fois pour un broadcast
+
+        for neighbor in self.G.values():
+            if not neighbor.alive or self.get_distance(node, neighbor) > node.max_dist:
                 continue
-                
-            dist = self.get_distance(node, neighbor)
-            if dist <= node.max_dist:
-                valid_neighbors.append((neighbor, dist))
 
-        if valid_neighbors != []:
-            max_dist = max(dist for _, dist in valid_neighbors) if not self.reg_aodv else node.max_dist
-            if not self.update_battery(node, "RREQ", max_dist): return #on consomme la batterie une seule fois pour un broadcast
-
-            for neighbor,dist in valid_neighbors:
-                if not neighbor.alive:
-                    continue #si il est mort on passe
-                
-                yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05)) #on ajoute un "jitter" aléatoire avant chaque transmission pour
-                                                                                      #modéliser la réalité et éviter les problèmes de simulation : 
-                                                                                      #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
-                new_rreq = copy.deepcopy(rreq)  #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
-                neighbor.pending.put(new_rreq)
-                self.rreq_forwarded += 1
+            yield self.env.timeout(random.uniform(0.01, 0.05)) #on ajoute un "jitter" aléatoire avant chaque transmission pour
+                                                                #modéliser la réalité et éviter les problèmes de simulation : 
+                                                                #tous les evenements sont planifiés à la même date => elle avance pas dans le temps
+            new_rreq = copy.deepcopy(rreq)  #deepcopy pour avoir des objets différents sinon chaque noeud va modifier le même RREQ
+            neighbor.pending.put(new_rreq)
+            self.rreq_forwarded += 1
 
         
     def unicast_rrep(self, node, rrep):
@@ -227,7 +213,7 @@ class Network:
         if next_hop is None:
             return 
             
-        next_node = self.G.nodes[next_hop]["obj"]
+        next_node = self.G[next_hop]
         
         if not next_node.alive:
             return
@@ -250,7 +236,7 @@ class Network:
         if next_hop is None:
             return
             
-        next_node = self.G.nodes[next_hop]["obj"]
+        next_node = self.G[next_hop]
         if not next_node.alive:
             return
             

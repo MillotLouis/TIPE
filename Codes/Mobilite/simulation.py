@@ -74,10 +74,6 @@ class Simulation:
         if bonnmotion:
             self.net.env.process(self._bm_replay(**bonnmotion))
         
-    def _create_links(self):
-        for i in range(self.nb_nodes):
-            for j in range(i + 1, self.nb_nodes):
-                self.net.G.add_edge(i, j)
 
     def _random_communication(self):
         """Simule des communications tant que la simulation n'est pas terminée"""
@@ -90,7 +86,7 @@ class Simulation:
                 dest_id = rng.randint(0, self.nb_nodes-1)
             #on choisit deux noeuds différents
 
-            src_node = self.net.G.nodes[src_id]['obj']
+            src_node = self.net.G[src_id]
             if src_node.alive:
                 src_node.send_data(dest_id) # on lance le tranfert de données
             
@@ -130,15 +126,6 @@ class Simulation:
             self.window_ratio_send.append(
                 self._windowed_ratio(self.net.data_send_times, start_t, current_time, self.net.data_log)
             )
-
-            if self.track_ids:
-                for nid in self.track_ids:
-                    if nid not in self.net.G:
-                        continue
-                    node = self.net.G.nodes[nid]['obj']                 # Permet de visualiser les trajectoires
-                    x, y = node.pos
-                    self.traj[nid].append((current_time, x, y))
-            
 
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
@@ -222,7 +209,7 @@ class Simulation:
         with open(file, "r") as f:
             for nid, line in enumerate(f):
                 vals = [float(v) for v in line.split()]
-                if not vals or nid not in self.net.G.nodes:
+                if not vals or nid not in self.net.G:
                     continue
                 # Crée des triplets (t, x, y)
                 traces[nid] = list(zip(vals[0::3], vals[1::3], vals[2::3]))
@@ -231,7 +218,7 @@ class Simulation:
         indexes = {nid: 0 for nid in traces} # Curseur de lecture pour chaque noeud
         for nid, seq in traces.items():
             x0, y0 = seq[0][1], seq[0][2]
-            self.net.G.nodes[nid]['obj'].pos = (x0, y0)
+            self.net.G[nid].pos = (x0, y0)
         
         dt = 0.5
 
@@ -240,7 +227,7 @@ class Simulation:
             sim_t = self.net.env.now
 
             for nid, seq in traces.items():
-                node = self.net.G.nodes[nid]['obj']
+                node = self.net.G[nid]
                 if not node.alive:
                     continue
 
@@ -333,7 +320,7 @@ class Simulation:
 
         # Nuage des positions finales de tous les nœuds (gris clair)
         fig, ax = plt.subplots(figsize=(6.5, 6.5))
-        all_pos = [self.net.G.nodes[n]['obj'].pos for n in self.net.G.nodes]
+        all_pos = [self.net.G[n].pos for n in self.net.G.values()]
         ax.scatter([p[0] for p in all_pos], [p[1] for p in all_pos], s=18, alpha=0.25, label="Autres nœuds (final)")
 
         # Trajectoires pour les nœuds choisis

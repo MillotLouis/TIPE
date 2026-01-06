@@ -39,7 +39,7 @@ class Node:
         self.network = network                     
         """ Classe network dont fait partie le noeud """
         
-        self.seen = set() if reg_aodv else {}      
+        self.seen = {}      
         """ (rreq.src_id, rreq.src_seq) : (compteur,meilleur poids) """
         
         self.collected_rreqs = {}                  
@@ -52,10 +52,10 @@ class Node:
         self.reg_aodv = reg_aodv                   
         """ True si on utilise le AODV classique et False si on utilise le mien """
         
-        self.MAX_DUPLICATES = 3                    
+        self.MAX_DUPLICATES = 1 if reg_aodv else 3                     
         """ On s'autorise 3 RREQs max par (src_id,src_seq)  """
         
-        self.WEIGHT_SEUIL = 1.3                    
+        self.WEIGHT_SEUIL = 1.0 if reg_aodv else 1.5                    
         """ Seuil à partir duquel on considère avoir vu une vraie amélioration """ 
         
         self.data_seq = 0
@@ -96,7 +96,7 @@ class Node:
         self.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rreq(self, rreq):
-        prev_node = self.network.G.nodes[rreq.prev_hop]["obj"]
+        prev_node = self.network.G[rreq.prev_hop]
         weight = self.network.calculate_weight(prev_node, self) #inclus la pénalité si batterie en dessous du seuil
         rreq.weight += weight
         
@@ -104,35 +104,22 @@ class Node:
             return #on discard si on a déjà vu : évite les **boucles** ♥
                    #éviter que les RREQs soient renvoyés à la source       
         
-        
-        if self.reg_aodv:
-            """reg_aodv = True"""
-            if (rreq.src_id,rreq.src_seq) in self.seen:
+        #vérification pour éviter boucles
+        seen_key = (rreq.src_id, rreq.src_seq)
+        count,min_weight = self.seen.get(seen_key, (0,float('inf')))
+        if count > self.MAX_DUPLICATES or rreq.weight * self.WEIGHT_SEUIL >= min_weight:
                 return
-            self.seen.add((rreq.src_id,rreq.src_seq))
-
-            if self.id == rreq.dest_id:
-                self.send_rrep(rreq)
-                return
-        
         else:
-            """reg_aodv = False"""
-            #vérification pour éviter boucles
-            seen_key = (rreq.src_id, rreq.src_seq)
-            count,min_weight = self.seen.get(seen_key, (0,float('inf')))
-            if count > self.MAX_DUPLICATES or rreq.weight * self.WEIGHT_SEUIL >= min_weight:
-                    return
-            else:
-                self.seen[seen_key] = (count + 1,rreq.weight) 
-            
-            # Collecte des rreps si on est la destination
-            if self.id == rreq.dest_id: #Si on est la destination du RREQ
-                key = (rreq.src_id, rreq.src_seq)
-                if key not in self.collected_rreqs:
-                    self.collected_rreqs[key] = []
-                    self.env.process(self.collect_rreps(key)) # on commence la collecte des RREPs
-                self.collected_rreqs[key].append(rreq)
-                return
+            self.seen[seen_key] = (count + 1,rreq.weight) 
+        
+        # Collecte des rreps si on est la destination
+        if self.id == rreq.dest_id: #Si on est la destination du RREQ
+            key = (rreq.src_id, rreq.src_seq)
+            if key not in self.collected_rreqs:
+                self.collected_rreqs[key] = []
+                self.env.process(self.collect_rreps(key)) # on commence la collecte des RREPs
+            self.collected_rreqs[key].append(rreq)
+            return
             
         
         
@@ -150,7 +137,7 @@ class Node:
 
     def handle_rrep(self, rrep):
         """Marche pareil si reg_aodv ou pas"""
-        prev_node = self.network.G.nodes[rrep.prev_hop]["obj"]
+        prev_node = self.network.G[rrep.prev_hop]
         weight = self.network.calculate_weight(prev_node, self) #inclus la penalité si en dessous du seuil
         rrep.weight += weight
         
@@ -201,15 +188,14 @@ class Node:
     def update_route(self, dest, next_hop, seq_num, weight):
         current = self.routing_table.get(dest, (None, -1, float('inf'), 0))
         
+        ttl = self.network.ttl
+
         if not self.reg_aodv:    
+            pass
             # dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
             
-            if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
-                self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + self.network.ttl)
-
-        else:
-            if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]): #si la route est plus fraiche ou aussi fraiche avec un poids moindre
-                self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + self.network.ttl)
+        if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]): #si la route est plus fraiche ou aussi fraiche avec un poids moindre
+            self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + ttl)
 
 
     def collect_rreps(self, key):
@@ -247,7 +233,9 @@ class Node:
         self.network.messages_initiated += 1
         self.network.log_data_init(self.id, self.data_seq, self.env.now)
 
-        if dest_id in self.routing_table and self.routing_table.get(msg.dest_id, (None, 0, 0, 0))[3] >= self.env.now:
+        route = self.routing_table.get(dest_id,None)
+        #route = (next_hop,seq_num,weight,expiry)
+        if route and route[3] >= self.env.now:
             #si la route existe et est toujours valide ie si la date d'expiration n'est pas encore dépassée
             self.network.messages_sent += 1
             self.env.process(self.network.forward_data(self, msg))
