@@ -57,5 +57,5 @@ https://chat.deepseek.com/a/chat/s/47e9b763-6d1d-443a-8c26-63b40a7f9914
 [Avancement](./Avancement.md)
 [Analyse des résultats](./Analyse.md)
 [À faire dans code](./%C3%80%20faire%20dans%20code.md)
-[MCOT](./MCOT.md)
+[MCOT -- Louis Millot](./MCOT%20--%20Louis%20Millot.md)
 [Idées améliorations](./Id%C3%A9es%20am%C3%A9liorations.md)
