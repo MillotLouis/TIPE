@@ -18,4 +18,4 @@ Type glouton : chaque noeud stocke ses propres métriques et envoie un message d
 Garde table de métriques des noeuds les plus proches et calcule leur score quand il veut transmettre un paquet il l'envoie à celui avec le plus grand score (les deux plus grand peut-être pour limiter perte potentielle : faire en premier sans dire que pas ouf et proposer cette modification avec d'autres peut être)
 
 ___ 
-**[Implementation possible](./Implementation%20possible.md)**
+**[Implementation possible](../../../Implementation%20possible.md)**

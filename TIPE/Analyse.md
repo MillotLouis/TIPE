@@ -1,7 +1,6 @@
 ---
 share: true
 ---
-
 ==Comparer 50% noeuds et 75% noeuds car + pas réaliste==
 Pour analyser les résultats je vais faire des scénarios et comparer des métriques pour les deux protocoles
 
