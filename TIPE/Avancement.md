@@ -32,4 +32,6 @@ share: true
 	Pas concluant, le delivery ratio ne chute pas assez pour que cela explique la baisse de performance
 PEUT ETRE plot le nombre de messages envoyés pour confirmer que c'est pas à cause de ça / pour avoir des résultats relatifs aux nb de messages envoyés
 
-13. ttl dynamique inefficace il me semble, **à vérifier**
+12. ttl dynamique inefficace il me semble, **à vérifier**
+
+13. trouver dans quel contexte (densité,...) il est le plus efficace et trouver meilleures pondérations après
