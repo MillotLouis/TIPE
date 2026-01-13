@@ -10,7 +10,7 @@ import bisect
 from network import Network
 
 class Simulation:
-    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,reg_aodv,init_bat, node_positions = None,bonnmotion=None,traffic_seed=None):
+    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,reg_aodv,init_bat, duration,node_positions = None,bonnmotion=None,traffic_seed=None):
         self.nb_nodes = nb_nodes           
         """ Nombre de noeuds de la simulation """
         
@@ -35,6 +35,8 @@ class Simulation:
         self.window_size = 100.0           
         """ Taille de la fenêtre glissante pour représenter le delivery ratio """
         
+        self.duration = duration
+
         self.window_ratio_gen = []         # ?
         self.window_ratio_send = []
 
@@ -78,7 +80,7 @@ class Simulation:
     def _random_communication(self):
         """Simule des communications tant que la simulation n'est pas terminée"""
         rng = random.Random(self.traffic_seed)
-        while not self.net.stop:
+        while self.net.env.now <= self.duration:
             src_id = rng.randint(0, self.nb_nodes-1)
             dest_id = rng.randint(0, self.nb_nodes-1)
             
@@ -115,7 +117,7 @@ class Simulation:
         return 100.0 * delivered / len(keys_in_win)
 
     def _monitor(self):
-        while not self.net.stop:
+        while self.net.env.now <= self.duration:
             current_time = self.net.env.now
             self.time_points.append(current_time) #points temporels pour ploter les données
             
@@ -223,7 +225,7 @@ class Simulation:
         dt = 0.5
 
         # Boucle principale de mouvement
-        while not self.net.stop:
+        while self.net.env.now <= self.duration:
             sim_t = self.net.env.now
 
             for nid, seq in traces.items():
@@ -347,12 +349,6 @@ class Simulation:
 def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
                             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
                             duration=5000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
-    """
-    Génère nb_runs traces pour une valeur de nb_nodes.
-    Commande demandée :
-    bm -f "<out_dir>\{nb_nodes}rw{n_simu}" RandomWaypoint -n {nb_nodes} -d 5000 -x 400 -y 400 -l 1.0 -h 2.0 -p 5 -o 2
-    Retourne la liste complète des chemins .movements (décompressés).
-    """
     os.makedirs(out_dir, exist_ok=True)
     movements_files = []
 
@@ -365,7 +361,7 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
             "RandomWaypoint",
             "-n", str(nb_nodes),
             "-d", str(duration),
-            "-x", str(),
+            "-x", str(X),
             "-y", str(Y),
             "-l", str(vmin),
             "-h", str(vmax),
@@ -395,7 +391,7 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
 
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,init_bat,bm_cfg=None,plot_dr=False, plot_mode='last'):
+def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,init_bat,duration,bm_cfg=None,plot_dr=False, plot_mode='last'):
     reg_aodv_res = []
     mod_aodv_res = []
 
@@ -414,10 +410,9 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
     out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
     bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
-    duration = bm_cfg.get("duration", 500000)
-    X = bm_cfg.get("X", size)
-    Y = bm_cfg.get("Y", size)
-    vmin = bm_cfg.get("vmin", 1.0)
+    X = size
+    Y = size
+    vmin = 0.5
     vmax = bm_cfg.get("vmax", 2.0)
     pause = bm_cfg.get("pause", 5)
     o = bm_cfg.get("o", 2)
@@ -581,7 +576,7 @@ def _one_point(args):
 
 
 
-def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None,
+def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None, duration,
                      bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité"):
     """
     Fait la même chose qu'avant, mais :
@@ -607,7 +602,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
             nb_runs=params["nb_runs"],
             out_dir=bm_out_dir,
             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-            duration=500000, X=size, Y=size, vmin=1.0, vmax=2.0, pause=5, o=2
+            duration=duration, X=size, Y=size, vmin=0.5, vmax=1, pause=10, o=2
         )
         # Empile la tâche pour le pool
         tasks.append((N, max_dist, params, bm_files_for_this_N))
@@ -749,18 +744,18 @@ if __name__ == "__main__":
     }
 
     params = {
-        "nb_runs": 2,
+        "nb_runs": 1,
         "size": 800,
         "conso": (0.0001,0.001),
         "seuil_coeff": 750,
         "coeff_dist_weight": 0.6,
-        "coeff_bat_weight": 0.2,
+        "coeff_bat_weight": 0.2,    
         "coeff_dist_bat": 0.005,
         "ttl": 100,
         "seed_base": 12345,
         "bm_cfg": bm_cfg,
-        "init_bat" : 10000
-
+        "init_bat" : 10000,
+        "duration" : 100
     }
     out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=0.5, factor_max=0.8,
                            bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")
