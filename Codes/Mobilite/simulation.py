@@ -294,7 +294,7 @@ class Simulation:
     def run(self):
         self.net.env.process(self._random_communication()) # on démarre les communications
         self.net.env.process(self._monitor()) # on démarre le monitoring pour récolter les données durant la simulation
-        while not self.net.stop: # and self.net.env.now <= 10000
+        while not self.net.stop: 
             self.net.env.step()
 
     # def print_results(self):
@@ -395,7 +395,7 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
 
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,bm_cfg=None,plot_dr=False, plot_mode='last'):
+def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,init_bat,bm_cfg=None,plot_dr=False, plot_mode='last'):
     reg_aodv_res = []
     mod_aodv_res = []
 
@@ -462,7 +462,7 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         sim_reg = Simulation(
             node_positions=positions,
             reg_aodv=True,
-            init_bat=100000,
+            init_bat=init_bat,
             bonnmotion=bm_cfg_run,
             traffic_seed=seed_i,
             **params
@@ -480,7 +480,7 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         sim_mod = Simulation(
             node_positions=positions,
             reg_aodv=False,
-            init_bat=100000, #pour ne pas avoir de valeurs trop petites dans les consommations
+            init_bat=init_bat, 
             bonnmotion=bm_cfg_run,
             traffic_seed=seed_i,
             **params
@@ -571,7 +571,8 @@ def _one_point(args):
         coeff_dist_bat=params["coeff_dist_bat"],
         ttl=params["ttl"],
         seed_base=params.get("seed_base", 12345),
-        bm_cfg=bm_cfg
+        bm_cfg=bm_cfg,
+        init_bat= params["init_bat"]
     )
 
     reg_avg = calc_avg_metrics(res["reg"])
@@ -589,7 +590,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
     """
     size = params["size"]
     n_min = (size / max_dist)**2 * math.pi
-    print(n_min)
+    # print(n_min)
     n_lo = max(2, int(round(factor_min * n_min)))
     n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
     nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
@@ -746,36 +747,20 @@ if __name__ == "__main__":
         "file": "",  # sera remplacé par chaque fichier généré OU par "files" injecté dans densite_parallel
         "time_scale": 0.01,       # 1 s BM = 100 s SimPy
     }
-    
-    # res = run_comparison_simulations(
-    #     nb_runs=1, nb_nodes=20, size=800, max_dist=250,
-    #     conso=(1,20), seuil=750, coeff_dist_weight=0.6, coeff_bat_weight=0.2,
-    #     coeff_dist_bat=0.005, ttl=100, seed_base=12345, bm_cfg=bm_cfg,
-    #     plot_dr=True,          # << active le plot
-    #     plot_mode='last'       # 'each' pour tracer à chaque run
-    # )
 
-    # Exemple simple : 10 runs sur N=20 sans densité parallèle
-    # res = run_comparison_simulations(
-    #     nb_runs=10, nb_nodes=20, size=800, max_dist=250,
-    #     conso=(1,20), seuil=750, coeff_dist_weight=0.6, coeff_bat_weight=0.2,
-    #     coeff_dist_bat=0.005, ttl=100,seed_base=12345,
-    #     bm_cfg=bm_cfg
-    # )
-    # print_avg_results(res["reg"],res["mod"],10)
-    
-    # Exemple d'appel de densite_parallel (avec génération BM intégrée) :
     params = {
         "nb_runs": 2,
         "size": 800,
-        "conso": (1, 20),
-        "seuil": 750,
+        "conso": (0.0001,0.001),
+        "seuil_coeff": 750,
         "coeff_dist_weight": 0.6,
         "coeff_bat_weight": 0.2,
         "coeff_dist_bat": 0.005,
         "ttl": 100,
         "seed_base": 12345,
-        "bm_cfg": bm_cfg
+        "bm_cfg": bm_cfg,
+        "init_bat" : 10000
+
     }
     out = densite_parallel(pas=2, max_dist=250, params=params, factor_min=0.5, factor_max=0.8,
                            bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité")

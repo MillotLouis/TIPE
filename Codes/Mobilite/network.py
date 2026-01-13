@@ -30,7 +30,7 @@ class Message:
         """ dernier noeud par lequel le message a été forwardé """
 
 class Network:
-    def __init__(self, conso, seuil, coeff_dist_weight, coeff_bat_weight, coeff_dist_bat, nb_nodes, ttl, reg_aodv):
+    def __init__(self, conso, seuil_coeff, coeff_dist_weight, coeff_bat_weight, coeff_dist_bat, nb_nodes, ttl, reg_aodv):
         self.env = simpy.Environment()                   
         """ Environnement simpy """
         
@@ -40,7 +40,7 @@ class Network:
         self.conso = conso                               
         """ consomation pour la transmition de requêtes / données : (req,donnée) """
         
-        self.seuil = seuil                               
+        self.seuil_coeff = seuil_coeff                               
         """ seuil à partir duquel on applique la pénalité sur le poids des routes """
         
         self.coeff_dist_weight = coeff_dist_weight       
@@ -103,7 +103,7 @@ class Network:
         Met à jour la batterie et tue le noeud si il n'en a plus 
         Marche pareil si reg_aodv ou pas
         """
-        cons = self.conso[0] if (msg_type[:2] == "RR") else self.conso[1]
+        cons = node.initial_battery*(self.conso[0] if (msg_type[:2] == "RR") else self.conso[1])
         energy_cost = self.coeff_dist_bat * dist + cons
         node.battery = max(0, node.battery - energy_cost)
         self.energy_consumed += energy_cost
@@ -158,10 +158,11 @@ class Network:
         
         weight = (self.coeff_dist_weight * dist_norm) + (self.coeff_bat_weight * bat_norm)
 
-        if bat < self.seuil:
+        seuil = n2.initial_battery *self.seuil_coeff
+        if bat < seuil:
             self.seuiled += 1
-            ecart = (self.seuil - bat) / self.seuil
-            penalty = min(1.0, 0.5 * ecart)  # limite la pénalité à 1
+            ecart = (seuil - bat) / seuil
+            penalty = min(1.0, ecart)  # limite la pénalité à 1
             weight += penalty
 
         return weight

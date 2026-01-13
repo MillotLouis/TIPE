@@ -192,7 +192,7 @@ class Node:
 
         if not self.reg_aodv:    
             pass
-            # dynamic_ttl = max(1, self.network.ttl * (self.battery/100000))
+            # dynamic_ttl = max(1, self.network.ttl * (self.battery/self.initial_battery))
             
         if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]): #si la route est plus fraiche ou aussi fraiche avec un poids moindre
             self.routing_table[dest] = (next_hop, seq_num, weight, self.env.now + ttl)
