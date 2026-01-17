@@ -9,16 +9,51 @@ import bisect
 
 from network import Network
 
+
+from dataclasses import dataclass
+from typing import Tuple, Optional, Dict
+
+@dataclass
+class SimConfig:
+    nb_nodes: int
+    """ Nombre de noeuds de la simulation """
+    area_size: int
+    """ Taille de la carte : area_size*area_size """
+    max_dist: float
+    """ Distance max à laquelle un noeud peut transmettre """
+    init_bat: float
+    """ batterie initiale pour tous les noeuds """
+    conso: Tuple[float, float]
+    
+    # Paramètres du Protocole (AODV / Energy Aware)
+    ttl: int
+    seuil: float
+    coeff_dist_weight: float
+    coeff_bat_weight: float
+    coeff_dist_bat: float
+    
+    # Paramètres de la Simulation
+    duration: float
+    window_size: float = 100.0
+
+
+@dataclass
+class BonnMotionConfig:
+    bm_exe: str       # Chemin vers l'exécutable
+    output_dir: str   # Dossier de sortie des traces
+    scenario: str = "RandomWaypoint"
+    
+    # Paramètres du modèle de mobilité (Random Waypoint)
+    vmin: float = 0.5
+    vmax: float = 1.0
+    pause: float = 50.0
+    
+    time_scale: float = 1.0  
+
+
 class Simulation:
-    def __init__(self,nb_nodes, area_size, max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,reg_aodv,init_bat, duration,node_positions = None,bonnmotion=None,traffic_seed=None):
-        self.nb_nodes = nb_nodes           
-        """ Nombre de noeuds de la simulation """
-        
-        self.area_size = area_size         
-        """ Taille de la carte : area_size*area_size """
-        
-        self.max_dist = max_dist           
-        """ Distance max à laquelle un noeud peut transmettre """
+    def __init__(self, config, reg_aodv,node_positions = None,trace_file = None,traffic_seed=None):
+        self.cfg = config
         
         self.reg_aodv = reg_aodv           
         """  True si on utilise AODV et false sinon """
@@ -26,16 +61,22 @@ class Simulation:
         self.time_points = []              
         """ Abscisse pour plot les résultats au cours du temps  """
         
-        self.init_bat = init_bat           
-        """ batterie initiale pour tous les noeuds """
-        
         self.traffic_seed = traffic_seed   
         """ seed pour le générateur aléatoire de messages """
         
         self.window_size = 100.0           
         """ Taille de la fenêtre glissante pour représenter le delivery ratio """
-        
-        self.duration = duration
+
+        self.node_positions = node_positions or {} #si on a déjà une configuration on l'importe sinon on en crée une
+        #création des noeuds
+        for i in range(self.cfg.nb_nodes):
+            if i in self.node_positions:
+                pos = self.node_positions[i]
+            else:
+                pos = (random.uniform(0, self.area_size), random.uniform(0, self.area_size))
+                self.node_positions[i] = pos
+            
+            self.net.add_node(id=i, pos=pos, max_dist=self.cfg.max_dist, battery=self.init_bat,reg_aodv=self.reg_aodv)        
 
         self.window_ratio_gen = []         # ?
         self.window_ratio_send = []
@@ -43,38 +84,21 @@ class Simulation:
 
         #création du réseau
         self.net = Network(
-            conso=conso,                   
-            seuil=seuil,                
-            coeff_dist_weight=coeff_dist_weight,
-            coeff_bat_weight=coeff_bat_weight,
-            coeff_dist_bat=coeff_dist_bat,
-            nb_nodes=nb_nodes,
-            ttl=ttl,
+            conso=self.cfg.conso,                   
+            seuil=self.cfg.seuil,                
+            coeff_dist_weight=self.cfg.coeff_dist_weight,
+            coeff_bat_weight=self.cfg.coeff_bat_weight,
+            coeff_dist_bat=self.cfg.coeff_dist_bat,
+            nb_nodes=self.cfg.nb_nodes,
+            ttl=self.cfg.ttl,
             reg_aodv = reg_aodv
         )
 
-        #création des noeuds
-        self.node_positions = node_positions or {} #si on a déjà une configuration on l'importe sinon on en crée une
-        for i in range(nb_nodes):
-            if i in self.node_positions:
-                pos = self.node_positions[i]
-            else:
-                pos = (random.uniform(0, self.area_size), random.uniform(0, self.area_size))
-                self.node_positions[i] = pos
-            
-            self.net.add_node(id=i, pos=pos, max_dist=max_dist, battery=self.init_bat,reg_aodv=self.reg_aodv)
-
-        #création des liens
-        self._create_links()
-        
-        self.traj = {nid: [] for nid in self.track_ids}
-
-        # Garde: ne jamais laisser "files" arriver dans _bm_replay
-        if bonnmotion and "files" in bonnmotion:
-            bonnmotion = {k: v for k, v in bonnmotion.items() if k != "files"}
-
-        if bonnmotion:
-            self.net.env.process(self._bm_replay(**bonnmotion))
+        if trace_file:
+            if not os.path.exists(trace_file):
+                raise FileNotFoundError(f"Fichier de mobilité introuvable : {trace_file}")
+            # On lance le process SimPy
+            self.net.env.process(self._bm_replay(trace_file))
         
 
     def _random_communication(self):
@@ -346,32 +370,30 @@ class Simulation:
         plt.show()
 
 
-def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
-                            bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-                            duration=5000, X=400, Y=400, vmin=0.5, vmax=1.0, pause=50, o=2):
-    os.makedirs(out_dir, exist_ok=True)
+def generate_bonnmotion_traces(sim_conf,bm_conf,nb_runs):
+    os.makedirs(bm_conf.out_dir, exist_ok=True)
     movements_files = []
 
     for n_simu in range(nb_runs):
-        base = os.path.join(out_dir, f"{nb_nodes}rw{n_simu}")
+        base = os.path.join(bm_conf.out_dir, f"{sim_conf.nb_nodes}rw{n_simu}")
         # Générer avec BM
         cmd = [
-            bm_exe,
+            bm_conf.bm_exe,
             "-f", base,
             "RandomWaypoint",
-            "-n", str(nb_nodes),
-            "-d", str(duration),
-            "-x", str(X),
-            "-y", str(Y),
-            "-l", str(vmin),
-            "-h", str(vmax),
-            "-p", str(pause),
-            "-o", str(o),
+            "-n", str(sim_conf.nb_nodes),
+            "-d", str(sim_conf.duration),
+            "-x", str(sim_conf.area_size),
+            "-y", str(sim_conf.area_size),
+            "-l", str(bm_cfg.vmin),
+            "-h", str(bm_cfg.vmax),
+            "-p", str(bm_cfg.pause),
+            "-o", str(bm_cfg.o),
         ]
         print("CMD>", " ".join(f'"{c}"' if " " in c else c for c in cmd))
         subprocess.run(cmd, check=True)
 
-        # Décompresser .movements.gz vers .movements
+        # Décompresser .movements.gz
         gz_path = base + ".movements.gz"
         mov_path = base + ".movements"
         if os.path.exists(gz_path):
@@ -379,7 +401,7 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
                 shutil.copyfileobj(f_in, f_out)
             os.remove(gz_path)
         
-        # Supprimer le .params pour ne garder que .movements
+        # Supprimer le .params
         params_path = base + ".params"
         if os.path.exists(params_path):
             os.remove(params_path)
@@ -391,7 +413,8 @@ def _bm_generate_traces_for_N(nb_nodes, nb_runs, out_dir,size,
 
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_dist_weight,coeff_bat_weight,coeff_dist_bat,ttl,seed_base,init_bat,duration,bm_cfg=None,plot_dr=False, plot_mode='last'):
+def run_comparison_simulations(config, nb_runs, seed_base, 
+                               bm_cfg=None, plot_dr=False, plot_mode='last'):
     reg_aodv_res = []
     mod_aodv_res = []
 
@@ -407,7 +430,7 @@ def run_comparison_simulations(nb_runs,nb_nodes,size,max_dist,conso,seuil,coeff_
         'ttl': ttl
     }
 
-        # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
+    # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
     out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
     bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
     X = size
@@ -576,7 +599,7 @@ def _one_point(args):
 
 
 
-def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, procs=None, duration,
+def densite_parallel(pas, max_dist, params,factor_min=0.7, factor_max=1.5, procs=None,
                      bm_out_dir=r"C:\Users\millo\Documents\GitHub\TIPE\Codes\Mobilité"):
     """
     Fait la même chose qu'avant, mais :
@@ -602,7 +625,7 @@ def densite_parallel(pas, max_dist, params, factor_min=0.7, factor_max=1.5, proc
             nb_runs=params["nb_runs"],
             out_dir=bm_out_dir,
             bm_exe=r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat",
-            duration=duration, X=size, Y=size, vmin=0.5, vmax=1, pause=10, o=2
+            duration=params["duration"], X=size, Y=size, vmin=0.5, vmax=1, pause=10, o=2
         )
         # Empile la tâche pour le pool
         tasks.append((N, max_dist, params, bm_files_for_this_N))
