@@ -96,7 +96,7 @@ class Simulation:
 
         if trace_file:
             if not os.path.exists(trace_file):
-                raise FileNotFoundError(f"Fichier de mobilité introuvable : {trace_file}")
+                raise FileNotFoundError(f"Fichier introuvabel : {trace_file}")
             # On lance le process SimPy
             self.net.env.process(self._bm_replay(trace_file))
         
@@ -141,11 +141,11 @@ class Simulation:
         return 100.0 * delivered / len(keys_in_win)
 
     def _monitor(self):
-        while self.net.env.now <= self.duration:
+        while self.net.env.now <= self.cfg.duration:
             current_time = self.net.env.now
             self.time_points.append(current_time) #points temporels pour ploter les données
             
-            start_t = current_time - self.window_size
+            start_t = current_time - self.cfg.window_size
             self.window_ratio_gen.append(
                 self._windowed_ratio(self.net.data_init_times, start_t, current_time, self.net.data_log)
             )
@@ -155,141 +155,53 @@ class Simulation:
 
             yield self.net.env.timeout(0.2)  # ce qui donne tous les 2 messages envoyés
 
-    """     def _bm_parse_movements(self, path):
-        traces = {}
-        with open(path, "r") as f:
-            for i, line in enumerate(f):
-                parts = line.strip().split()
-                if not parts:
-                    traces[i] = []
-                    continue
-                it = iter(parts)
-                seq = []
-                for t, x, y in zip(it, it, it):
-                    seq.append((float(t), float(x), float(y)))
-                seq.sort(key=lambda p: p[0]) #Trie la liste par temps
-                traces[i] = seq
-        return traces """
-
-    """     def _bm_replay(self, file, time_scale=1.0):
-        all_traces = self._bm_parse_movements(file) # Dico de listes de tuples (t,x,y)
-        traces = {}
-        indexes = {}
-
-        #Positions de départ
-        for nid, seq in all_traces.items():
-            if nid in self.net.G.nodes and seq:
-                traces[nid] = seq
-                indexes[nid] = 0
-                self.net.G.nodes[nid]['obj'].pos = seq[0][1:]
-        self.positions_start = {n: self.net.G.nodes[n]['obj'].pos for n in self.net.G.nodes}
-
-        seg_idx = {bm_id: 0 for bm_id in traces}
-        dt = 0.05  # pas de temps
-
-        while not self.net.stop:
-            sim_t = self.net.env.now
-            bm_t = sim_t / max(1e-12, time_scale)
-
-            for bm_id, seq in traces.items():
-                nid = bm_id  # identité
-                if nid not in self.net.G.nodes or not seq:
-                    continue
-
-                node = self.net.G.nodes[nid]['obj']
-                if not node.alive:
-                    continue
-
-                # avance l'index jusqu'au segment couvrant bm_t
-                k = seg_idx[bm_id]
-                while k + 1 < len(seq) and seq[k + 1][0] <= bm_t:
-                    k += 1
-                seg_idx[bm_id] = k
-
-                if bm_t <= seq[0][0]:
-                    _, x, y = seq[0]
-                elif bm_t >= seq[-1][0]:
-                    _, x, y = seq[-1]
-                else:
-                    t0, x0, y0 = seq[k]
-                    t1, x1, y1 = seq[k + 1]
-                    u = (bm_t - t0) / max(1e-9, (t1 - t0))
-                    x = x0 + u * (x1 - x0)
-                    y = y0 + u * (y1 - y0)
-
-                # Clamp par défaut aux bornes de la zone
-                nx = min(max(x, 0.0), self.area_size)
-                ny = min(max(y, 0.0), self.area_size)
-
-                node.pos = (nx, ny)
-
-            yield self.net.env.timeout(dt)
-    """
-
-
-    def _bm_replay(self, file, time_scale=1.0):
+    def _bm_replay(self, file_path):
         """
-        Rejoue les déplacements
+        Rejoue les déplacements depuis un fichier .movements standard BonnMotion.
         """
         traces = {}
-        with open(file, "r") as f:
+        with open(file_path, "r") as f:
             for nid, line in enumerate(f):
                 vals = [float(v) for v in line.split()]
-                if not vals or nid not in self.net.G:
-                    continue
-                # Crée des triplets (t, x, y)
-                traces[nid] = list(zip(vals[0::3], vals[1::3], vals[2::3]))
+                # Format BonnMotion : t x y t x y ...
+                if vals and nid < self.cfg.nb_nodes:
+                     traces[nid] = list(zip(vals[0::3], vals[1::3], vals[2::3]))
 
-        # Place tout les noeuds au départ
-        indexes = {nid: 0 for nid in traces} # Curseur de lecture pour chaque noeud
+        # Positionnement initial (t=0)
+        indexes = {nid: 0 for nid in traces}
         for nid, seq in traces.items():
-            x0, y0 = seq[0][1], seq[0][2]
-            self.net.G[nid].pos = (x0, y0)
+            if seq:
+                self.net.G[nid].pos = (seq[0][1], seq[0][2])
+
+        dt = 0.5 # Pas de temps de mise à jour de la position
         
-        dt = 0.5
-
-        # Boucle principale de mouvement
-        while self.net.env.now <= self.duration:
+        while self.net.env.now <= self.cfg.duration:
             sim_t = self.net.env.now
-
+            
             for nid, seq in traces.items():
-                node = self.net.G[nid]
-                if not node.alive:
+                if nid not in self.net.G or not self.net.G[nid].alive:
                     continue
-
-                # --- Logique du curseur (INDEXES) ---
-                # On avance le curseur 'idx' quand le segment actuel est fini
-                # seq[idx] est le point de départ du segment actuel
-                # seq[idx+1] est le point d'arrivée (la prochaine destination)
-                idx = indexes[nid]
                 
-                # Tant qu'il reste des points ET que le temps actuel dépasse l'arrivée du segment
+                # On se place au bon endroit
+                idx = indexes[nid]
                 while idx + 1 < len(seq) and sim_t >= seq[idx + 1][0]:
                     idx += 1
+                indexes[nid] = idx
                 
-                indexes[nid] = idx # Sauvegarde la nouvelle position du curseur
-
-                # --- Interpolation ---
                 if idx + 1 < len(seq):
-                    # On est entre le point idx (A) et idx+1 (B)
-                    t_start, x_start, y_start = seq[idx]
-                    t_end, x_end, y_end = seq[idx + 1]
-
-                    # Si on est bien dans l'intervalle de temps (et pas avant le début)
-                    if sim_t >= t_start:
-                        # Pourcentage du trajet effectué (u va de 0 à 1)
-                        total_duration = t_end - t_start
-                        if total_duration > 0:
-                            u = (sim_t - t_start) / total_duration
-                            
-                            # Formule : Pos = Départ + u * (Arrivée - Départ)
-                            new_x = x_start + u * (x_end - x_start)
-                            new_y = y_start + u * (y_end - y_start)
-                            node.pos = (new_x, new_y)
+                    t0, x0, y0 = seq[idx]
+                    t1, x1, y1 = seq[idx + 1]
+                    
+                    if t1 > t0 and sim_t >= t0:
+                        u = (sim_t - t0) / (t1 - t0)
+                        # Interpolation linéaire
+                        new_x = x0 + u * (x1 - x0)
+                        new_y = y0 + u * (y1 - y0)
+                        
+                        # Mise à jour
+                        self.net.G[nid].pos = (new_x, new_y)
                 else:
-                    # Plus de points futurs, le noeud reste à sa dernière position connue
-                    _, last_x, last_y = seq[-1]
-                    node.pos = (last_x, last_y)
+                    self.net.G[nid].pos = (seq[-1][1], seq[-1][2])
 
             yield self.net.env.timeout(dt)
 
@@ -322,52 +234,6 @@ class Simulation:
         self.net.env.process(self._monitor()) # on démarre le monitoring pour récolter les données durant la simulation
         while not self.net.stop: 
             self.net.env.step()
-
-    # def print_results(self):
-    #     print(f"Durée: {self.net.env.now:.2f} unités de temps")
-    #     print(f"Noeuds morts: {self.net.dead_nodes}/{self.nb_nodes}")
-    #     print(f"Énergie consommée: {self.net.energy_consumed:.2f}")
-    #     print(f"Messages envoyés: {self.net.messages_sent}")
-    #     print(f"Messages transmis: {self.net.messages_forwarded}")
-    #     print(f"Messages reçus: {self.net.messages_received}")
-    #     print(f"RREQ envoyés: {self.net.rreq_sent}")
-    #     print(f"RREQ transmis: {self.net.rreq_forwarded}")
-    #     print(f"RREP envoyés: {self.net.rrep_sent}")
-    #     print(f"Seuiled: {self.net.seuiled}")
-    #     print(f"Mort premier noeud: {self.net.first_node_death_time:.2f}" if self.net.first_node_death_time else "First Node Death: Not reached")
-    #     print(f"Mort 10% noeuds: {self.net.ten_percent_death_time:.2f}" if self.net.ten_percent_death_time else "10% Node Death: Not reached")
-    #     print(f"Moyenne batterie finale: {self.:.2f}")
-    #     print(f"Écart type batterie finale: {self.std_bat_history[-1]:.2f}")
-
-
-    def plot_paths(self, ids=None, title="Trajectoires de quelques nœuds"):
-        """Permet de visualiser la trajectoire des noeuds renseignés dans ids"""
-        ids = list(ids) if ids is not None else self.track_ids
-
-        # Nuage des positions finales de tous les nœuds (gris clair)
-        fig, ax = plt.subplots(figsize=(6.5, 6.5))
-        all_pos = [self.net.G[n].pos for n in self.net.G.values()]
-        ax.scatter([p[0] for p in all_pos], [p[1] for p in all_pos], s=18, alpha=0.25, label="Autres nœuds (final)")
-
-        # Trajectoires pour les nœuds choisis
-        for nid in ids:
-            pts = self.traj.get(nid, [])
-            if len(pts) < 2: 
-                continue
-            xs = [x for _, x, _ in pts]
-            ys = [y for _, _, y in pts]
-            ax.plot(xs, ys, linewidth=1.8, label=f"nœud {nid}")
-            ax.scatter([xs[0]], [ys[0]], marker="^", s=40)   # départ
-            ax.scatter([xs[-1]], [ys[-1]], marker="o", s=40) # arrivée
-            ax.text(xs[-1], ys[-1], str(nid), fontsize=9, ha="left", va="bottom")
-
-        ax.set_title(title)
-        ax.set_xlabel("x"); ax.set_ylabel("y")
-        ax.set_xlim(0, self.area_size); ax.set_ylim(0, self.area_size)
-        ax.set_aspect("equal", adjustable="box"); ax.grid(True, linestyle=":", alpha=0.3)
-        ax.legend(loc="best")
-        plt.tight_layout()
-        plt.show()
 
 
 def generate_bonnmotion_traces(sim_conf,bm_conf,nb_runs):
@@ -413,42 +279,21 @@ def generate_bonnmotion_traces(sim_conf,bm_conf,nb_runs):
 
 ## Comparaison des protocoles ##
 
-def run_comparison_simulations(config, nb_runs, seed_base, 
-                               bm_cfg=None, plot_dr=False, plot_mode='last'):
+def run_comparison_simulations(config, nb_runs, seed_base, trace_files):
     reg_aodv_res = []
     mod_aodv_res = []
 
     params = {
-        'nb_nodes': nb_nodes,
-        'area_size': size,
-        'max_dist': max_dist,
-        'conso': conso,
-        'seuil': seuil,
-        'coeff_dist_weight': coeff_dist_weight,
-        'coeff_bat_weight': coeff_bat_weight,
-        'coeff_dist_bat': coeff_dist_bat,
-        'ttl': ttl
+        'nb_nodes': config.nb_nodes,
+        'area_size': config.size,
+        'max_dist': config.max_dist,
+        'conso': config.conso,
+        'seuil': config.seuil,
+        'coeff_dist_weight': config.coeff_dist_weight,
+        'coeff_bat_weight': config.coeff_bat_weight,
+        'coeff_dist_bat': config.coeff_dist_bat,
+        'ttl': config.ttl
     }
-
-    # --- Préparer les fichiers BM pour tous les runs (génération si nécessaire) ---
-    out_dir = bm_cfg.get("out_dir", os.path.join(os.getcwd(), "BM"))
-    bm_exe = bm_cfg.get("bm_exe", r"C:\Users\millo\Downloads\bonnmotion-3.0.1\bin\bm.bat")
-    X = size
-    Y = size
-    vmin = 0.5
-    vmax = bm_cfg.get("vmax", 2.0)
-    pause = bm_cfg.get("pause", 5)
-    o = bm_cfg.get("o", 2)
-    bm_files = _bm_generate_traces_for_N(
-        nb_nodes=nb_nodes,
-        size = size,
-        nb_runs=nb_runs,
-        out_dir=out_dir,
-        bm_exe=bm_exe,
-        duration=duration, X=X, Y=Y,
-        vmin=vmin, vmax=vmax, pause=pause, o=o
-    )
-
 
     last_pair = None  # pour tracer à la fin si besoin
 
@@ -521,20 +366,18 @@ def run_comparison_simulations(config, nb_runs, seed_base,
     return {"reg":reg_aodv_res,"mod":mod_aodv_res}
 
 def calc_avg_metrics(res):
-    metric_keys = res[0].keys() #on récupère les métriques sur lesquelles on doit calc la moyenne
+    if not res: return {}
+    metric_keys = res[0].keys()
     avg = {}
-
     for key in metric_keys:
         values = [r[key] for r in res if r[key] is not None]
-        # On gère les None potentiels des situations pas atteintes
         if values:
             avg[key] = sum(values)/len(values)
-            avg[f"{key}_count"] = len(values) #on garde le nb de simulations qui ont atteint cette métrique (ex : partition pas tjrs atteinte)
+            avg[f"{key}_count"] = len(values)
         else:
             avg[key] = None
             avg[f"{key}_count"] = 0
     return avg
-
 
 def print_avg_results(reg_res,mod_res,nb_runs):
     print(f"\n\nMoyennes sur {nb_runs} simulations")
