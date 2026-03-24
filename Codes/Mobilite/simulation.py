@@ -27,7 +27,7 @@ class SimConfig:
     
     # Paramètres du Protocole (AODV / Energy Aware)
     ttl: int
-    seuil: float
+    seuil: float # En pourcentage
     coeff_dist_weight: float
     coeff_bat_weight: float
     coeff_dist_bat: float
@@ -55,18 +55,14 @@ class Simulation:
     def __init__(self, config, reg_aodv,node_positions = None,trace_file = None,traffic_seed=None):
         self.cfg = config
         
-        self.reg_aodv = reg_aodv           
-        """  True si on utilise AODV et false sinon """
-        
         self.time_points = []              
         """ Abscisse pour plot les résultats au cours du temps  """
         
         self.traffic_seed = traffic_seed   
         """ seed pour le générateur aléatoire de messages """
-        
-        self.window_size = 100.0           
-        """ Taille de la fenêtre glissante pour représenter le delivery ratio """
 
+        self.coeff_dist_weight = 
+        
         self.node_positions = node_positions or {} #si on a déjà une configuration on l'importe sinon on en crée une
         #création des noeuds
         for i in range(self.cfg.nb_nodes):

@@ -37,12 +37,6 @@ class Network:
         self.G = {}                             
         """ Graphe du réseau représenté par un dictionnaire node_id : node_obj """
         
-        self.conso = conso                               
-        """ consomation pour la transmition de requêtes / données : (req,donnée) """
-        
-        self.seuil_coeff = seuil_coeff                               
-        """ seuil à partir duquel on applique la pénalité sur le poids des routes """
-        
         self.coeff_dist_weight = coeff_dist_weight       
         """ coefficient de pondération : poids calculé avec dist_normalisée * coeff_dist_weight + ... """
         
@@ -103,7 +97,7 @@ class Network:
         Met à jour la batterie et tue le noeud si il n'en a plus 
         Marche pareil si reg_aodv ou pas
         """
-        cons = node.initial_battery*(self.conso[0] if (msg_type[:2] == "RR") else self.conso[1])
+        cons = node.initial_battery*(self.cfg.conso[0] if (msg_type[:2] == "RR") else self.cfg.conso[1])
         energy_cost = self.coeff_dist_bat * dist + cons
         node.battery = max(0, node.battery - energy_cost)
         self.energy_consumed += energy_cost
@@ -142,6 +136,9 @@ class Network:
         """Marche pareil si reg_aodv ou pas"""
         return ((n2.pos[0] - n1.pos[0])**2 + (n2.pos[1] - n1.pos[1])**2)**0.5
 
+    def bat_weight (self,n1,n2):
+
+    
     def calculate_weight(self, n1, n2):
         """
         Calcule le poids d'un saut
@@ -158,7 +155,7 @@ class Network:
         
         weight = (self.coeff_dist_weight * dist_norm) + (self.coeff_bat_weight * bat_norm)
 
-        seuil = n2.initial_battery *self.seuil_coeff
+        seuil = n2.initial_battery *self.cfg.seuil_coeff
         if bat < seuil:
             self.seuiled += 1
             ecart = (seuil - bat) / seuil
