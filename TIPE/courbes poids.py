@@ -2,21 +2,27 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-x = np.arange(0,100,0.1)
-fx = 1/((x-90)**2)+1/((x)**2)
+b = np.arange(0,100,0.1)
+# fx = 1/((x-90)**2)+1/((x)**2)
 
 # plt.plot(x,fx,label="f")
 
-seuil = 5 
-norm = (x-seuil)/100
-gx = 1/(0.1+norm)
-for i in range(49):
-    gx[i] = 20
-gx /= 20
+g = []
+bi = 100
+# s = 0.05 
+# S = 10
+# for i in range(len(b)):
+#     if b[i] <= bi*s:
+#         g.append(1)
+#     else :
+#         g.append(bi*s/(b[i]))
 
-plt.plot(x,gx,label="g(x)")
+for i in range(len(b)):
+    g.append((bi+0.01)/(0.01+b[i]))
+
+plt.plot(b,g,label="g(b)")
 plt.xlabel("batterie %")
-plt.ylabel("g(x)")
+plt.ylabel("g(b)")
 # plt.axvline(x=5,color="orange",label="x=5")
 plt.legend()
 plt.show()

@@ -5,7 +5,7 @@ import networkx as nx
 
 
 class Node:
-    def __init__(self, id, pos, initial_battery, max_dist, network, reg_aodv):
+    def __init__(self, id, pos, initial_battery, max_dist, network):
         self.id = id                               
         """id du noeud"""
         
@@ -14,9 +14,6 @@ class Node:
         
         self.battery = initial_battery             
         """ batterie du noeud """
-        
-        self.initial_battery = initial_battery     
-        """ Garde en mémoire la batterie initiale pour des calculs """
         
         self.routing_table = {}                    
         """ dest : {next_hop,seq_num,weight,expiry} """
@@ -45,16 +42,7 @@ class Node:
         self.to_be_sent = defaultdict(list)        
         """ Dictionnaire contenant la liste des messages à network.envoyer à chaque noeud """ 
         #default_dict permet de créer une liste vide comme valeur si une clé n'existe pas mais est accedé dans le dico
-        
-        self.reg_aodv = reg_aodv                   
-        """ True si on utilise le AODV classique et False si on utilise le mien """
-        
-        self.MAX_DUPLICATES = 1 if reg_aodv else 3                     
-        """ On s'autorise 3 RREQs max par (src_id,src_seq)  """
-        
-        self.WEIGHT_SEUIL = 1.0 if reg_aodv else 1.5                    
-        """ Seuil à partir duquel on considère avoir vu une vraie amélioration """ 
-        
+               
         self.data_seq = 0
         """identique au numéro de séquence mais pour les messages"""
 
@@ -98,13 +86,13 @@ class Node:
         rreq.weight += weight
         
         if rreq.src_id == self.id:
-            return #on discard si on a déjà vu : évite les **boucles** ♥
-                   #éviter que les RREQs soient renvoyés à la source       
+            return #éviter que les RREQs soient renvoyés à la source       
         
         #vérification pour éviter boucles
         seen_key = (rreq.src_id, rreq.src_seq)
         count,min_weight = self.seen.get(seen_key, (0,float('inf')))
-        if count > self.MAX_DUPLICATES or rreq.weight * self.WEIGHT_SEUIL >= min_weight:
+        
+        if count > self.network.env.MAX_DUPLICATES or rreq.weight * self.network.env.WEIGHT_SEUIL >= min_weight:
                 return
         else:
             self.seen[seen_key] = (count + 1,rreq.weight) 
@@ -187,7 +175,7 @@ class Node:
         
         ttl = self.network.ttl
 
-        if not self.reg_aodv:    
+        if not self.network.reg_aodv:    
             pass
             # dynamic_ttl = max(1, self.network.ttl * (self.battery/self.initial_battery))
             

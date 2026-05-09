@@ -5,7 +5,6 @@ import os
 import subprocess
 import gzip
 import shutil
-import bisect
 
 from network import Network
 
@@ -65,6 +64,12 @@ class Simulation:
         
         self.traffic_seed = traffic_seed   
         """ seed pour le générateur aléatoire de messages """
+
+        self.MAX_DUPLICATES = 1 if reg_aodv else 3                     
+        """ On s'autorise 3 RREQs max par (src_id,src_seq)  """
+        
+        self.WEIGHT_SEUIL = 1.0 if reg_aodv else 1.5                    
+        """ Seuil à partir duquel on considère avoir vu une vraie amélioration """ 
 
         #création du réseau
         self.net = Network(
@@ -283,8 +288,6 @@ def run_comparison_simulations(config, nb_runs, seed_base, trace_files):
             for i_node in range(config.nb_nodes)
         }
         
-        trace_file = trace_files[i % len(trace_files)] if trace_files else None
-        
         for reg_aodv in [True, False]:
             random.seed(seed_i) #On réinitialise le rng pour avoir les mêmes transmissions et positions
             np.random.seed(seed_i)
@@ -293,7 +296,7 @@ def run_comparison_simulations(config, nb_runs, seed_base, trace_files):
                 config=config,
                 reg_aodv=reg_aodv,
                 node_positions=positions,
-                trace_file=trace_file,
+                trace_file=trace_files[i],
                 traffic_seed=seed_i
             )
             sim.run()
@@ -319,35 +322,6 @@ def calc_avg_metrics(res):
             avg[f"{key}_count"] = 0
     return avg
 
-def print_avg_results(reg_res,mod_res,nb_runs):
-    print(f"\n\nMoyennes sur {nb_runs} simulations")
-    print("="*60)
-
-    print(f"\n{'Métrique':<25} {'Regular AODV':<15} {'Count Reg':<12} {'Modified AODV':<15} {'Count Mod':<12} {'Changement':<12}")
-    print("-" * 94)
-
-    reg_avg = calc_avg_metrics(reg_res)
-    mod_avg = calc_avg_metrics(mod_res)
-    metrics_to_compare = reg_res[0].keys()
-
-    for key in metrics_to_compare:
-        reg_val = reg_avg[key]
-        count_reg = reg_avg[f"{key}_count"]
-        mod_val = mod_avg.get(key)
-        count_mod = mod_avg[f"{key}_count"]
-        improvement = ((mod_val - reg_val) / reg_val * 100) if reg_val not in (None, 0) and mod_val is not None else None
-        
-        reg_val_str = f"{reg_val:.2f}" if reg_val is not None else "N/A"
-        mod_val_str = f"{mod_val:.2f}" if mod_val is not None else "N/A"
-        improvement_str = f"{improvement:.2f}%" if improvement is not None else "N/A"
-        print(f"{key:<25} {reg_val_str:<15} {count_reg:<12} {mod_val_str:<15} {count_mod:<12} {improvement_str:<12}")
-
-    reg_delivery_ratio = (reg_avg['msg_recv'] / reg_avg['messages_initiated']) * 100 if reg_avg['messages_initiated'] > 0 else 0
-    mod_delivery_ratio = (mod_avg['msg_recv'] / mod_avg['messages_initiated']) * 100 if mod_avg['messages_initiated'] > 0 else 0
-    
-    print(f"\n{'Delivery Ratio':<25} {reg_delivery_ratio:<15.1f}% {'':<12} {mod_delivery_ratio:<15.1f}% {'':<12} {'':<12}")
-
-    print("\n" + "="*60)
 
 # --- Parallélisation des runs + génération BM intégrée ---
 from multiprocessing import Pool, cpu_count
@@ -356,7 +330,7 @@ def _one_point(args):
     (config,nb_runs,seed_base,trace_files) = args
 
     res = run_comparison_simulations(
-        config,
+        config= config,
         nb_runs=nb_runs,
         seed_base=seed_base,
         trace_files=trace_files
