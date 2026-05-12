@@ -138,3 +138,162 @@ class Simulation:
             "final_std_bat": final_std_bat,
             "fifty_percent_death": self.net.fifty_percent_death_time,
         }
+
+@dataclass(frozen=True)
+class BonnMotionConfig:
+    bm_exe: str
+    out_dir: str
+    scenario: str = "RandomWaypoint"
+    vmin: float = 0.5
+    vmax: float = 1.0
+    pause: float = 50.0
+    o: float = 0.0
+
+
+def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig):
+    import gzip
+    import os
+    import shutil
+    import subprocess
+
+    os.makedirs(bm_conf.out_dir, exist_ok=True)
+    movements_files = []
+
+    for n_simu in range(sim_conf.nb_nodes):
+        base = os.path.join(bm_conf.out_dir, f"{sim_conf.nb_nodes}rw{n_simu}")
+        cmd = [
+            bm_conf.bm_exe,
+            "-f", base,
+            bm_conf.scenario,
+            "-n", str(sim_conf.nb_nodes),
+            "-d", str(sim_conf.duration),
+            "-x", str(sim_conf.area_size),
+            "-y", str(sim_conf.area_size),
+            "-l", str(bm_conf.vmin),
+            "-h", str(bm_conf.vmax),
+            "-p", str(bm_conf.pause),
+            "-o", str(bm_conf.o),
+        ]
+        subprocess.run(cmd, check=True)
+
+        gz_path = base + ".movements.gz"
+        mov_path = base + ".movements"
+        if os.path.exists(gz_path):
+            with gzip.open(gz_path, "rb") as f_in, open(mov_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            os.remove(gz_path)
+
+        params_path = base + ".params"
+        if os.path.exists(params_path):
+            os.remove(params_path)
+        movements_files.append(mov_path)
+
+    return movements_files
+
+
+def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, trace_files):
+    reg_aodv_res, mod_aodv_res = [], []
+    for i in range(nb_runs):
+        seed_i = seed_base + i
+        random.seed(seed_i)
+        np.random.seed(seed_i)
+
+        positions = {
+            i_node: (
+                random.uniform(0, config.area_size),
+                random.uniform(0, config.area_size),
+            )
+            for i_node in range(config.nb_nodes)
+        }
+
+        for reg_aodv in [True, False]:
+            random.seed(seed_i)
+            np.random.seed(seed_i)
+            protocol = ProtocolConfig.from_mode(reg_aodv)
+            sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
+            sim.run()
+            (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
+    return {"reg": reg_aodv_res, "mod": mod_aodv_res}
+
+
+def calc_avg_metrics(res):
+    if not res:
+        return {}
+    avg = {}
+    for key in res[0].keys():
+        values = [r[key] for r in res if r[key] is not None]
+        avg[key] = (sum(values) / len(values)) if values else None
+        avg[f"{key}_count"] = len(values)
+    return avg
+
+from multiprocessing import Pool, cpu_count
+
+
+def _one_point(args):
+    config, nb_runs, seed_base, trace_files = args
+    res = run_comparison_simulations(config=config, nb_runs=nb_runs, seed_base=seed_base, trace_files=trace_files)
+    reg_avg = calc_avg_metrics(res["reg"])
+    mod_avg = calc_avg_metrics(res["mod"])
+    return config.nb_nodes, reg_avg, mod_avg
+
+
+def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: int, pas: int, factor_min: float = 0.7, factor_max: float = 1.5):
+    import numpy as _np
+
+    n_min = (sim_conf.area_size / sim_conf.max_dist) ** 2 * _np.pi
+    n_lo = max(2, int(round(factor_min * n_min)))
+    n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
+    nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
+
+    tasks = []
+    for n_nodes in nb_nodes_list:
+        sim_conf_n = SimConfig(
+            nb_nodes=n_nodes,
+            area_size=sim_conf.area_size,
+            max_dist=sim_conf.max_dist,
+            init_bat=sim_conf.init_bat,
+            conso=sim_conf.conso,
+            dt=sim_conf.dt,
+            ttl=sim_conf.ttl,
+            seuil_coeff=sim_conf.seuil_coeff,
+            coeff_dist_weight=sim_conf.coeff_dist_weight,
+            coeff_bat_weight=sim_conf.coeff_bat_weight,
+            coeff_dist_bat=sim_conf.coeff_dist_bat,
+            duration=sim_conf.duration,
+            window_size=sim_conf.window_size,
+        )
+        trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf)
+        tasks.append((sim_conf_n, nb_runs, 12345, trace_files))
+
+    with Pool(processes=max(1, cpu_count() - 1)) as pool:
+        results = pool.map(_one_point, tasks)
+
+    results.sort(key=lambda t: t[0])
+    return results
+
+
+def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
+    import matplotlib.pyplot as plt
+
+    if W is None:
+        W = sim_reg.cfg.window_size
+
+    if hasattr(sim_reg, "window_ratio_gen") and hasattr(sim_mod, "window_ratio_gen"):
+        plt.figure()
+        plt.plot(sim_reg.time_points, sim_reg.window_ratio_gen, label="AODV classique (t_gen)")
+        plt.plot(sim_mod.time_points, sim_mod.window_ratio_gen, label="AODV modifié (t_gen)")
+        plt.xlabel("Temps")
+        plt.ylabel("Taux de délivrance (%)")
+        plt.title(f"Taux glissant basé sur t_gen (fenêtre={W})")
+        plt.legend()
+        plt.show()
+
+    if hasattr(sim_reg, "window_ratio_send") and hasattr(sim_mod, "window_ratio_send"):
+        plt.figure()
+        plt.plot(sim_reg.time_points, sim_reg.window_ratio_send, label="AODV classique (t_send)")
+        plt.plot(sim_mod.time_points, sim_mod.window_ratio_send, label="AODV modifié (t_send)")
+        plt.xlabel("Temps")
+        plt.ylabel("Taux de délivrance (%)")
+        plt.title(f"Taux glissant basé sur t_send (fenêtre={W})")
+        plt.legend()
+        plt.show()
