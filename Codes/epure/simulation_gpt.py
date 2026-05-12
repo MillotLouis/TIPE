@@ -6,8 +6,8 @@ from typing import Dict, Tuple
 
 import numpy as np
 
-from network import Network
-from node import Node
+from network_gpt import Network
+from node_gpt import Node
 
 
 @dataclass(frozen=True)

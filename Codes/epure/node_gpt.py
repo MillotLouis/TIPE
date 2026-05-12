@@ -5,7 +5,7 @@ from collections import defaultdict
 
 import simpy
 
-from network import Message
+from network_gpt import Message
 
 
 class Node:
