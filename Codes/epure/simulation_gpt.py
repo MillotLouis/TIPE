@@ -9,6 +9,9 @@ import numpy as np
 from network_gpt import Network
 from node_gpt import Node
 
+from multiprocessing import Pool, cpu_count
+
+
 
 @dataclass(frozen=True)
 class SimConfig:
@@ -213,6 +216,7 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
             sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
             sim.run()
             (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
+
     return {"reg": reg_aodv_res, "mod": mod_aodv_res}
 
 
@@ -226,9 +230,6 @@ def calc_avg_metrics(res):
         avg[f"{key}_count"] = len(values)
     return avg
 
-from multiprocessing import Pool, cpu_count
-
-
 def _one_point(args):
     config, nb_runs, seed_base, trace_files = args
     res = run_comparison_simulations(config=config, nb_runs=nb_runs, seed_base=seed_base, trace_files=trace_files)
@@ -238,30 +239,15 @@ def _one_point(args):
 
 
 def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: int, pas: int, factor_min: float = 0.7, factor_max: float = 1.5):
-    import numpy as _np
 
-    n_min = (sim_conf.area_size / sim_conf.max_dist) ** 2 * _np.pi
+    n_min = (sim_conf.area_size / sim_conf.max_dist) ** 2 * np.pi
     n_lo = max(2, int(round(factor_min * n_min)))
     n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
     nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
 
     tasks = []
     for n_nodes in nb_nodes_list:
-        sim_conf_n = SimConfig(
-            nb_nodes=n_nodes,
-            area_size=sim_conf.area_size,
-            max_dist=sim_conf.max_dist,
-            init_bat=sim_conf.init_bat,
-            conso=sim_conf.conso,
-            dt=sim_conf.dt,
-            ttl=sim_conf.ttl,
-            seuil_coeff=sim_conf.seuil_coeff,
-            coeff_dist_weight=sim_conf.coeff_dist_weight,
-            coeff_bat_weight=sim_conf.coeff_bat_weight,
-            coeff_dist_bat=sim_conf.coeff_dist_bat,
-            duration=sim_conf.duration,
-            window_size=sim_conf.window_size,
-        )
+        sim_conf_n = dataclass.replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
         trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf)
         tasks.append((sim_conf_n, nb_runs, 12345, trace_files))
 

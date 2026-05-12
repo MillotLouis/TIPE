@@ -61,11 +61,10 @@ class Network:
     def get_distance(self, n1, n2) -> float:
         return ((n2.pos[0] - n1.pos[0]) ** 2 + (n2.pos[1] - n1.pos[1]) ** 2) ** 0.5
 
-    def update_battery(self, node, msg_type: str, dist: float) -> bool:
-        base = node.initial_battery * (self.cfg.conso[0] if msg_type[:2] == "RR" else self.cfg.conso[1])
-        energy_cost = self.cfg.coeff_dist_bat * dist + base
-        node.battery = max(0.0, node.battery - energy_cost)
-        self.stats.energy_consumed += energy_cost
+    def update_battery(self, node, msg_type: str) -> bool:
+        consommation = node.initial_battery * (self.cfg.conso[0] if msg_type[:2] == "RR" else self.cfg.conso[1])
+        node.battery = max(0.0, node.battery - consommation)
+        self.stats.energy_consumed += consommation
         if node.battery == 0 and node.alive:
             self.env.process(self._kill_node(node))
         return node.battery > 0
@@ -122,7 +121,7 @@ class Network:
         if next_node is None or not next_node.alive:
             return
         dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "RREP", dist if not self.reg_aodv else node.max_dist):
+        if dist <= node.max_dist and self.update_battery(node, "RREP"):
             yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(rrep)
 
@@ -135,7 +134,7 @@ class Network:
         if next_node is None or not next_node.alive:
             return
         dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "DATA", dist if not self.reg_aodv else node.max_dist):
+        if dist <= node.max_dist and self.update_battery(node, "DATA"):
             self.stats.messages_forwarded += 1
             yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(data)
