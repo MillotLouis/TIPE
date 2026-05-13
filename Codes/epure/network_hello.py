@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass,field
 from typing import Dict, Optional, Tuple
 
 import numpy as np
@@ -36,11 +36,16 @@ class NetworkStats:
     energy_consumed: float = 0.0
     dead_nodes: int = 0
     seuiled: int = 0
+    first_node_death_time: float | None = None
+    ten_percent_death_time: float | None = None
+    fifty_percent_death_time: float | None = None
+    death_times: list[float] = field(default_factory=list)
+
 
 
 
 class Network:
-    def __init__(self, config, reg_aodv: bool, protocol):
+    def __init__(self, config:"SimConfig", reg_aodv: bool, protocol):
         self.cfg = config
         self.protocol = protocol
         self.reg_aodv = reg_aodv  # True si on utilise AODV et false sinon
@@ -48,11 +53,6 @@ class Network:
         self.G: Dict[int, "Node"] = {}
         self.stop = False  # passé à True quand on veut que la simulation s'arrête
         self.stats = NetworkStats()
-
-        self.first_node_death_time: Optional[float] = None
-        self.ten_percent_death_time: Optional[float] = None
-        self.fifty_percent_death_time: Optional[float] = None
-        self.death_times = []  # Liste des dates auxquelles des noeuds sont morts
 
         self.data_log = {}  # (src_id, data_seq) -> {'t_init','t_send','t_recv'}
         self.data_init_times = []
@@ -169,7 +169,6 @@ class Network:
                         continue
                     neighbor.pending.put(copy.deepcopy(hello))
                     self.stats.hello_sent += 1
-                    self.mark_neighbor_seen(neighbor.id, node.id) #Le noeud 2 a reçu un message du noeud 1 donc le marque comme vu
             yield self.env.timeout(self.hello_interval)
 
     def _hello_watchdog(self):
@@ -179,14 +178,13 @@ class Network:
                 if not node.alive:
                     continue
                 broken_neighbors = []
-                for dest, (next_hop, seq_num, weight, expiry) in list(node.routing_table.items()):
+                for (next_hop, _, _, _) in set(node.routing_table.values()):
                     last = self.last_hello.get((node.id, next_hop), 0)
                     if (now - last) > self.hello_timeout:
                         broken_neighbors.append(next_hop)
                 for broken in set(broken_neighbors): # Pour pas avoir de doublons
                     invalidated = node.invalidate_route_via(broken)
-                    if invalidated:
-                        self.env.process(self.broadcast_rerr(node, invalidated))
+                    self.env.process(self.broadcast_rerr(node, invalidated))
             yield self.env.timeout(self.hello_interval)
 
     def broadcast_rerr(self, node, invalidated_destinations):

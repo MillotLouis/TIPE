@@ -132,15 +132,14 @@ class Node:
             self.network.env.process(self.network.forward_data(self, data))
 
 
-
     def handle_hello(self, hello):
-        # Mémorise la dernière réception HELLO pour détecter les ruptures de lien
+        """Mémorise la dernière réception HELLO pour détecter les ruptures de lien"""
         self.network.mark_neighbor_seen(self.id, hello.src_id)
 
     def invalidate_route_via(self, broken_neighbor):
-        # Supprime toutes les routes qui passent par le voisin rompu
+        """ Supprime toutes les routes qui passent par le voisin rompu"""
         invalidated = []
-        for dest, (next_hop, seq_num, weight, expiry) in list(self.routing_table.items()):
+        for dest, (next_hop, _, _, _) in list(self.routing_table.items()):
             if next_hop == broken_neighbor:
                 del self.routing_table[dest]
                 invalidated.append(dest)
@@ -150,6 +149,7 @@ class Node:
         if rerr.dest_id in self.routing_table:
             del self.routing_table[rerr.dest_id]
             self.network.env.process(self.network.broadcast_rerr(self, [rerr.dest_id]))
+    
     def send_data(self, dest_id):
         self.data_seq += 1
         self.network.stats.messages_initiated += 1

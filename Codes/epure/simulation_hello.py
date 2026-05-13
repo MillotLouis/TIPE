@@ -285,3 +285,6 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
         plt.title(f"Taux glissant basé sur t_send (fenêtre={W})")
         plt.legend()
         plt.show()
+
+if __name__ == "__main__" :
+    
