@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 from typing import Dict, Tuple
+from time import time
 
 import numpy as np
 
@@ -249,7 +250,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     for n_nodes in nb_nodes_list:
         sim_conf_n = dataclass.replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
         trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf)
-        tasks.append((sim_conf_n, nb_runs, 12345, trace_files))
+        tasks.append((sim_conf_n, nb_runs, int(time()), trace_files))
 
     with Pool(processes=max(1, cpu_count() - 1)) as pool:
         results = pool.map(_one_point, tasks)
