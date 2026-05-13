@@ -71,7 +71,9 @@ class Network:
         return ((n2.pos[0] - n1.pos[0]) ** 2 + (n2.pos[1] - n1.pos[1]) ** 2) ** 0.5
 
     def update_battery(self, node, msg_type: str) -> bool:
-        consommation = node.initial_battery * (self.cfg.conso[0] if msg_type[:2] == "RR" else self.cfg.conso[1])
+        # conso est exprimée en pourcentage de la batterie initiale par envoi
+        coeff = self.cfg.conso[0] if msg_type[:2] == "RR" else self.cfg.conso[1]
+        consommation = node.initial_battery * (coeff / 100.0)
         node.battery = max(0.0, node.battery - consommation)
         self.stats.energy_consumed += consommation
         if node.battery == 0 and node.alive:
