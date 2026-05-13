@@ -31,11 +31,12 @@ class NetworkStats:
     rreq_sent: int = 0
     rreq_forwarded: int = 0
     rrep_sent: int = 0
+    hello_sent: int = 0
+    rerr_sent: int = 0
     energy_consumed: float = 0.0
     dead_nodes: int = 0
     seuiled: int = 0
-    hello_sent: int = 0
-    rerr_sent: int = 0
+
 
 
 class Network:
