@@ -169,7 +169,7 @@ class Network:
                         continue
                     neighbor.pending.put(copy.deepcopy(hello))
                     self.stats.hello_sent += 1
-                    self.mark_neighbor_seen(neighbor.id, node.id)
+                    self.mark_neighbor_seen(neighbor.id, node.id) #Le noeud 2 a reçu un message du noeud 1 donc le marque comme vu
             yield self.env.timeout(self.hello_interval)
 
     def _hello_watchdog(self):
@@ -183,7 +183,7 @@ class Network:
                     last = self.last_hello.get((node.id, next_hop), 0)
                     if (now - last) > self.hello_timeout:
                         broken_neighbors.append(next_hop)
-                for broken in set(broken_neighbors):
+                for broken in set(broken_neighbors): # Pour pas avoir de doublons
                     invalidated = node.invalidate_route_via(broken)
                     if invalidated:
                         self.env.process(self.broadcast_rerr(node, invalidated))
