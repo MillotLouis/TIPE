@@ -82,14 +82,14 @@ class Network:
         yield self.env.timeout(0)
         node.alive = False
         self.stats.dead_nodes += 1
-        self.death_times.append(self.env.now)
+        self.stats.death_times.append(self.env.now)
 
-        if self.first_node_death_time is None:
-            self.first_node_death_time = self.env.now
-        if self.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
-            self.ten_percent_death_time = self.env.now
-        if self.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
-            self.fifty_percent_death_time = self.env.now
+        if self.stats.first_node_death_time is None:
+            self.stats.first_node_death_time = self.env.now
+        if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
+            self.stats.ten_percent_death_time = self.env.now
+        if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
+            self.stats.fifty_percent_death_time = self.env.now
             self.stop = True
 
     def calculate_weight(self, n1, n2) -> float:

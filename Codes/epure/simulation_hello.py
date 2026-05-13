@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass,replace
 from typing import Dict, Tuple
 
 from time import time
@@ -137,11 +137,11 @@ class Simulation:
             "messages_initiated": s.messages_initiated,
             "rreq_forwarded": s.rreq_forwarded,
             "seuiled": s.seuiled,
-            "first_node_death": self.net.first_node_death_time,
-            "ten_percent_death": self.net.ten_percent_death_time,
+            "first_node_death": self.net.stats.first_node_death_time,
+            "ten_percent_death": self.net.stats.ten_percent_death_time,
             "final_avg_bat": final_avg_bat,
             "final_std_bat": final_std_bat,
-            "fifty_percent_death": self.net.fifty_percent_death_time,
+            "fifty_percent_death": self.net.stats.fifty_percent_death_time,
         }
 
 @dataclass(frozen=True)
@@ -149,13 +149,13 @@ class BonnMotionConfig:
     bm_exe: str
     out_dir: str
     scenario: str = "RandomWaypoint"
-    vmin: float = 0.5
-    vmax: float = 1.0
-    pause: float = 50.0
-    o: float = 0.0
+    vmin: int = 0
+    vmax: int = 1
+    pause: int = 50
+    o: int = 2
 
 
-def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig):
+def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs : int):
     import gzip
     import os
     import shutil
@@ -164,9 +164,9 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig):
     os.makedirs(bm_conf.out_dir, exist_ok=True)
     movements_files = []
 
-    for n_simu in range(sim_conf.nb_nodes):
+    for n_simu in range(nb_runs):
         base = os.path.join(bm_conf.out_dir, f"{sim_conf.nb_nodes}rw{n_simu}")
-        cmd = [
+        cmd = " ".join([
             bm_conf.bm_exe,
             "-f", base,
             bm_conf.scenario,
@@ -178,7 +178,8 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig):
             "-h", str(bm_conf.vmax),
             "-p", str(bm_conf.pause),
             "-o", str(bm_conf.o),
-        ]
+        ])
+        print(cmd)
         subprocess.run(cmd, check=True)
 
         gz_path = base + ".movements.gz"
@@ -249,8 +250,8 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
 
     tasks = []
     for n_nodes in nb_nodes_list:
-        sim_conf_n = dataclass.replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
-        trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf)
+        sim_conf_n = replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
+        trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf,nb_runs)
         tasks.append((sim_conf_n, nb_runs, int(time()), trace_files))
 
     with Pool(processes=max(1, cpu_count() - 1)) as pool:
@@ -287,4 +288,27 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
         plt.show()
 
 if __name__ == "__main__" :
-    
+    sim_conf = SimConfig(
+        nb_nodes=16,
+        area_size=800,
+        max_dist=250,
+        init_bat=100,
+        conso=(1, 20),
+        dt=1.0,
+        ttl=100,
+        seuil_coeff=0.075,  # 750 / 10000
+        coeff_dist_weight=0.6,
+        coeff_bat_weight=0.2,
+        coeff_dist_bat=0.005,
+        duration=3000,
+    )
+
+    bm_conf = BonnMotionConfig(
+        bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
+        out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\Codes\\Mobilité\\",
+        vmin=10,
+        vmax=10,
+        pause=200
+    )
+    res = densite_parallel(sim_conf,bm_conf,3,2,1,1)
+    print(res)
