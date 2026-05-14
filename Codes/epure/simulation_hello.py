@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from network_hello import Network
 from node_hello import Node
 
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, current_process
 
 
 
@@ -228,6 +228,8 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
 
     tasks = [(config, seed_base + i, trace_files[i]) for i in range(nb_runs)]
     n_proc = min(len(tasks), max(1, cpu_count() - 1))
+    if current_process().daemon:
+        n_proc = 1
 
     if n_proc == 1:
         results = [_single_run(task) for task in tasks]
