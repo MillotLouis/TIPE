@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from network_hello import Network
 from node_hello import Node
 
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, current_process
 
 
 
@@ -198,30 +198,49 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig, n
     return movements_files
 
 
-def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, trace_files):
-    print(f"Simulations a {config.nb_nodes} noeuds débutées")
-    reg_aodv_res, mod_aodv_res = [], []
-    for i in range(nb_runs):
-        seed_i = seed_base + i
+
+
+def _single_run(args):
+    config, seed_i, trace_file = args
+    random.seed(seed_i)
+    np.random.seed(seed_i)
+
+    positions = {
+        i_node: (
+            random.uniform(0, config.area_size),
+            random.uniform(0, config.area_size),
+        )
+        for i_node in range(config.nb_nodes)
+    }
+
+    run_metrics = {}
+    for reg_aodv in [True, False]:
         random.seed(seed_i)
         np.random.seed(seed_i)
+        protocol = ProtocolConfig.from_mode(reg_aodv)
+        sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_file, traffic_seed=seed_i)
+        sim.run()
+        run_metrics["reg" if reg_aodv else "mod"] = sim.get_metrics()
 
-        positions = {
-            i_node: (
-                random.uniform(0, config.area_size),
-                random.uniform(0, config.area_size),
-            )
-            for i_node in range(config.nb_nodes)
-        }
+    return run_metrics
 
-        for reg_aodv in [True, False]:
-            random.seed(seed_i)
-            np.random.seed(seed_i)
-            protocol = ProtocolConfig.from_mode(reg_aodv)
-            sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
-            sim.run()
-            (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
-    
+def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, trace_files):
+    print(f"Simulations a {config.nb_nodes} noeuds débutées")
+
+    tasks = [(config, seed_base + i, trace_files[i]) for i in range(nb_runs)]
+    n_proc = min(len(tasks), max(1, cpu_count() - 1))
+    if current_process().daemon:
+        n_proc = 1
+
+    if n_proc == 1:
+        results = [_single_run(task) for task in tasks]
+    else:
+        with Pool(processes=n_proc) as pool:
+            results = pool.map(_single_run, tasks)
+
+    reg_aodv_res = [res["reg"] for res in results]
+    mod_aodv_res = [res["mod"] for res in results]
+
     print(f"Simulations a {config.nb_nodes} noeuds terminées\n")
     return {"reg": reg_aodv_res, "mod": mod_aodv_res}
 

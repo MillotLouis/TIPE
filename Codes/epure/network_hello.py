@@ -70,9 +70,13 @@ class Network:
     def get_distance(self, n1, n2) -> float:
         return ((n2.pos[0] - n1.pos[0]) ** 2 + (n2.pos[1] - n1.pos[1]) ** 2) ** 0.5
 
-    def update_battery(self, node, msg_type: str) -> bool:
-        # conso est exprimée en pourcentage de la batterie initiale par envoi
-        coeff = self.cfg.conso[0] if msg_type[:2] == "RR" else self.cfg.conso[1]
+    def update_battery(self, node, msg_type: str, is_emission: bool = True) -> bool:
+        """Met à jour la batterie pour une émission ou une réception de message."""
+        control_msgs = {"RREQ", "RREP", "RERR", "HELLO"}
+        if is_emission:
+            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
+        else:
+            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
         consommation = node.initial_battery * (coeff / 100.0)
         node.battery = max(0.0, node.battery - consommation)
         self.stats.energy_consumed += consommation
@@ -132,7 +136,7 @@ class Network:
         if next_node is None or not next_node.alive:
             return
         dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "RREP"):
+        if dist <= node.max_dist and self.update_battery(node, "RREP", is_emission=True):
             yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(rrep)
 
@@ -148,7 +152,7 @@ class Network:
                 self.env.process(self.broadcast_rerr(node, invalidated))
             return
         dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "DATA"):
+        if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
             self.stats.messages_forwarded += 1
             yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(data)
