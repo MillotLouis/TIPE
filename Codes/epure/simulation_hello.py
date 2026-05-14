@@ -7,6 +7,7 @@ from typing import Dict, Tuple
 from time import time
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 from network_hello import Network
 from node_hello import Node
@@ -198,6 +199,7 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig, n
 
 
 def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, trace_files):
+    print(f"Simulations a {config.nb_nodes} noeuds débutées")
     reg_aodv_res, mod_aodv_res = [], []
     for i in range(nb_runs):
         seed_i = seed_base + i
@@ -219,7 +221,8 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
             sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
             sim.run()
             (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
-
+    
+    print(f"Simulations a {config.nb_nodes} noeuds terminées\n")
     return {"reg": reg_aodv_res, "mod": mod_aodv_res}
 
 
@@ -258,7 +261,100 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
         results = pool.map(_one_point, tasks)
 
     results.sort(key=lambda t: t[0])
-    return results
+    nb_nodes_array = []
+    reg_first_death, mod_first_death = [], []
+    reg_dr, mod_dr = [], []
+    reg_ten_percent_death, mod_ten_percent_death = [], []
+    reg_energy, mod_energy = [], []
+    reg_std, mod_std = [], []
+    reg_final_energy,mod_final_energy = [], []
+    reg_fifty_percent_death, mod_fifty_percent_death = [], []
+
+    for (N, reg_avg, mod_avg) in results:
+        nb_nodes_array.append(N)
+
+        reg_first_death.append(reg_avg.get("first_node_death", None))
+        mod_first_death.append(mod_avg.get("first_node_death", None))
+
+        reg_dr.append(reg_avg.get("msg_recv", 0) / max(1, reg_avg.get("messages_initiated",1)) * 100)
+        mod_dr.append(mod_avg.get("msg_recv", 0) / max(1, mod_avg.get("messages_initiated",1)) * 100)
+
+        reg_ten_percent_death.append(reg_avg.get("ten_percent_death", None))
+        mod_ten_percent_death.append(mod_avg.get("ten_percent_death", None))
+
+        reg_energy.append(reg_avg.get("energy", None))
+        mod_energy.append(mod_avg.get("energy", None))
+
+        reg_std.append(reg_avg.get("final_std_bat", None))
+        mod_std.append(mod_avg.get("final_std_bat", None))
+
+        reg_final_energy.append(reg_avg.get("final_avg_bat", None))
+        mod_final_energy.append(mod_avg.get("final_avg_bat", None))
+
+        reg_fifty_percent_death.append(reg_avg.get("fifty_percent_death", None))
+        mod_fifty_percent_death.append(mod_avg.get("fifty_percent_death", None))
+
+
+
+    # Affichage / ploting 
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Temps (first node death)")
+    plt.legend()
+    plt.show()
+
+    
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_ten_percent_death, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_ten_percent_death, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Temps (10% death)")
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_fifty_percent_death, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_fifty_percent_death, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Temps (50% death)")
+    plt.legend()
+    plt.show()
+    plt.figure()
+
+
+    plt.plot(nb_nodes_array, reg_final_energy, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_final_energy, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Énergie résiduelle moyenne")
+    plt.legend()
+    plt.show()
+
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_energy, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_energy, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Énergie totale consommée")
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_std, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_std, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Écart type énergie finale")
+    plt.legend()
+    plt.show() 
+
+    plt.figure()
+    plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
+    plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
+    plt.xlabel("nb_nodes")
+    plt.ylabel("Delivery ratio (%)")
+    plt.legend()
+    plt.show()
 
 
 def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
@@ -305,10 +401,10 @@ if __name__ == "__main__" :
 
     bm_conf = BonnMotionConfig(
         bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
-        out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\Codes\\Mobilité\\",
+        out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
         vmin=10,
         vmax=10,
         pause=200
     )
-    res = densite_parallel(sim_conf,bm_conf,3,2,1,1)
+    res = densite_parallel(sim_conf,bm_conf,15,1)
     print(res)
