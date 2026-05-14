@@ -32,6 +32,8 @@ class Node:
     def process_messages(self):
         while self.alive:
             msg = yield self.pending.get()  # On bloque le process jusqu'à avoir un nouveau message
+            if not self.network.update_battery(self, f"RX_{msg.type}"):
+                break
             yield self.network.env.timeout(random.uniform(0.001, 0.005))  # délai de processing
             if msg.type == "RREQ":
                 self.handle_rreq(msg)
