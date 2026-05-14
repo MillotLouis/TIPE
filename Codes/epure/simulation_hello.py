@@ -23,7 +23,7 @@ class SimConfig:
     area_size: int
     max_dist: float
     init_bat: float
-    conso: Tuple[float, float]
+    conso: Tuple[float, float, int] # RX, TX, TX(data)/TX(contrôle) = RX(data)/RX(contrôle)
     dt: float
     ttl: int
     seuil_coeff: float
@@ -389,7 +389,7 @@ if __name__ == "__main__" :
         area_size=800,
         max_dist=250,
         init_bat=100,
-        conso=(1, 20),
+        conso=(1,2.5,20),
         dt=1.0,
         ttl=100,
         seuil_coeff=0.075,  # 750 / 10000
@@ -406,5 +406,5 @@ if __name__ == "__main__" :
         vmax=10,
         pause=200
     )
-    res = densite_parallel(sim_conf,bm_conf,15,1)
+    res = densite_parallel(sim_conf,bm_conf,10,2,1,1)
     print(res)

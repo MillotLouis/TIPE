@@ -74,9 +74,9 @@ class Network:
         """Met à jour la batterie pour une émission ou une réception de message."""
         control_msgs = {"RREQ", "RREP", "RERR", "HELLO"}
         if is_emission:
-            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
+            coeff = self.cfg.conso[1] if msg_type in control_msgs else self.cfg.conso[1]*self.cfg.conso[2]
         else:
-            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
+            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[0]*self.cfg.conso[2]
         consommation = node.initial_battery * (coeff / 100.0)
         node.battery = max(0.0, node.battery - consommation)
         self.stats.energy_consumed += consommation
