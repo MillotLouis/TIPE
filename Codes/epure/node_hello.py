@@ -62,7 +62,14 @@ class Node:
 
     def handle_rreq(self, rreq):
         prev_node = self.network.G[rreq.prev_hop]
-        rreq.weight += self.network.calculate_weight(prev_node, self)
+
+        is_final_hop = (self.id == rreq.dest_id)
+        rreq.weight += self.network.calculate_weight(
+            prev_node,
+            self,
+            is_final_hop=is_final_hop
+        )
+        
         if rreq.src_id == self.id:
             return  # éviter que les RREQs soient renvoyés à la source
 
@@ -86,7 +93,17 @@ class Node:
 
     def handle_rrep(self, rrep):
         prev_node = self.network.G[rrep.prev_hop]
-        rrep.weight += self.network.calculate_weight(prev_node, self)
+
+        # Le coût doit être évalué dans le sens futur DATA :
+        # le nœud courant enverra vers prev_node pour atteindre rrep.src_id.
+        is_final_hop = (prev_node.id == rrep.src_id)
+
+        rrep.weight += self.network.calculate_weight(
+            self,
+            prev_node,
+            is_final_hop=is_final_hop
+        )
+
         self.update_route(rrep.src_id, rrep.prev_hop, rrep.src_seq, rrep.weight)
 
         if self.id == rrep.dest_id:

@@ -74,9 +74,9 @@ class Network:
         """Met à jour la batterie pour une émission ou une réception de message."""
         control_msgs = {"RREQ", "RREP", "RERR", "HELLO"}
         if is_emission:
-            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
+            coeff = self.cfg.conso[1] if msg_type in control_msgs else self.cfg.conso[1]*self.cfg.conso[2]
         else:
-            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[1]
+            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[0]*self.cfg.conso[2]
         consommation = node.initial_battery * (coeff / 100.0)
         node.battery = max(0.0, node.battery - consommation)
         self.stats.energy_consumed += consommation
@@ -98,20 +98,100 @@ class Network:
             self.stats.fifty_percent_death_time = self.env.now
             self.stop = True
 
-    def calculate_weight(self, n1, n2) -> float:
+    # def calculate_weight(self, n1, n2) -> float:
+    #     if self.reg_aodv:
+    #         return 1.0
+    #     bat = max(n2.battery, 0.1)
+    #     dist_norm = self.get_distance(n1, n2) / n1.max_dist
+    #     bat_norm = 1 - (bat / n1.initial_battery)
+    #     weight = (self.cfg.coeff_dist_weight * dist_norm) + (self.cfg.coeff_bat_weight * bat_norm)
+
+    #     threshold = n2.initial_battery * self.cfg.seuil_coeff
+    #     if bat < threshold:
+    #         self.stats.seuiled += 1
+    #         gap = (threshold - bat) / threshold
+    #         weight += min(1.0, gap)
+    #     return weight
+
+    def calculate_weight(self, n1, n2, is_final_hop: bool = False) -> float:
+        """
+        Poids d'un lien n1 -> n2 sous la forme :
+
+            poids = a * poids_distance + b * poids_batterie
+
+        avec :
+            a = self.cfg.coeff_dist_weight
+            b = self.cfg.coeff_bat_weight
+
+        Objectifs :
+        - pénaliser les sauts trop courts ;
+        - ne pas pénaliser le dernier saut uniquement parce qu'il est court ;
+        - pénaliser les sauts proches de la limite d'émission ;
+        - pénaliser les relais avec batterie faible.
+        """
+
         if self.reg_aodv:
             return 1.0
-        bat = max(n2.battery, 0.1)
-        dist_norm = self.get_distance(n1, n2) / n1.max_dist
-        bat_norm = 1 - (bat / n1.initial_battery)
-        weight = (self.cfg.coeff_dist_weight * dist_norm) + (self.cfg.coeff_bat_weight * bat_norm)
 
-        threshold = n2.initial_battery * self.cfg.seuil_coeff
-        if bat < threshold:
-            self.stats.seuiled += 1
-            gap = (threshold - bat) / threshold
-            weight += min(1.0, gap)
-        return weight
+        eps = 1e-9
+
+        # -----------------------------
+        # 1. Distance normalisée
+        # -----------------------------
+        d = self.get_distance(n1, n2)
+        x = d / max(n1.max_dist, eps)
+        x = min(1.0, max(0.0, x))
+
+        # Paramètres optimisables
+        x_min = 0.30      # saut trop court si d < 30 % de la portée
+        x_safe = 0.75     # saut risqué si d > 75 % de la portée
+
+        # -----------------------------
+        # 2. Fonction de poids distance
+        # -----------------------------
+        poids_distance = 0.0
+
+        # Pénalité des sauts trop courts.
+        # Elle n'est pas appliquée au dernier saut vers la destination.
+        if not is_final_hop and x < x_min:
+            poids_distance += ((x_min - x) / x_min) ** 2
+
+        # Pénalité des sauts proches de la limite radio.
+        # Elle reste active même pour le dernier saut.
+        if x > x_safe:
+            poids_distance += ((x - x_safe) / (1.0 - x_safe)) ** 2
+
+        # -----------------------------
+        # 3. Fonction de poids batterie
+        # -----------------------------
+        poids_batterie = 0.0
+
+        # La batterie du dernier nœud n'est pas critique pour le relais,
+        # puisqu'il ne retransmet pas le paquet DATA ensuite.
+        if not is_final_hop:
+            bat = max(n2.battery, 0.1)
+            bat_norm = 1.0 - (bat / max(n2.initial_battery, eps))
+            bat_norm = min(1.0, max(0.0, bat_norm))
+
+            # Pénalité progressive quand la batterie baisse
+            poids_batterie = bat_norm ** 2
+
+            # Sur-pénalité si le nœud est sous le seuil critique
+            threshold = n2.initial_battery * self.cfg.seuil_coeff
+            if bat < threshold:
+                self.stats.seuiled += 1
+                gap = (threshold - bat) / max(threshold, eps)
+                poids_batterie += gap ** 2
+
+        # -----------------------------
+        # 4. Combinaison linéaire
+        # -----------------------------
+        a = self.cfg.coeff_dist_weight
+        b = self.cfg.coeff_bat_weight
+
+        poids = a * poids_distance + b * poids_batterie
+
+        return poids
 
     def get_energy_stats(self) -> Tuple[float, float]:
         alive_nodes = [node for node in self.G.values() if node.alive]

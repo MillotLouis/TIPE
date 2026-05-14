@@ -23,13 +23,12 @@ class SimConfig:
     area_size: int
     max_dist: float
     init_bat: float
-    conso: Tuple[float, float]
+    conso: Tuple[float, float, int] # RX, TX, TX(data)/TX(contrôle) = RX(data)/RX(contrôle)
     dt: float
     ttl: int
     seuil_coeff: float
     coeff_dist_weight: float
     coeff_bat_weight: float
-    coeff_dist_bat: float
     duration: float
     window_size: float = 100.0
 
@@ -403,16 +402,15 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
 if __name__ == "__main__" :
     sim_conf = SimConfig(
         nb_nodes=16,
-        area_size=800,
-        max_dist=250,
+        area_size=400,
+        max_dist=175,
         init_bat=100,
-        conso=(1, 20),
+        conso=(0.001,0.0025,20),
         dt=1.0,
         ttl=100,
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
-        coeff_bat_weight=0.2,
-        coeff_dist_bat=0.005,
+        coeff_bat_weight=0.4,
         duration=3000,
     )
 
@@ -423,5 +421,5 @@ if __name__ == "__main__" :
         vmax=10,
         pause=200
     )
-    res = densite_parallel(sim_conf,bm_conf,15,1)
+    res = densite_parallel(sim_conf,bm_conf,8,2,1.5,1.5)
     print(res)
