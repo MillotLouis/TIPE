@@ -197,31 +197,47 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig, n
     return movements_files
 
 
+
+
+def _run_single_mode(args):
+    config, protocol, positions, trace_file, seed_i = args
+    random.seed(seed_i)
+    np.random.seed(seed_i)
+    sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_file, traffic_seed=seed_i)
+    sim.run()
+    return sim.get_metrics()
+
+
+def _run_single_comparison(args):
+    config, seed_i, trace_file = args
+    random.seed(seed_i)
+    np.random.seed(seed_i)
+
+    positions = {
+        i_node: (
+            random.uniform(0, config.area_size),
+            random.uniform(0, config.area_size),
+        )
+        for i_node in range(config.nb_nodes)
+    }
+
+    reg_protocol = ProtocolConfig.from_mode(True)
+    mod_protocol = ProtocolConfig.from_mode(False)
+
+    reg_metrics = _run_single_mode((config, reg_protocol, positions, trace_file, seed_i))
+    mod_metrics = _run_single_mode((config, mod_protocol, positions, trace_file, seed_i))
+    return reg_metrics, mod_metrics
+
 def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, trace_files):
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
-    reg_aodv_res, mod_aodv_res = [], []
-    for i in range(nb_runs):
-        print(f"run {i+1} débuté")
-        seed_i = seed_base + i
-        random.seed(seed_i)
-        np.random.seed(seed_i)
 
-        positions = {
-            i_node: (
-                random.uniform(0, config.area_size),
-                random.uniform(0, config.area_size),
-            )
-            for i_node in range(config.nb_nodes)
-        }
+    tasks = [(config, seed_base + i, trace_files[i]) for i in range(nb_runs)]
+    with Pool(processes=max(1, cpu_count() - 1)) as pool:
+        run_results = pool.map(_run_single_comparison, tasks)
 
-        for reg_aodv in [True, False]:
-            random.seed(seed_i)
-            np.random.seed(seed_i)
-            protocol = ProtocolConfig.from_mode(reg_aodv)
-            sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
-            sim.run()
-            (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
-    
+    reg_aodv_res = [reg_metrics for reg_metrics, _ in run_results]
+    mod_aodv_res = [mod_metrics for _, mod_metrics in run_results]
+
     print(f"Simulations a {config.nb_nodes} noeuds terminées\n")
     return {"reg": reg_aodv_res, "mod": mod_aodv_res}
 
