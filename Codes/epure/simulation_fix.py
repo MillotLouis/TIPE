@@ -9,8 +9,8 @@ from time import time
 import numpy as np
 from matplotlib import pyplot as plt
 
-from network_hello import Network
-from node_hello import Node
+from network_fix import Network
+from node_fix import Node
 
 from multiprocessing import Pool, cpu_count
 
@@ -25,11 +25,14 @@ class SimConfig:
     init_bat: float #En Joules
     conso: Tuple[float, float, int] # RX, TX, TX(data)/TX(contrôle) = RX(data)/RX(contrôle)
     dt: float
-    ttl_max: int
+    ttl: int
     seuil_coeff: float
     coeff_dist_weight: float
     coeff_bat_weight: float
     duration: float
+    rreq_ttl_max: int = 8
+    rreq_ttl_start: int = 2
+    rreq_ttl_step: int = 2
     window_size: float = 100.0
 
 
@@ -42,7 +45,7 @@ class ProtocolConfig:
 
     @classmethod
     def from_mode(cls, reg_aodv: bool) -> "ProtocolConfig":
-        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 2, weight_seuil=1.0 if reg_aodv else 1.25)
+        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 4, weight_seuil=1.0)# if reg_aodv else 1.25)
 
 
 class Simulation:
@@ -360,11 +363,11 @@ if __name__ == "__main__" :
         init_bat=100,
         conso=(0.0082,0.00164,10),
         dt=0.25,
-        ttl_max=7,
+        ttl=100,
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=100,
+        duration=900,
     )
 
     bm_conf = BonnMotionConfig(

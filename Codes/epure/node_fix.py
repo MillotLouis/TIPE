@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import random
 from collections import defaultdict
-import math
 
 import simpy
 
-from network_hello import Message
+from network_fix import Message
 
 
 class Node:
@@ -23,17 +22,22 @@ class Node:
         self.data_seq = 0
 
         self.alive = True  # True si le noeud est vivant False si il est mort
-        self.pending = simpy.Store(network.env)  # requêtes en attente
+        self.pending = simpy.Store(network.env, capacity=2000)  # borne anti-tempête
         self.seen = {}
         self.collected_rreqs = {}
         self.to_be_sent = defaultdict(list)
-        self.rreq_state = {}  # dest_id -> {ttl, in_flight}
+        self.rreq_ttl = {}  # dest_id -> dernier TTL utilisé
 
         self.network.env.process(self.process_messages())
 
     def process_messages(self):
         while self.alive:
             msg = yield self.pending.get()  # On bloque le process jusqu'à avoir un nouveau message
+            if msg.type == "RREQ":
+                seen_key = (msg.src_id, msg.src_seq)
+                count, min_weight = self.seen.get(seen_key, (0, float("inf")))
+                if count >= self.network.protocol.max_duplicates and msg.weight >= min_weight:
+                    continue
             if not self.network.update_battery(self, msg.type, is_emission=False):
                 break
             yield self.network.env.timeout(random.uniform(0.001, 0.005))  # délai de processing
@@ -49,18 +53,11 @@ class Node:
                 self.handle_rerr(msg)
 
     def init_rreq(self, dest_id):
-        state = self.rreq_state.get(dest_id)
-        if state and state.get("in_flight"):
-            # Si on est déjà en train d'envoyer des RREQ à ce destinataire
-            return
-
-        ttl_max = max(2, int(self.network.cfg.ttl_max))
-        if state is None:
-            ttl = 2
-        else:
-            ttl = min(ttl_max, max(state["ttl"] + 2, int(math.ceil(state["ttl"] * 1.5))))
-
-        self.rreq_state[dest_id] = {"ttl": ttl, "in_flight": True}
+        ttl_max = max(self.network.cfg.rreq_ttl_start, int(self.network.cfg.rreq_ttl_max))
+        ttl_step = max(1, int(self.network.cfg.rreq_ttl_step))
+        prev_ttl = self.rreq_ttl.get(dest_id, 0)
+        ttl = min(ttl_max, self.network.cfg.rreq_ttl_start if prev_ttl == 0 else prev_ttl + ttl_step)
+        self.rreq_ttl[dest_id] = ttl
 
         self.seq_num += 1
         self.network.stats.rreq_sent += 1
@@ -75,7 +72,6 @@ class Node:
             ttl=ttl,
         )
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
-        self.network.env.process(self._retry_rreq_if_needed(dest_id, rreq.src_seq))
 
     def handle_rreq(self, rreq):
         if rreq.ttl <= 0:
@@ -130,7 +126,7 @@ class Node:
         self.update_route(rrep.src_id, rrep.prev_hop, rrep.src_seq, rrep.weight)
 
         if self.id == rrep.dest_id:
-            self.rreq_state.pop(rrep.src_id, None)
+            self.rreq_ttl.pop(rrep.src_id, None)
             if rrep.src_id in self.to_be_sent:
                 for msg in self.to_be_sent[rrep.src_id]:
                     self.network.env.process(self.network.forward_data(self, msg))
@@ -157,7 +153,7 @@ class Node:
 
     def update_route(self, dest, next_hop, seq_num, weight):
         current = self.routing_table.get(dest, (None, -1, float("inf"), 0))
-        ttl = self.network.cfg.ttl_max # à supprimer
+        ttl = self.network.cfg.ttl
         if (seq_num > current[1]) or (seq_num == current[1] and weight < current[2]):
             self.routing_table[dest] = (next_hop, seq_num, weight, self.network.env.now + ttl)
 
@@ -206,26 +202,3 @@ class Node:
         else:
             self.to_be_sent[dest_id].append(msg)
             self.init_rreq(dest_id)
-    def _retry_rreq_if_needed(self, dest_id, src_seq):
-        yield self.network.env.timeout(2* 40*10**(-3)* 1.5*self.network.cfg.nb_nodes)
-
-        state = self.rreq_state.get(dest_id)
-        if not state or not state.get("in_flight"):
-            # Si on a fini de chercher une route
-            return
-
-        if dest_id in self.routing_table:
-            # Si on a fini de chercher une route et qu'elle est inscrite dans la table de routage
-            self.rreq_state.pop(dest_id, None)
-            return
-
-        if self.seq_num != src_seq:
-            state["in_flight"] = False
-            return
-
-        if state["ttl"] >= 7:
-            state["in_flight"] = False
-            return
-
-        state["in_flight"] = False
-        self.init_rreq(dest_id)
