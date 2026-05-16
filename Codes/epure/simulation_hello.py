@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from network_hello import Network
 from node_hello import Node
 
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, current_process
 
 
 
@@ -232,8 +232,14 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
 
     tasks = [(config, seed_base + i, trace_files[i]) for i in range(nb_runs)]
-    with Pool(processes=max(1, cpu_count() - 1)) as pool:
-        run_results = pool.map(_run_single_comparison, tasks)
+
+    # Sous Windows (spawn), un worker de Pool est daemon et ne peut pas créer de sous-processus.
+    # On garde donc la parallélisation des runs uniquement si on est dans le process principal.
+    if current_process().daemon:
+        run_results = [_run_single_comparison(task) for task in tasks]
+    else:
+        with Pool(processes=max(1, cpu_count() - 1)) as pool:
+            run_results = pool.map(_run_single_comparison, tasks)
 
     reg_aodv_res = [reg_metrics for reg_metrics, _ in run_results]
     mod_aodv_res = [mod_metrics for _, mod_metrics in run_results]
