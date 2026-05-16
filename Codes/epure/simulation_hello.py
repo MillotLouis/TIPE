@@ -356,9 +356,9 @@ if __name__ == "__main__" :
     sim_conf = SimConfig(
         nb_nodes=0,
         area_size=800,
-        max_dist=200,
+        max_dist=250,
         init_bat=100,
-        conso=(0.0082,0.00164,100),
+        conso=(0.0082,0.00164,10),
         dt=0.25,
         ttl=100,
         seuil_coeff=0.075,  # 750 / 10000
@@ -372,7 +372,7 @@ if __name__ == "__main__" :
         out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
         vmin=10,
         vmax=10,
-        pause=0.5
+        pause=5
     )
-    res = densite_parallel(sim_conf,bm_conf,5,2,20,20)
+    res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
     print(res)

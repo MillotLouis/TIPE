@@ -130,8 +130,8 @@ class Network:
         - pénaliser les relais avec batterie faible.
         """
 
-        # if self.reg_aodv:
-        return 1.0  
+        if self.reg_aodv:
+            return 1.0  
 
         d = self.get_distance(n1, n2)
         d_norm = d / n1.max_dist
