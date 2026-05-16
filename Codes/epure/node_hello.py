@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from collections import defaultdict
+import math
 
 import simpy
 
@@ -26,6 +27,7 @@ class Node:
         self.seen = {}
         self.collected_rreqs = {}
         self.to_be_sent = defaultdict(list)
+        self.rreq_state = {}  # dest_id -> {ttl, in_flight}
 
         self.network.env.process(self.process_messages())
 
@@ -47,6 +49,18 @@ class Node:
                 self.handle_rerr(msg)
 
     def init_rreq(self, dest_id):
+        state = self.rreq_state.get(dest_id)
+        if state and state.get("in_flight"):
+            return
+
+        ttl_max = max(2, int(self.network.cfg.ttl))
+        if state is None:
+            ttl = min(2, ttl_max)
+        else:
+            ttl = min(ttl_max, max(state["ttl"] + 2, int(math.ceil(state["ttl"] * 1.5))))
+
+        self.rreq_state[dest_id] = {"ttl": ttl, "in_flight": True}
+
         self.seq_num += 1
         self.network.stats.rreq_sent += 1
         rreq = Message(
@@ -57,10 +71,14 @@ class Node:
             dest_seq=self.routing_table.get(dest_id, (None, 0, 0, 0))[1],
             prev_hop=self.id,
             weight=0.0,
+            ttl=ttl,
         )
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
+        self.network.env.process(self._retry_rreq_if_needed(dest_id, rreq.src_seq))
 
     def handle_rreq(self, rreq):
+        if rreq.ttl <= 0:
+            return
         prev_node = self.network.G[rreq.prev_hop]
 
         is_final_hop = (self.id == rreq.dest_id)
@@ -88,7 +106,11 @@ class Node:
             return
 
         self.update_route(rreq.src_id, rreq.prev_hop, rreq.src_seq, rreq.weight)
+        if rreq.ttl <= 1:
+            return
+
         rreq.prev_hop = self.id
+        rreq.ttl -= 1
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rrep(self, rrep):
@@ -107,6 +129,7 @@ class Node:
         self.update_route(rrep.src_id, rrep.prev_hop, rrep.src_seq, rrep.weight)
 
         if self.id == rrep.dest_id:
+            self.rreq_state.pop(rrep.src_id, None)
             if rrep.src_id in self.to_be_sent:
                 for msg in self.to_be_sent[rrep.src_id]:
                     self.network.env.process(self.network.forward_data(self, msg))
@@ -182,3 +205,25 @@ class Node:
         else:
             self.to_be_sent[dest_id].append(msg)
             self.init_rreq(dest_id)
+    def _retry_rreq_if_needed(self, dest_id, src_seq):
+        yield self.network.env.timeout(0.6)
+
+        state = self.rreq_state.get(dest_id)
+        if not state or not state.get("in_flight"):
+            return
+
+        if dest_id in self.routing_table:
+            self.rreq_state.pop(dest_id, None)
+            return
+
+        if self.seq_num != src_seq:
+            state["in_flight"] = False
+            return
+
+        ttl_max = max(2, int(self.network.cfg.ttl))
+        if state["ttl"] >= ttl_max:
+            state["in_flight"] = False
+            return
+
+        state["in_flight"] = False
+        self.init_rreq(dest_id)

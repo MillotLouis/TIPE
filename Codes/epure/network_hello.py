@@ -19,6 +19,7 @@ class Message:
     dest_seq: int = -1
     weight: float = 0.0
     prev_hop: int = -1
+    ttl: int = 0
 
 
 @dataclass
