@@ -207,12 +207,16 @@ class Network:
         next_hop = node.routing_table.get(data.dest_id, (None, 0, 0, 0))[0]
         data.prev_hop = node.id
         if next_hop is None:
+            node.to_be_sent[data.dest_id].append(copy.deepcopy(data))
+            node.init_rreq(data.dest_id)
             return
         next_node = self.G.get(next_hop)
         if next_node is None or not next_node.alive:
             invalidated = node.invalidate_route_via(next_hop)
             if invalidated:
                 self.env.process(self.broadcast_rerr(node, invalidated))
+            node.to_be_sent[data.dest_id].append(copy.deepcopy(data))
+            node.init_rreq(data.dest_id)
             return
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
@@ -223,6 +227,8 @@ class Network:
             invalidated = node.invalidate_route_via(next_hop)
             if invalidated:
                 self.env.process(self.broadcast_rerr(node, invalidated))
+            node.to_be_sent[data.dest_id].append(copy.deepcopy(data))
+            node.init_rreq(data.dest_id)
 
     def mark_neighbor_seen(self, node_id, neighbor_id):
         self.last_hello[(node_id, neighbor_id)] = self.env.now
