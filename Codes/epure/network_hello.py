@@ -19,6 +19,7 @@ class Message:
     dest_seq: int = -1
     weight: float = 0.0
     prev_hop: int = -1
+    ttl: int = 0
 
 
 @dataclass
@@ -59,8 +60,10 @@ class Network:
         self.data_send_times = []
 
         self.last_hello = {}  # (node_id, neighbor_id) -> dernière date HELLO reçue
-        self.hello_interval = 1.0
-        self.hello_timeout = 3.0
+        self.hello_interval = max(1.0, config.dt * 4)
+        self.hello_timeout = max(6.0, self.hello_interval * 3)
+        self.hello_grace = self.hello_timeout
+        self.rerr_recent = {}  # dest_id -> last emit time
         self.env.process(self._hello_loop())
         self.env.process(self._hello_watchdog())
 
@@ -137,8 +140,8 @@ class Network:
         d_norm = d / n1.max_dist
 
         # Paramètres optimisables
-        x_min = 0.15      # saut trop court si d < 30 % de la portée
-        x_safe = 0.80     # saut risqué si d > 75 % de la portée
+        x_min = 0.30      # saut trop court si d < 30 % de la portée
+        x_safe = 0.75     # saut risqué si d > 75 % de la portée
 
         poids_distance = 0.0
 
@@ -169,7 +172,7 @@ class Network:
                 self.stats.seuiled += 1
                 # gap = (threshold - bat) / max(threshold, eps)
                 # poids_batterie += gap ** 2
-                poids_batterie += 2
+                poids_batterie += 0.5
 
         return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
 
@@ -244,8 +247,14 @@ class Network:
                 if not node.alive:
                     continue
                 broken_neighbors = []
-                for (next_hop, _, _, _) in set(node.routing_table.values()):
-                    last = self.last_hello.get((node.id, next_hop), 0)
+                if now < self.hello_grace:
+                    continue
+                for (next_hop, _, _, expiry) in set(node.routing_table.values()):
+                    if now < expiry - self.cfg.ttl * 0.5:
+                        continue
+                    last = self.last_hello.get((node.id, next_hop))
+                    if last is None:
+                        continue
                     if (now - last) > self.hello_timeout:
                         broken_neighbors.append(next_hop)
                 for broken in set(broken_neighbors): # Pour pas avoir de doublons
@@ -257,6 +266,10 @@ class Network:
         if not invalidated_destinations:
             return
         for broken_dest in invalidated_destinations:
+            last_emit = self.rerr_recent.get(broken_dest)
+            if last_emit is not None and (self.env.now - last_emit) < self.hello_interval:
+                continue
+            self.rerr_recent[broken_dest] = self.env.now
             rerr = Message(type="RERR", src_id=node.id, src_seq=node.seq_num, dest_id=broken_dest, prev_hop=node.id)
             for neighbor in self.G.values():
                 if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:

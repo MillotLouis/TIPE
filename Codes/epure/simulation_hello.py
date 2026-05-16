@@ -42,7 +42,7 @@ class ProtocolConfig:
 
     @classmethod
     def from_mode(cls, reg_aodv: bool) -> "ProtocolConfig":
-        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 2, weight_seuil=1.0 if reg_aodv else 1.5)
+        return cls(reg_aodv=reg_aodv, max_duplicates=1, weight_seuil=1.0 if reg_aodv else 1.25)
 
 
 class Simulation:

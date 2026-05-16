@@ -22,16 +22,22 @@ class Node:
         self.data_seq = 0
 
         self.alive = True  # True si le noeud est vivant False si il est mort
-        self.pending = simpy.Store(network.env)  # requêtes en attente
+        self.pending = simpy.Store(network.env, capacity=2000)  # borne anti-tempête
         self.seen = {}
         self.collected_rreqs = {}
         self.to_be_sent = defaultdict(list)
+        self.rreq_ttl = {}  # dest_id -> dernier TTL utilisé
 
         self.network.env.process(self.process_messages())
 
     def process_messages(self):
         while self.alive:
             msg = yield self.pending.get()  # On bloque le process jusqu'à avoir un nouveau message
+            if msg.type == "RREQ":
+                seen_key = (msg.src_id, msg.src_seq)
+                count, min_weight = self.seen.get(seen_key, (0, float("inf")))
+                if count >= self.network.protocol.max_duplicates and msg.weight >= min_weight:
+                    continue
             if not self.network.update_battery(self, msg.type, is_emission=False):
                 break
             yield self.network.env.timeout(random.uniform(0.001, 0.005))  # délai de processing
@@ -47,6 +53,11 @@ class Node:
                 self.handle_rerr(msg)
 
     def init_rreq(self, dest_id):
+        ttl_max = max(2, int(self.network.cfg.ttl))
+        prev_ttl = self.rreq_ttl.get(dest_id, 0)
+        ttl = min(ttl_max, 2 if prev_ttl == 0 else prev_ttl + 2)
+        self.rreq_ttl[dest_id] = ttl
+
         self.seq_num += 1
         self.network.stats.rreq_sent += 1
         rreq = Message(
@@ -57,10 +68,13 @@ class Node:
             dest_seq=self.routing_table.get(dest_id, (None, 0, 0, 0))[1],
             prev_hop=self.id,
             weight=0.0,
+            ttl=ttl,
         )
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rreq(self, rreq):
+        if rreq.ttl <= 0:
+            return
         prev_node = self.network.G[rreq.prev_hop]
 
         is_final_hop = (self.id == rreq.dest_id)
@@ -88,7 +102,11 @@ class Node:
             return
 
         self.update_route(rreq.src_id, rreq.prev_hop, rreq.src_seq, rreq.weight)
+        if rreq.ttl <= 1:
+            return
+
         rreq.prev_hop = self.id
+        rreq.ttl -= 1
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
 
     def handle_rrep(self, rrep):
@@ -107,6 +125,7 @@ class Node:
         self.update_route(rrep.src_id, rrep.prev_hop, rrep.src_seq, rrep.weight)
 
         if self.id == rrep.dest_id:
+            self.rreq_ttl.pop(rrep.src_id, None)
             if rrep.src_id in self.to_be_sent:
                 for msg in self.to_be_sent[rrep.src_id]:
                     self.network.env.process(self.network.forward_data(self, msg))
