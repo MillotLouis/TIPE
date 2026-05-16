@@ -42,7 +42,7 @@ class ProtocolConfig:
 
     @classmethod
     def from_mode(cls, reg_aodv: bool) -> "ProtocolConfig":
-        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 3, weight_seuil=1.0 if reg_aodv else 1.5)
+        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 2, weight_seuil=1.0 if reg_aodv else 1.5)
 
 
 class Simulation:
@@ -201,7 +201,7 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
     reg_aodv_res, mod_aodv_res = [], []
     for i in range(nb_runs):
-        print(f"run {i} débuté")
+        print(f"run {i+1} débuté")
         seed_i = seed_base + i
         random.seed(seed_i)
         np.random.seed(seed_i)
@@ -244,18 +244,17 @@ def _one_point(args):
     return config.nb_nodes, reg_avg, mod_avg
 
 
-def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: int, pas: int, factor_min: float = 0.7, factor_max: float = 1.5):
-
-    n_min = (sim_conf.area_size / sim_conf.max_dist) ** 2 * np.pi
-    n_lo = max(2, int(round(factor_min * n_min)))
-    n_hi = max(n_lo + 1, int(round(factor_max * n_min)))
+def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: int, pas: int, deg_min: float = 0.7, deg_max: float = 1.5):
+    n_crit_moins_1 = (sim_conf.area_size / sim_conf.max_dist) ** 2 / np.pi
+    n_lo = max(2, int(round(deg_min * n_crit_moins_1))+1)
+    n_hi = max(n_lo + 1, int(round(deg_max * n_crit_moins_1))+1)
     nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
 
     tasks = []
     for n_nodes in nb_nodes_list:
         sim_conf_n = replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
         trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf,nb_runs)
-        tasks.append((sim_conf_n, nb_runs, int(time()), trace_files))
+        tasks.append((sim_conf_n, nb_runs, int(12345), trace_files))
 
     with Pool(processes=max(1, cpu_count() - 1)) as pool:
         results = pool.map(_one_point, tasks)
@@ -328,7 +327,6 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
 
 
 def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
-    import matplotlib.pyplot as plt
 
     if W is None:
         W = sim_reg.cfg.window_size
@@ -365,7 +363,7 @@ if __name__ == "__main__" :
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=3000,
+        duration=4500,
     )
 
     bm_conf = BonnMotionConfig(
@@ -375,5 +373,5 @@ if __name__ == "__main__" :
         vmax=10,
         pause=200
     )
-    res = densite_parallel(sim_conf,bm_conf,8,2,1.5,1.5)
+    res = densite_parallel(sim_conf,bm_conf,10,2,15,15)
     print(res)

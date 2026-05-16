@@ -131,7 +131,7 @@ class Network:
         """
 
         if self.reg_aodv:
-            return 1.0
+            return 1.0  
 
         eps = 1e-9
 
@@ -139,12 +139,11 @@ class Network:
         # 1. Distance normalisée
         # -----------------------------
         d = self.get_distance(n1, n2)
-        x = d / max(n1.max_dist, eps)
-        x = min(1.0, max(0.0, x))
+        d_norm = d / n1.max_dist
 
         # Paramètres optimisables
-        x_min = 0.30      # saut trop court si d < 30 % de la portée
-        x_safe = 0.75     # saut risqué si d > 75 % de la portée
+        x_min = 0.15      # saut trop court si d < 30 % de la portée
+        x_safe = 0.80     # saut risqué si d > 75 % de la portée
 
         # -----------------------------
         # 2. Fonction de poids distance
@@ -153,13 +152,13 @@ class Network:
 
         # Pénalité des sauts trop courts.
         # Elle n'est pas appliquée au dernier saut vers la destination.
-        if not is_final_hop and x < x_min:
-            poids_distance += ((x_min - x) / x_min) ** 2
+        if not is_final_hop and d_norm < x_min:
+            poids_distance += ((x_min - d_norm) / x_min) ** 2
 
         # Pénalité des sauts proches de la limite radio.
         # Elle reste active même pour le dernier saut.
-        if x > x_safe:
-            poids_distance += ((x - x_safe) / (1.0 - x_safe)) ** 2
+        if d_norm > x_safe:
+            poids_distance += ((d_norm - x_safe) / (1.0 - x_safe)) ** 2
 
         # -----------------------------
         # 3. Fonction de poids batterie
@@ -169,9 +168,8 @@ class Network:
         # La batterie du dernier nœud n'est pas critique pour le relais,
         # puisqu'il ne retransmet pas le paquet DATA ensuite.
         if not is_final_hop:
-            bat = max(n2.battery, 0.1)
-            bat_norm = 1.0 - (bat / max(n2.initial_battery, eps))
-            bat_norm = min(1.0, max(0.0, bat_norm))
+            bat = max(n2.battery, 0.0001)
+            bat_norm = 1.0 - (bat / n2.initial_battery)
 
             # Pénalité progressive quand la batterie baisse
             poids_batterie = bat_norm ** 2
@@ -180,18 +178,15 @@ class Network:
             threshold = n2.initial_battery * self.cfg.seuil_coeff
             if bat < threshold:
                 self.stats.seuiled += 1
-                gap = (threshold - bat) / max(threshold, eps)
-                poids_batterie += gap ** 2
+                # gap = (threshold - bat) / max(threshold, eps)
+                # poids_batterie += gap ** 2
+                poids_batterie += 2
 
         # -----------------------------
         # 4. Combinaison linéaire
         # -----------------------------
-        a = self.cfg.coeff_dist_weight
-        b = self.cfg.coeff_bat_weight
 
-        poids = a * poids_distance + b * poids_batterie
-
-        return poids
+        return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
 
     def get_energy_stats(self) -> Tuple[float, float]:
         alive_nodes = [node for node in self.G.values() if node.alive]

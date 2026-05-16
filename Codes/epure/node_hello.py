@@ -75,7 +75,7 @@ class Node:
 
         seen_key = (rreq.src_id, rreq.src_seq)
         count, min_weight = self.seen.get(seen_key, (0, float("inf")))
-        if count > self.network.protocol.max_duplicates or rreq.weight * self.network.protocol.weight_seuil >= min_weight:
+        if count >= self.network.protocol.max_duplicates or rreq.weight * self.network.protocol.weight_seuil >= min_weight:
             return
         self.seen[seen_key] = (count + 1, rreq.weight)
 
