@@ -295,65 +295,35 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
         mod_fifty_percent_death.append(mod_avg.get("fifty_percent_death", None))
 
 
+    # Affichage dans une seule fenêtre : sous-graphiques côte à côte
+    metrics_to_plot = [
+        ("Temps (first node death)", reg_first_death, mod_first_death),
+        ("Temps (10% death)", reg_ten_percent_death, mod_ten_percent_death),
+        ("Temps (50% death)", reg_fifty_percent_death, mod_fifty_percent_death),
+        ("Énergie résiduelle moyenne", reg_final_energy, mod_final_energy),
+        ("Énergie totale consommée", reg_energy, mod_energy),
+        ("Écart type énergie finale", reg_std, mod_std),
+        ("Delivery ratio (%)", reg_dr, mod_dr),
+    ]
 
-    # Affichage / ploting 
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_first_death, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_first_death, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Temps (first node death)")
-    plt.legend()
-    plt.show()
+    n_cols = 4
+    n_rows = int(np.ceil(len(metrics_to_plot) / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(5.5 * n_cols, 4.2 * n_rows), squeeze=False)
+    axes_flat = axes.flatten()
 
-    
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_ten_percent_death, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_ten_percent_death, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Temps (10% death)")
-    plt.legend()
-    plt.show()
+    for ax, (ylabel, reg_vals, mod_vals) in zip(axes_flat, metrics_to_plot):
+        ax.plot(nb_nodes_array, reg_vals, marker='o', label="Regular")
+        ax.plot(nb_nodes_array, mod_vals, marker='s', label="Modified")
+        ax.set_xlabel("nb_nodes")
+        ax.set_ylabel(ylabel)
+        ax.grid(True, alpha=0.3)
+        ax.legend()
 
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_fifty_percent_death, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_fifty_percent_death, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Temps (50% death)")
-    plt.legend()
-    plt.show()
-    plt.figure()
+    for ax in axes_flat[len(metrics_to_plot):]:
+        ax.axis("off")
 
-
-    plt.plot(nb_nodes_array, reg_final_energy, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_final_energy, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Énergie résiduelle moyenne")
-    plt.legend()
-    plt.show()
-
-
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_energy, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_energy, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Énergie totale consommée")
-    plt.legend()
-    plt.show()
-
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_std, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_std, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Écart type énergie finale")
-    plt.legend()
-    plt.show() 
-
-    plt.figure()
-    plt.plot(nb_nodes_array, reg_dr, marker='o', label="Regular")
-    plt.plot(nb_nodes_array, mod_dr, marker='s', label="Modified")
-    plt.xlabel("nb_nodes")
-    plt.ylabel("Delivery ratio (%)")
-    plt.legend()
+    fig.suptitle("Comparaison AODV régulier vs modifié selon la densité", fontsize=14)
+    fig.tight_layout(rect=[0, 0.02, 1, 0.96])
     plt.show()
 
 
