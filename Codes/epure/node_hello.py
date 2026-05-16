@@ -53,9 +53,10 @@ class Node:
                 self.handle_rerr(msg)
 
     def init_rreq(self, dest_id):
-        ttl_max = max(2, int(self.network.cfg.ttl))
+        ttl_max = max(self.network.cfg.rreq_ttl_start, int(self.network.cfg.rreq_ttl_max))
+        ttl_step = max(1, int(self.network.cfg.rreq_ttl_step))
         prev_ttl = self.rreq_ttl.get(dest_id, 0)
-        ttl = min(ttl_max, 2 if prev_ttl == 0 else prev_ttl + 2)
+        ttl = min(ttl_max, self.network.cfg.rreq_ttl_start if prev_ttl == 0 else prev_ttl + ttl_step)
         self.rreq_ttl[dest_id] = ttl
 
         self.seq_num += 1

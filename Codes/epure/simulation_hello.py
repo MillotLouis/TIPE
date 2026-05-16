@@ -30,6 +30,9 @@ class SimConfig:
     coeff_dist_weight: float
     coeff_bat_weight: float
     duration: float
+    rreq_ttl_max: int = 8
+    rreq_ttl_start: int = 2
+    rreq_ttl_step: int = 2
     window_size: float = 100.0
 
 
