@@ -22,7 +22,7 @@ class SimConfig:
     nb_nodes: int
     area_size: int
     max_dist: float
-    init_bat: float
+    init_bat: float #En Joules
     conso: Tuple[float, float, int] # RX, TX, TX(data)/TX(contrôle) = RX(data)/RX(contrôle)
     dt: float
     ttl: int
@@ -254,7 +254,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     for n_nodes in nb_nodes_list:
         sim_conf_n = replace(sim_conf,nb_nodes=n_nodes) #Copie de la config 
         trace_files = generate_bonnmotion_traces(sim_conf_n, bm_conf,nb_runs)
-        tasks.append((sim_conf_n, nb_runs, int(12345), trace_files))
+        tasks.append((sim_conf_n, nb_runs, int(time()), trace_files))
 
     with Pool(processes=max(1, cpu_count() - 1)) as pool:
         results = pool.map(_one_point, tasks)
@@ -324,6 +324,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     fig.suptitle("Comparaison AODV régulier vs modifié selon la densité", fontsize=14)
     fig.tight_layout(rect=[0, 0.02, 1, 0.96])
     plt.show()
+    return results
 
 
 def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
@@ -353,17 +354,17 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
 
 if __name__ == "__main__" :
     sim_conf = SimConfig(
-        nb_nodes=16,
-        area_size=400,
-        max_dist=175,
+        nb_nodes=0,
+        area_size=800,
+        max_dist=200,
         init_bat=100,
-        conso=(0.001,0.0025,20),
-        dt=1.0,
+        conso=(0.0082,0.00164,100),
+        dt=0.25,
         ttl=100,
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=4500,
+        duration=100,
     )
 
     bm_conf = BonnMotionConfig(
@@ -371,7 +372,7 @@ if __name__ == "__main__" :
         out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
         vmin=10,
         vmax=10,
-        pause=200
+        pause=0.5
     )
-    res = densite_parallel(sim_conf,bm_conf,10,2,15,15)
+    res = densite_parallel(sim_conf,bm_conf,5,2,20,20)
     print(res)

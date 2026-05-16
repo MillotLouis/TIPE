@@ -130,14 +130,9 @@ class Network:
         - pénaliser les relais avec batterie faible.
         """
 
-        if self.reg_aodv:
-            return 1.0  
+        # if self.reg_aodv:
+        return 1.0  
 
-        eps = 1e-9
-
-        # -----------------------------
-        # 1. Distance normalisée
-        # -----------------------------
         d = self.get_distance(n1, n2)
         d_norm = d / n1.max_dist
 
@@ -145,9 +140,6 @@ class Network:
         x_min = 0.15      # saut trop court si d < 30 % de la portée
         x_safe = 0.80     # saut risqué si d > 75 % de la portée
 
-        # -----------------------------
-        # 2. Fonction de poids distance
-        # -----------------------------
         poids_distance = 0.0
 
         # Pénalité des sauts trop courts.
@@ -160,9 +152,6 @@ class Network:
         if d_norm > x_safe:
             poids_distance += ((d_norm - x_safe) / (1.0 - x_safe)) ** 2
 
-        # -----------------------------
-        # 3. Fonction de poids batterie
-        # -----------------------------
         poids_batterie = 0.0
 
         # La batterie du dernier nœud n'est pas critique pour le relais,
@@ -181,10 +170,6 @@ class Network:
                 # gap = (threshold - bat) / max(threshold, eps)
                 # poids_batterie += gap ** 2
                 poids_batterie += 2
-
-        # -----------------------------
-        # 4. Combinaison linéaire
-        # -----------------------------
 
         return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
 
