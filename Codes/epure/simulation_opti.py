@@ -67,7 +67,7 @@ class Simulation:
 
     def _random_communication(self):
         rng = random.Random(self.traffic_seed)
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             src_id = rng.randint(0, self.cfg.nb_nodes - 1)
             dest_id = rng.randint(0, self.cfg.nb_nodes - 1)
             while dest_id == src_id:
@@ -79,7 +79,7 @@ class Simulation:
             yield self.net.env.timeout(self.cfg.dt)  
 
     def _monitor(self):
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             self.time_points.append(self.net.env.now)  # points temporels pour ploter les données
             yield self.net.env.timeout(2 * self.cfg.dt)  # ce qui donne tous les 2 messages envoyés
 
@@ -97,7 +97,7 @@ class Simulation:
             if seq:
                 self.net.G[nid].pos = (seq[0][1], seq[0][2])
 
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             sim_t = self.net.env.now
             for nid, seq in traces.items():
                 node = self.net.G.get(nid)
@@ -122,7 +122,7 @@ class Simulation:
     def run(self):
         self.net.env.process(self._random_communication())
         self.net.env.process(self._monitor())
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             self.net.env.step()
 
     def get_metrics(self):
@@ -212,7 +212,7 @@ def _run_one_sim(task):
     }
     sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_file, traffic_seed=seed_i)
     sim.run()
-    return protocol.reg_aodv, sim.get_metrics()
+    return sim.get_metrics()
 
 
 def run_comparison_simulations(
@@ -226,34 +226,19 @@ def run_comparison_simulations(
 ):
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
     if protocols is None:
-        protocols = [ProtocolConfig.from_mode(True), ProtocolConfig.from_mode(False)]
+        protocol = ProtocolConfig.from_mode(False)#, ProtocolConfig.from_mode(False)]
     if n_processes is None:
         n_processes = max(1, cpu_count() - 1)
 
-    tasks = []
+    results = []
     for i in range(nb_runs):
+        print(f"run {i} commencé")
         seed_i = seed_base + i
-        for protocol in protocols:
-            tasks.append((config, protocol, trace_files[i], seed_i))
-
-    if use_parallel_runs:
-        with Pool(processes=n_processes) as pool:
-            results = pool.map(_run_one_sim, tasks)
-    else:
-        results = [_run_one_sim(t) for t in tasks]
-
-    reg_aodv_res, mod_aodv_res = [], []
-    for is_reg, metrics in results:
-        if is_reg:
-            reg_aodv_res.append(metrics)
-        else:
-            mod_aodv_res.append(metrics)
+        results.append(_run_one_sim(config,protocol,trace_files[i],seed_i))
 
     out = {
-        "reg": reg_aodv_res,
-        "mod": mod_aodv_res,
-        "reg_avg": [calc_avg_metrics(reg_aodv_res)] if reg_aodv_res else [],
-        "mod_avg": [calc_avg_metrics(mod_aodv_res)] if mod_aodv_res else [],
+        "mod": results,
+        "mod_avg": [calc_avg_metrics(results)]
     }
     print(f"Simulations a {config.nb_nodes} noeuds terminées\n")
     return out
@@ -387,30 +372,30 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
         plt.legend()
         plt.show()
 
-if __name__ == "__main__" :
-    sim_conf = SimConfig(
-        nb_nodes=0,
-        area_size=800,
-        max_dist=250,
-        init_bat=100,
-        conso=(0.00164,0.0082,10), #RX,TX,ratio
-        dt=0.25,
-        ttl_max=7,
-        seuil_coeff=0.075,  # 750 / 10000
-        coeff_dist_weight=0.6,
-        coeff_bat_weight=0.4,
-        duration=600,
-        d_min= 0.15,
-        d_max= 0.80,
-        penalite_seuil=2
-    )
+# if __name__ == "__main__" :
+#     sim_conf = SimConfig(
+#         nb_nodes=0,
+#         area_size=800,
+#         max_dist=250,
+#         init_bat=100,
+#         conso=(0.00164,0.0082,10), #RX,TX,ratio
+#         dt=0.25,
+#         ttl_max=7,
+#         seuil_coeff=0.075,  # 750 / 10000
+#         coeff_dist_weight=0.6,
+#         coeff_bat_weight=0.4,
+#         duration=600,
+#         d_min= 0.15,
+#         d_max= 0.80,
+#         penalite_seuil=2
+#     )
 
-    bm_conf = BonnMotionConfig(
-        bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
-        out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
-        vmin=10,
-        vmax=10,
-        pause=5
-    )
-    res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
-    print(res)
+#     bm_conf = BonnMotionConfig(
+#         bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
+#         out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
+#         vmin=10,
+#         vmax=10,
+#         pause=5
+#     )
+#     res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
+#     print(res)

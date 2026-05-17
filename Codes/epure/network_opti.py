@@ -52,7 +52,7 @@ class Network:
         self.reg_aodv = reg_aodv  # True si on utilise AODV et false sinon
         self.env = simpy.Environment()
         self.G: Dict[int, "Node"] = {}
-        # self.stop = False  # passé à True quand on veut que la simulation s'arrête
+        self.stop = False  # passé à True quand on veut que la simulation s'arrête
         self.stats = NetworkStats()
 
         self.data_log = {}  # (src_id, data_seq) -> {'t_init','t_send','t_recv'}
@@ -95,6 +95,7 @@ class Network:
                 self.stats.first_node_death_time = self.env.now
             if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
                 self.stats.ten_percent_death_time = self.env.now
+                self.stop = True
             if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
                 self.stats.fifty_percent_death_time = self.env.now
 
@@ -211,7 +212,7 @@ class Network:
         self.last_hello[(node_id, neighbor_id)] = self.env.now
 
     def _hello_loop(self):
-        while self.env.now <= self.cfg.duration:
+        while self.env.now <= self.cfg.duration and not self.stop:
             for node in self.G.values():
                 if not node.alive:
                     continue
@@ -224,7 +225,7 @@ class Network:
             yield self.env.timeout(self.hello_interval)
 
     def _hello_watchdog(self):
-        while self.env.now <= self.cfg.duration:
+        while self.env.now <= self.cfg.duration and not self.stop:
             now = self.env.now
             for node in self.G.values():
                 if not node.alive:

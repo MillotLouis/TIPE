@@ -84,7 +84,7 @@ class AodvOptiProblem(Problem):
             seed_base=self.seed_base,
             trace_files=self.trace_files,
             protocols=[protocol],
-            use_parallel_runs=True,
+            use_parallel_runs=False,
             n_processes=self.n_processes,
         )
 
@@ -95,6 +95,7 @@ class AodvOptiProblem(Problem):
 
         if ten_percent_death is None:
             ten_percent_death = config.duration
+            print("tpd pas atteint")
         if final_std_bat is None:
             final_std_bat = 1e6
 
@@ -155,16 +156,16 @@ def run_nsga2(
 if __name__ == "__main__":
     sim_conf = SimConfig(
         nb_nodes=40,
-        area_size=800,
-        max_dist=250,
+        area_size=400,
+        max_dist=178,
         init_bat=100,
         conso=(0.00164, 0.0082, 10),
-        dt=0.25,
+        dt=0.5,
         ttl_max=7,
         seuil_coeff=0.075,
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=600,
+        duration=3000,
         d_min=0.15,
         d_max=0.80,
         penalite_seuil=2.0,
@@ -173,17 +174,16 @@ if __name__ == "__main__":
     bm_conf = BonnMotionConfig(
         bm_exe="C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat",
         out_dir="C:/Users/millo/Documents/GitHub/TIPE/bm_files/",
-        vmin=10,
-        vmax=10,
+        vmin=5,
+        vmax=5,
         pause=5,
     )
 
     run_nsga2(
         sim_conf=sim_conf,
         bm_conf=bm_conf,
-        nb_runs=8,
+        nb_runs=3,
         seed_base=424242,
-        pop_size=48,
-        n_gen=30,
-        n_processes=11,
+        pop_size=2,
+        n_gen=2,
     )

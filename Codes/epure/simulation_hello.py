@@ -67,7 +67,7 @@ class Simulation:
 
     def _random_communication(self):
         rng = random.Random(self.traffic_seed)
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             src_id = rng.randint(0, self.cfg.nb_nodes - 1)
             dest_id = rng.randint(0, self.cfg.nb_nodes - 1)
             while dest_id == src_id:
@@ -79,7 +79,7 @@ class Simulation:
             yield self.net.env.timeout(self.cfg.dt)  
 
     def _monitor(self):
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             self.time_points.append(self.net.env.now)  # points temporels pour ploter les données
             yield self.net.env.timeout(2 * self.cfg.dt)  # ce qui donne tous les 2 messages envoyés
 
@@ -97,7 +97,7 @@ class Simulation:
             if seq:
                 self.net.G[nid].pos = (seq[0][1], seq[0][2])
 
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             sim_t = self.net.env.now
             for nid, seq in traces.items():
                 node = self.net.G.get(nid)
@@ -122,7 +122,7 @@ class Simulation:
     def run(self):
         self.net.env.process(self._random_communication())
         self.net.env.process(self._monitor())
-        while self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration and not self.net.stop:
             self.net.env.step()
 
     def get_metrics(self):
@@ -251,7 +251,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     # n_lo = max(2, int(round(deg_min * n_crit_moins_1))+1)
     # n_hi = max(n_lo + 1, int(round(deg_max * n_crit_moins_1))+1)
     # nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
-    nb_nodes_list = [i for i in range(40,50,10)]
+    nb_nodes_list = [i for i in range(20,30,10)]
     print(nb_nodes_list)
 
     tasks = []
@@ -359,16 +359,16 @@ def plot_windowed_delivery_over_time(sim_reg, sim_mod, W=None):
 if __name__ == "__main__" :
     sim_conf = SimConfig(
         nb_nodes=0,
-        area_size=800,
-        max_dist=250,
+        area_size=400,
+        max_dist=178,
         init_bat=100,
         conso=(0.00164,0.0082,10), #RX,TX,ratio
-        dt=0.25,
+        dt=0.5,
         ttl_max=7,
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=600,
+        duration=2000,
         d_min= 0.15,
         d_max= 0.80,
         penalite_seuil=2
@@ -377,8 +377,8 @@ if __name__ == "__main__" :
     bm_conf = BonnMotionConfig(
         bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
         out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
-        vmin=10,
-        vmax=10,
+        vmin=5,
+        vmax=5,
         pause=5
     )
     res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
