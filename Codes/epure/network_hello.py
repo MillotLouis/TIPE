@@ -75,10 +75,9 @@ class Network:
         """Met à jour la batterie pour une émission ou une réception de message."""
         control_msgs = {"RREQ", "RREP", "RERR", "HELLO"}
         if is_emission:
-            coeff = self.cfg.conso[1] if msg_type in control_msgs else self.cfg.conso[1]*self.cfg.conso[2]
+            consommation = self.cfg.conso[1] if msg_type in control_msgs else self.cfg.conso[1]*self.cfg.conso[2]
         else:
-            coeff = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[0]*self.cfg.conso[2]
-        consommation = node.initial_battery * (coeff / 100.0)
+            consommation = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[0]*self.cfg.conso[2]
         node.battery = max(0.0, node.battery - consommation)
         self.stats.energy_consumed += consommation
         if node.battery == 0 and node.alive:
@@ -87,17 +86,17 @@ class Network:
 
     def _kill_node(self, node):
         yield self.env.timeout(0)
-        node.alive = False
-        self.stats.dead_nodes += 1
-        self.stats.death_times.append(self.env.now)
+        if node.alive:
+            node.alive = False
+            self.stats.dead_nodes += 1
+            self.stats.death_times.append(self.env.now)
 
-        if self.stats.first_node_death_time is None:
-            self.stats.first_node_death_time = self.env.now
-        if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
-            self.stats.ten_percent_death_time = self.env.now
-        if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
-            self.stats.fifty_percent_death_time = self.env.now
-            # self.stop = True
+            if self.stats.first_node_death_time is None:
+                self.stats.first_node_death_time = self.env.now
+            if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
+                self.stats.ten_percent_death_time = self.env.now
+            if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
+                self.stats.fifty_percent_death_time = self.env.now
 
     # def calculate_weight(self, n1, n2) -> float:
     #     if self.reg_aodv:
@@ -137,21 +136,17 @@ class Network:
         d = self.get_distance(n1, n2)
         d_norm = d / n1.max_dist
 
-        # Paramètres optimisables
-        x_min = 0.15      # saut trop court si d < 30 % de la portée
-        x_safe = 0.80     # saut risqué si d > 75 % de la portée
-
         poids_distance = 0.0
 
         # Pénalité des sauts trop courts.
         # Elle n'est pas appliquée au dernier saut vers la destination.
-        if not is_final_hop and d_norm < x_min:
-            poids_distance += ((x_min - d_norm) / x_min) ** 2
+        if not is_final_hop and d_norm < self.cfg.d_min:
+            poids_distance += ((self.cfg.d_min - d_norm) / self.cfg.d_min) ** 2
 
         # Pénalité des sauts proches de la limite radio.
         # Elle reste active même pour le dernier saut.
-        if d_norm > x_safe:
-            poids_distance += ((d_norm - x_safe) / (1.0 - x_safe)) ** 2
+        if d_norm > self.cfg.d_max:
+            poids_distance += ((d_norm - self.cfg.d_max) / (1.0 - self.cfg.d_max)) ** 2
 
         poids_batterie = 0.0
 
@@ -170,7 +165,7 @@ class Network:
                 self.stats.seuiled += 1
                 # gap = (threshold - bat) / max(threshold, eps)
                 # poids_batterie += gap ** 2
-                poids_batterie += 2
+                poids_batterie += self.cfg.penalite_seuil
 
         return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
 
@@ -182,7 +177,7 @@ class Network:
         for neighbor in self.G.values():
             if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
                 continue
-            yield self.env.timeout(random.uniform(0.01, 0.05))  # jitter aléatoire avant transmission
+            yield self.env.timeout(random.uniform(0.002, 0.003))  # jitter aléatoire avant transmission
             neighbor.pending.put(copy.deepcopy(rreq))
             self.stats.rreq_forwarded += 1
 
@@ -195,7 +190,7 @@ class Network:
             return
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist and self.update_battery(node, "RREP", is_emission=True):
-            yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+            yield self.env.timeout(random.uniform(0.002, 0.003))
             next_node.pending.put(rrep)
 
     def forward_data(self, node, data):
@@ -209,7 +204,7 @@ class Network:
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
             self.stats.messages_forwarded += 1
-            yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+            yield self.env.timeout(random.uniform(0.002, 0.003))
             next_node.pending.put(data)
 
     def mark_neighbor_seen(self, node_id, neighbor_id):
@@ -252,7 +247,7 @@ class Network:
             for neighbor in self.G.values():
                 if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
                     continue
-                yield self.env.timeout(random.uniform(0.001, 0.003))
+                yield self.env.timeout(random.uniform(0.002, 0.003))
                 neighbor.pending.put(copy.deepcopy(rerr))
                 self.stats.rerr_sent += 1
 

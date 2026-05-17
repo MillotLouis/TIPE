@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import random
 from collections import defaultdict
-import math
 
 import simpy
 
@@ -36,7 +35,7 @@ class Node:
             msg = yield self.pending.get()  # On bloque le process jusqu'à avoir un nouveau message
             if not self.network.update_battery(self, msg.type, is_emission=False):
                 break
-            yield self.network.env.timeout(random.uniform(0.001, 0.005))  # délai de processing
+            yield self.network.env.timeout(random.uniform(0.002, 0.003))  # délai de processing
             if msg.type == "RREQ":
                 self.handle_rreq(msg)
             elif msg.type == "RREP":
@@ -163,7 +162,7 @@ class Node:
             self.routing_table[dest] = (next_hop, seq_num, weight, self.network.env.now + ttl)
 
     def collect_rreps(self, key):
-        yield self.network.env.timeout(0.2)
+        yield self.network.env.timeout(0.006*self.network.cfg.nb_nodes)
         # On attend pour que tous les RREQs arrivent à la dest
         if key in self.collected_rreqs:
             self.send_rrep(min(self.collected_rreqs[key], key=lambda r: r.weight))  # on envoie le meilleur
@@ -210,7 +209,7 @@ class Node:
             self.init_rreq(dest_id)
     
     def _retry_rreq_if_needed(self, dest_id):
-        yield self.network.env.timeout(2* 40*10**(-3)* 1.5*self.network.cfg.nb_nodes)
+        yield self.network.env.timeout(2* 40*10**(-3)* self.network.cfg.nb_nodes)
 
         state = self.rreq_state.get(dest_id)
         if not state or not state.get("sent"):

@@ -30,6 +30,9 @@ class SimConfig:
     coeff_dist_weight: float
     coeff_bat_weight: float
     duration: float
+    d_min : float
+    d_max : float
+    penalite_seuil : float
     window_size: float = 100.0
 
 
@@ -357,13 +360,16 @@ if __name__ == "__main__" :
         area_size=800,
         max_dist=250,
         init_bat=100,
-        conso=(0.0082,0.00164,10),
+        conso=(0.00164,0.0082,10), #RX,TX,ratio
         dt=0.25,
         ttl_max=7,
         seuil_coeff=0.075,  # 750 / 10000
-        coeff_dist_weight=0.1,
-        coeff_bat_weight=0.9,
-        duration=150,
+        coeff_dist_weight=0.6,
+        coeff_bat_weight=0.4,
+        duration=600,
+        d_min= 0.15,
+        d_max= 0.80,
+        penalite_seuil=2
     )
 
     bm_conf = BonnMotionConfig(
@@ -373,5 +379,5 @@ if __name__ == "__main__" :
         vmax=10,
         pause=5
     )
-    res = densite_parallel(sim_conf,bm_conf,10,2,15,15)
+    res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
     print(res)
