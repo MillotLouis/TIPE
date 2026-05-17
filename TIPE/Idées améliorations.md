@@ -1,7 +1,6 @@
 ---
 share: true
 ---
-
 Heuristique ? distance à vol d'oiseau ou bien si on se dirige "dans le bon sens"
 	Stocker dans la table de routage last known location et si quand on recoit un message depuis un noeud on s'éloigne vraiment (ptet calcul angle) on défavorise la route
 Adapter métriques en fonction de la situation pour éviter chute après 50%
