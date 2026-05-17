@@ -27,6 +27,7 @@ class Node:
         self.collected_rreqs = {}
         self.to_be_sent = defaultdict(list)
         self.rreq_state = {}  # dest_id -> {ttl, sent}
+        self.rerr_seen = set()  # (originator, dest_id) pour éviter les boucles de diffusion RERR
 
         self.network.env.process(self.process_messages())
 
@@ -190,9 +191,22 @@ class Node:
         return invalidated
 
     def handle_rerr(self, rerr):
-        if rerr.dest_id in self.routing_table:
+        key = (rerr.src_id, rerr.dest_id)
+        if key in self.rerr_seen:
+            return
+        self.rerr_seen.add(key)
+
+        # On invalide uniquement si notre route vers la destination passe
+        # par le voisin qui nous a signalé la rupture (rerr.prev_hop).
+        invalidated = []
+        route = self.routing_table.get(rerr.dest_id)
+        if route is not None and route[0] == rerr.prev_hop:
             del self.routing_table[rerr.dest_id]
-            self.network.env.process(self.network.broadcast_rerr(self, [rerr.dest_id]))
+            invalidated.append(rerr.dest_id)
+
+        # On ne propage que si on a réellement perdu une route dépendante.
+        if invalidated:
+            self.network.env.process(self.network.broadcast_rerr(self, invalidated))
     
     def send_data(self, dest_id):
         self.data_seq += 1
