@@ -76,7 +76,7 @@ class Node:
             ttl=ttl,
         )
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
-        self.network.env.process(self._retry_rreq_if_needed(dest_id, rreq))
+        self.network.env.process(self._retry_rreq_if_needed(dest_id))
 
     def handle_rreq(self, rreq):
         if rreq.ttl <= 0:

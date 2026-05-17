@@ -52,7 +52,7 @@ class Network:
         self.reg_aodv = reg_aodv  # True si on utilise AODV et false sinon
         self.env = simpy.Environment()
         self.G: Dict[int, "Node"] = {}
-        self.stop = False  # passé à True quand on veut que la simulation s'arrête
+        # self.stop = False  # passé à True quand on veut que la simulation s'arrête
         self.stats = NetworkStats()
 
         self.data_log = {}  # (src_id, data_seq) -> {'t_init','t_send','t_recv'}
@@ -97,7 +97,7 @@ class Network:
             self.stats.ten_percent_death_time = self.env.now
         if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
             self.stats.fifty_percent_death_time = self.env.now
-            self.stop = True
+            # self.stop = True
 
     # def calculate_weight(self, n1, n2) -> float:
     #     if self.reg_aodv:
@@ -175,10 +175,7 @@ class Network:
         return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
 
     def get_energy_stats(self) -> Tuple[float, float]:
-        alive_nodes = [node for node in self.G.values() if node.alive]
-        if not alive_nodes:
-            return 0.0, 0.0
-        energies = [node.battery for node in alive_nodes]
+        energies = [node.battery for node in self.G.values()]
         return float(np.mean(energies)), float(np.std(energies))
 
     def broadcast_rreq(self, node, rreq):
@@ -212,14 +209,14 @@ class Network:
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
             self.stats.messages_forwarded += 1
-            # yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+            yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(data)
 
     def mark_neighbor_seen(self, node_id, neighbor_id):
         self.last_hello[(node_id, neighbor_id)] = self.env.now
 
     def _hello_loop(self):
-        while not self.stop:
+        while self.env.now <= self.cfg.duration:
             for node in self.G.values():
                 if not node.alive:
                     continue
@@ -232,7 +229,7 @@ class Network:
             yield self.env.timeout(self.hello_interval)
 
     def _hello_watchdog(self):
-        while not self.stop:
+        while self.env.now <= self.cfg.duration:
             now = self.env.now
             for node in self.G.values():
                 if not node.alive:

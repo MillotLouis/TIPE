@@ -119,7 +119,7 @@ class Simulation:
     def run(self):
         self.net.env.process(self._random_communication())
         self.net.env.process(self._monitor())
-        while not self.net.stop and self.net.env.now <= self.cfg.duration:
+        while self.net.env.now <= self.cfg.duration:
             self.net.env.step()
 
     def get_metrics(self):
@@ -361,9 +361,9 @@ if __name__ == "__main__" :
         dt=0.25,
         ttl_max=7,
         seuil_coeff=0.075,  # 750 / 10000
-        coeff_dist_weight=0.6,
-        coeff_bat_weight=0.4,
-        duration=100,
+        coeff_dist_weight=0.1,
+        coeff_bat_weight=0.9,
+        duration=150,
     )
 
     bm_conf = BonnMotionConfig(
