@@ -220,13 +220,11 @@ def run_comparison_simulations(
     nb_runs: int,
     seed_base: int,
     trace_files: List[str],
-    protocols: List[ProtocolConfig] | None = None,
     use_parallel_runs: bool = True,
     n_processes: int | None = None,
 ):
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
-    if protocols is None:
-        protocol = ProtocolConfig.from_mode(False)#, ProtocolConfig.from_mode(False)]
+    protocol = ProtocolConfig(reg_aodv=False, max_duplicates=2, weight_seuil=1.25)
     if n_processes is None:
         n_processes = max(1, cpu_count() - 1)
 

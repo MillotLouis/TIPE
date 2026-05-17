@@ -13,7 +13,6 @@ from pymoo.termination import get_termination
 
 from simulation_opti import (
     BonnMotionConfig,
-    ProtocolConfig,
     SimConfig,
     generate_bonnmotion_traces,
     run_comparison_simulations,
@@ -76,14 +75,11 @@ class AodvOptiProblem(Problem):
             d_min=p["d_min"],
             d_max=p["d_max"],
         )
-        protocol = ProtocolConfig(reg_aodv=False, max_duplicates=p["max_duplicates"], weight_seuil=p["weight_seuil"])
-
         res = run_comparison_simulations(
             config=config,
             nb_runs=self.nb_runs,
             seed_base=self.seed_base,
             trace_files=self.trace_files,
-            protocols=[protocol],
             use_parallel_runs=False,
             n_processes=self.n_processes,
         )
