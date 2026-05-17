@@ -1,8 +1,8 @@
 ---
 share: true
 ---
-- [Paramètres simulation](./Protocole%20(batterie).md)
-	- Avoir vraie rapport consommation message de contrôle / données
+- [Paramètres simulation](./OLD/Protocole%20(batterie).md)
+	- Avoir vrai rapport consommation message de contrôle / données
 - **Devient pire après 50 % pk ? [Analyse](./Analyse.md) => hybride**
 - Comment faire des simulations [Analyse](./Analyse.md)
 	- Paramètres à faire varier :
@@ -14,3 +14,5 @@ share: true
 - [Avancement](./Avancement.md)
 - Ajouter réponse des noeuds intermédiaires
 - Modifier modèle de mobilité
+
+----
