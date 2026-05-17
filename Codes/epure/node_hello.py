@@ -27,7 +27,7 @@ class Node:
         self.seen = {}
         self.collected_rreqs = {}
         self.to_be_sent = defaultdict(list)
-        self.rreq_state = {}  # dest_id -> {ttl, in_flight}
+        self.rreq_state = {}  # dest_id -> {ttl, sent}
 
         self.network.env.process(self.process_messages())
 
@@ -50,17 +50,18 @@ class Node:
 
     def init_rreq(self, dest_id):
         state = self.rreq_state.get(dest_id)
-        if state and state.get("in_flight"):
+        if state and state.get("sent"):
             # Si on est déjà en train d'envoyer des RREQ à ce destinataire
             return
 
-        ttl_max = max(2, int(self.network.cfg.ttl_max))
         if state is None:
             ttl = 2
+        elif state["ttl"] >= 7 :
+            ttl = self.network.cfg.nb_nodes
         else:
-            ttl = min(ttl_max, max(state["ttl"] + 2, int(math.ceil(state["ttl"] * 1.5))))
+            ttl = state["ttl"] + 2 
 
-        self.rreq_state[dest_id] = {"ttl": ttl, "in_flight": True}
+        self.rreq_state[dest_id] = {"ttl": ttl, "sent": True}
 
         self.seq_num += 1
         self.network.stats.rreq_sent += 1
@@ -75,7 +76,7 @@ class Node:
             ttl=ttl,
         )
         self.network.env.process(self.network.broadcast_rreq(self, rreq))
-        self.network.env.process(self._retry_rreq_if_needed(dest_id, rreq.src_seq))
+        self.network.env.process(self._retry_rreq_if_needed(dest_id, rreq))
 
     def handle_rreq(self, rreq):
         if rreq.ttl <= 0:
@@ -180,7 +181,8 @@ class Node:
         self.network.mark_neighbor_seen(self.id, hello.src_id)
 
     def invalidate_route_via(self, broken_neighbor):
-        """ Supprime toutes les routes qui passent par le voisin rompu"""
+        """Renvoie une liste des destinations affectées par la rupture de self -> broken_neighbor
+           Supprime les destinations affectées dans self.routing_table"""
         invalidated = []
         for dest, (next_hop, _, _, _) in list(self.routing_table.items()):
             if next_hop == broken_neighbor:
@@ -206,26 +208,19 @@ class Node:
         else:
             self.to_be_sent[dest_id].append(msg)
             self.init_rreq(dest_id)
-    def _retry_rreq_if_needed(self, dest_id, src_seq):
+    
+    def _retry_rreq_if_needed(self, dest_id):
         yield self.network.env.timeout(2* 40*10**(-3)* 1.5*self.network.cfg.nb_nodes)
 
         state = self.rreq_state.get(dest_id)
-        if not state or not state.get("in_flight"):
+        if not state or not state.get("sent"):
             # Si on a fini de chercher une route
             return
 
         if dest_id in self.routing_table:
-            # Si on a fini de chercher une route et qu'elle est inscrite dans la table de routage
+            # Si on a reçu une RREP entre temps
             self.rreq_state.pop(dest_id, None)
             return
 
-        if self.seq_num != src_seq:
-            state["in_flight"] = False
-            return
-
-        if state["ttl"] >= 7:
-            state["in_flight"] = False
-            return
-
-        state["in_flight"] = False
+        state["sent"] = False
         self.init_rreq(dest_id)

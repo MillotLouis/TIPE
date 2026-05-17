@@ -73,7 +73,7 @@ class Simulation:
             src_node = self.net.G[src_id]
             if src_node.alive:
                 src_node.send_data(dest_id)  # on lance le tranfert de données
-            yield self.net.env.timeout(self.cfg.dt)  # petit délai pour pas flood
+            yield self.net.env.timeout(self.cfg.dt)  
 
     def _monitor(self):
         while self.net.env.now <= self.cfg.duration:
@@ -204,8 +204,6 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
         print(f"run {i+1} débuté")
         seed_i = seed_base + i
         random.seed(seed_i)
-        np.random.seed(seed_i)
-
         positions = {
             i_node: (
                 random.uniform(0, config.area_size),
@@ -216,7 +214,6 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
 
         for reg_aodv in [True, False]:
             random.seed(seed_i)
-            np.random.seed(seed_i)
             protocol = ProtocolConfig.from_mode(reg_aodv)
             sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
             sim.run()
@@ -245,10 +242,12 @@ def _one_point(args):
 
 
 def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: int, pas: int, deg_min: float = 0.7, deg_max: float = 1.5):
-    n_crit_moins_1 = (sim_conf.area_size / sim_conf.max_dist) ** 2 / np.pi
-    n_lo = max(2, int(round(deg_min * n_crit_moins_1))+1)
-    n_hi = max(n_lo + 1, int(round(deg_max * n_crit_moins_1))+1)
-    nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
+    # n_crit_moins_1 = (sim_conf.area_size / sim_conf.max_dist) ** 2 / np.pi
+    # n_lo = max(2, int(round(deg_min * n_crit_moins_1))+1)
+    # n_hi = max(n_lo + 1, int(round(deg_max * n_crit_moins_1))+1)
+    # nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
+    nb_nodes_list = [i for i in range(20,70,10)]
+    print(nb_nodes_list)
 
     tasks = []
     for n_nodes in nb_nodes_list:
@@ -374,5 +373,5 @@ if __name__ == "__main__" :
         vmax=10,
         pause=5
     )
-    res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
+    res = densite_parallel(sim_conf,bm_conf,10,2,15,15)
     print(res)

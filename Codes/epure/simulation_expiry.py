@@ -364,7 +364,7 @@ if __name__ == "__main__" :
         seuil_coeff=0.075,  # 750 / 10000
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=100,
+        duration=400,
     )
 
     bm_conf = BonnMotionConfig(

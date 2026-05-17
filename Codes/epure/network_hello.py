@@ -208,19 +208,12 @@ class Network:
             return
         next_node = self.G.get(next_hop)
         if next_node is None or not next_node.alive:
-            invalidated = node.invalidate_route_via(next_hop)
-            if invalidated:
-                self.env.process(self.broadcast_rerr(node, invalidated))
             return
         dist = self.get_distance(node, next_node)
         if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
             self.stats.messages_forwarded += 1
-            yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
+            # yield self.env.timeout(dist * 0.001 + random.uniform(0.01, 0.05))
             next_node.pending.put(data)
-        else:
-            invalidated = node.invalidate_route_via(next_hop)
-            if invalidated:
-                self.env.process(self.broadcast_rerr(node, invalidated))
 
     def mark_neighbor_seen(self, node_id, neighbor_id):
         self.last_hello[(node_id, neighbor_id)] = self.env.now
@@ -247,7 +240,7 @@ class Network:
                 broken_neighbors = []
                 for (next_hop, _, _, _) in set(node.routing_table.values()):
                     last = self.last_hello.get((node.id, next_hop), 0)
-                    if (now - last) > self.hello_timeout:
+                    if (now - last) > self.hello_timeout and not now <= self.hello_interval: # Pour pas détruire des routes dès le début quand les messages hello n'ont pas été envoyés
                         broken_neighbors.append(next_hop)
                 for broken in set(broken_neighbors): # Pour pas avoir de doublons
                     invalidated = node.invalidate_route_via(broken)
