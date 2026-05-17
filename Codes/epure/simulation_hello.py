@@ -145,6 +145,8 @@ class Simulation:
             "final_avg_bat": final_avg_bat,
             "final_std_bat": final_std_bat,
             "fifty_percent_death": self.net.stats.fifty_percent_death_time,
+            "rerr_sent" : self.net.stats.rerr_sent,
+            "hello_sent" : self.net.stats.hello_sent,
         }
 
 @dataclass(frozen=True)
@@ -249,7 +251,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     # n_lo = max(2, int(round(deg_min * n_crit_moins_1))+1)
     # n_hi = max(n_lo + 1, int(round(deg_max * n_crit_moins_1))+1)
     # nb_nodes_list = list(range(n_lo, n_hi + 1, pas))
-    nb_nodes_list = [i for i in range(20,70,10)]
+    nb_nodes_list = [i for i in range(40,50,10)]
     print(nb_nodes_list)
 
     tasks = []
