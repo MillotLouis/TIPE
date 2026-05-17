@@ -35,3 +35,8 @@ PEUT ETRE plot le nombre de messages envoyés pour confirmer que c'est pas à ca
 12. ttl dynamique inefficace il me semble, **à vérifier**
 
 13. trouver dans quel contexte (densité,...) il est le plus efficace et trouver meilleures pondérations après
+14. Est ce qu'il est vraiment possible de laisser la distance dans le calcul du poids et d'émettre "moins fort" en réalité ?
+15. Réception consomme bcp en fait il faut la prendre en compte
+16. J'ai rajouté les messages HELLO et RERR que je ne prenais pas en compte mais en fait il faut les ajouter car ils ont une consommation réelle 
+17. J'avais mis des délais un peu au hasard donc ça faussait le résultat, mtn le delivery ratio est bcp plus haut
+18. 
