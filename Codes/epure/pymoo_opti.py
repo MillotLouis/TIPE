@@ -151,7 +151,7 @@ def run_nsga2(
 
 if __name__ == "__main__":
     sim_conf = SimConfig(
-        nb_nodes=40,
+        nb_nodes=20,
         area_size=400,
         max_dist=178,
         init_bat=100,
@@ -178,8 +178,8 @@ if __name__ == "__main__":
     run_nsga2(
         sim_conf=sim_conf,
         bm_conf=bm_conf,
-        nb_runs=3,
+        nb_runs=5,
         seed_base=424242,
-        pop_size=2,
-        n_gen=2,
+        pop_size=8,
+        n_gen=8
     )

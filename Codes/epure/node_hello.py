@@ -94,7 +94,7 @@ class Node:
 
         seen_key = (rreq.src_id, rreq.src_seq)
         count, min_weight = self.seen.get(seen_key, (0, float("inf")))
-        if count >= self.network.protocol.max_duplicates or rreq.weight * self.network.protocol.weight_seuil >= min_weight:
+        if count >= (1 if self.network.reg_aodv else self.network.cfg.max_duplicates) or rreq.weight * self.network.cfg.weight_seuil >= min_weight:
             return
         self.seen[seen_key] = (count + 1, rreq.weight)
 
@@ -117,12 +117,10 @@ class Node:
     def handle_rrep(self, rrep):
         prev_node = self.network.G[rrep.prev_hop]
 
-        # Le coût doit être évalué dans le sens futur DATA :
-        # le nœud courant enverra vers prev_node pour atteindre rrep.src_id.
         is_final_hop = (prev_node.id == rrep.src_id)
 
         rrep.weight += self.network.calculate_weight(
-            self,
+            self, #Sens des transimission, inversé par rapport au RREP
             prev_node,
             is_final_hop=is_final_hop
         )

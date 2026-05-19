@@ -46,9 +46,8 @@ class NetworkStats:
 
 
 class Network:
-    def __init__(self, config:"SimConfig", reg_aodv: bool, protocol):
+    def __init__(self, config:"SimConfig", reg_aodv: bool):
         self.cfg = config
-        self.protocol = protocol
         self.reg_aodv = reg_aodv  # True si on utilise AODV et false sinon
         self.env = simpy.Environment()
         self.G: Dict[int, "Node"] = {}
@@ -150,12 +149,16 @@ class Network:
         if d_norm > self.cfg.d_max:
             poids_distance += ((d_norm - self.cfg.d_max) / (1.0 - self.cfg.d_max)) ** 2
 
+        # mid = (self.cfg.d_min + self.cfg.d_max)/2
+        
+        # poids_distance = ((d_norm - mid)/mid)**2
+
         poids_batterie = 0.0
 
         # La batterie du dernier nœud n'est pas critique pour le relais,
         # puisqu'il ne retransmet pas le paquet DATA ensuite.
         if not is_final_hop:
-            bat = max(n2.battery, 0.0001)
+            bat = n2.battery
             bat_norm = 1.0 - (bat / n2.initial_battery)
 
             # Pénalité progressive quand la batterie baisse
@@ -165,8 +168,6 @@ class Network:
             threshold = n2.initial_battery * self.cfg.seuil_coeff
             if bat < threshold:
                 self.stats.seuiled += 1
-                # gap = (threshold - bat) / max(threshold, eps)
-                # poids_batterie += gap ** 2
                 poids_batterie += self.cfg.penalite_seuil
 
         return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie

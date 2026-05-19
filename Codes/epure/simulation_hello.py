@@ -33,28 +33,18 @@ class SimConfig:
     d_min : float
     d_max : float
     penalite_seuil : float
+    max_duplicates : int
+    weight_seuil : float
     window_size: float = 100.0
 
 
-@dataclass(frozen=True)
-class ProtocolConfig:
-    """Paramètres du protocole (AODV / Energy Aware)."""
-    reg_aodv: bool
-    max_duplicates: int
-    weight_seuil: float
-
-    @classmethod
-    def from_mode(cls, reg_aodv: bool) -> "ProtocolConfig":
-        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 2, weight_seuil=1.0 if reg_aodv else 1.25)
-
-
 class Simulation:
-    def __init__(self, config: SimConfig, protocol: ProtocolConfig, node_positions: Dict[int, Tuple[float, float]], trace_file: str, traffic_seed: int):
+    def __init__(self, config: SimConfig, reg_aodv: bool, node_positions: Dict[int, Tuple[float, float]], trace_file: str, traffic_seed: int):
         self.cfg = config
-        self.protocol = protocol
+        self.reg_aodv = reg_aodv
         self.traffic_seed = traffic_seed  # seed pour le générateur aléatoire de messages
         self.time_points = []  # Abscisse pour plot les résultats au cours du temps
-        self.net = Network(config=config, reg_aodv=protocol.reg_aodv, protocol=protocol)
+        self.net = Network(config=config, reg_aodv=reg_aodv)
 
         if node_positions is None:
             raise ValueError("node_positions ne peut pas être None")
@@ -219,8 +209,7 @@ def run_comparison_simulations(config: SimConfig, nb_runs: int, seed_base: int, 
 
         for reg_aodv in [True, False]:
             random.seed(seed_i)
-            protocol = ProtocolConfig.from_mode(reg_aodv)
-            sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
+            sim = Simulation(config=config, reg_aodv=reg_aodv, node_positions=positions, trace_file=trace_files[i], traffic_seed=seed_i)
             sim.run()
             (reg_aodv_res if reg_aodv else mod_aodv_res).append(sim.get_metrics())
     
@@ -365,13 +354,15 @@ if __name__ == "__main__" :
         conso=(0.00164,0.0082,10), #RX,TX,ratio
         dt=0.5,
         ttl_max=7,
-        seuil_coeff=0.075,  # 750 / 10000
-        coeff_dist_weight=0.6,
-        coeff_bat_weight=0.4,
-        duration=2000,
-        d_min= 0.15,
-        d_max= 0.80,
-        penalite_seuil=2
+        seuil_coeff=0.1295,  # 750 / 10000
+        coeff_dist_weight=0.1035,
+        coeff_bat_weight=1-0.1035,
+        duration=5000,
+        d_min= 0.07,
+        d_max= 0.8281,
+        penalite_seuil=3.32,
+        max_duplicates=2,
+        weight_seuil=1.32
     )
 
     bm_conf = BonnMotionConfig(

@@ -33,28 +33,17 @@ class SimConfig:
     d_min : float
     d_max : float
     penalite_seuil : float
-    window_size: float = 100.0
-
-
-@dataclass(frozen=True)
-class ProtocolConfig:
-    """Paramètres du protocole (AODV / Energy Aware)."""
-    reg_aodv: bool
-    max_duplicates: int
-    weight_seuil: float
-
-    @classmethod
-    def from_mode(cls, reg_aodv: bool) -> "ProtocolConfig":
-        return cls(reg_aodv=reg_aodv, max_duplicates=1 if reg_aodv else 2, weight_seuil=1.0 if reg_aodv else 1.25)
+    max_duplicates : int
+    weight_seuil : float
 
 
 class Simulation:
-    def __init__(self, config: SimConfig, protocol: ProtocolConfig, node_positions: Dict[int, Tuple[float, float]], trace_file: str, traffic_seed: int):
+    def __init__(self, config: SimConfig, reg_aodv : bool, node_positions: Dict[int, Tuple[float, float]], trace_file: str, traffic_seed: int):
         self.cfg = config
-        self.protocol = protocol
+        self.reg_aodv = reg_aodv
         self.traffic_seed = traffic_seed  # seed pour le générateur aléatoire de messages
         self.time_points = []  # Abscisse pour plot les résultats au cours du temps
-        self.net = Network(config=config, reg_aodv=protocol.reg_aodv, protocol=protocol)
+        self.net = Network(config=config,reg_aodv=reg_aodv)
 
         if node_positions is None:
             raise ValueError("node_positions ne peut pas être None")
@@ -200,8 +189,7 @@ def generate_bonnmotion_traces(sim_conf: SimConfig, bm_conf: BonnMotionConfig, n
     return movements_files
 
 
-def _run_one_sim(task):
-    config, protocol, trace_file, seed_i = task
+def _run_one_sim(config,reg_aodv,trace_file,seed_i):
     random.seed(seed_i)
     positions = {
         i_node: (
@@ -210,7 +198,7 @@ def _run_one_sim(task):
         )
         for i_node in range(config.nb_nodes)
     }
-    sim = Simulation(config=config, protocol=protocol, node_positions=positions, trace_file=trace_file, traffic_seed=seed_i)
+    sim = Simulation(config=config, reg_aodv=reg_aodv, node_positions=positions, trace_file=trace_file, traffic_seed=seed_i)
     sim.run()
     return sim.get_metrics()
 
@@ -220,26 +208,21 @@ def run_comparison_simulations(
     nb_runs: int,
     seed_base: int,
     trace_files: List[str],
-    use_parallel_runs: bool = True,
-    n_processes: int | None = None,
 ):
     print(f"Simulations a {config.nb_nodes} noeuds débutées")
-    protocol = ProtocolConfig(reg_aodv=False, max_duplicates=2, weight_seuil=1.25)
-    if n_processes is None:
-        n_processes = max(1, cpu_count() - 1)
 
     results = []
     for i in range(nb_runs):
         print(f"run {i} commencé")
         seed_i = seed_base + i
-        results.append(_run_one_sim(config,protocol,trace_files[i],seed_i))
+        results.append(_run_one_sim(config,False,trace_files[i],seed_i))
 
-    out = {
+    res = {
         "mod": results,
         "mod_avg": [calc_avg_metrics(results)]
     }
     print(f"Simulations a {config.nb_nodes} noeuds terminées\n")
-    return out
+    return res
 
 
 def calc_avg_metrics(res):

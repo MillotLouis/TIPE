@@ -94,7 +94,7 @@ class Node:
 
         seen_key = (rreq.src_id, rreq.src_seq)
         count, min_weight = self.seen.get(seen_key, (0, float("inf")))
-        if count >= self.network.protocol.max_duplicates or rreq.weight * self.network.protocol.weight_seuil >= min_weight:
+        if count >= (1 if self.network.reg_aodv else self.network.cfg.max_duplicates) or rreq.weight * self.network.cfg.weight_seuil >= min_weight:
             return
         self.seen[seen_key] = (count + 1, rreq.weight)
 
@@ -123,7 +123,7 @@ class Node:
 
         rrep.weight += self.network.calculate_weight(
             self,
-            prev_node,
+            prev_node,          #Sens des transimission, inversé par rapport au RREP
             is_final_hop=is_final_hop
         )
 
