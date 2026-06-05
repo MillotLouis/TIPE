@@ -1,0 +1,596 @@
+Generating BonnMotion traces...
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw0 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =6083969552452161230 | #Randoms = 18164
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw1 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =4754340943368078440 | #Randoms = 18233
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw2 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =5236611993987506022 | #Randoms = 18298
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw3 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =1934389406373458136 | #Randoms = 18189
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw4 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =3054467472084100662 | #Randoms = 18701
+RandomWaypoint done.
+Runtime: 0 sec
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+==========================================================================================
+n_gen  |  n_eval  | n_nds  |     cv_min    |     cv_avg    |      eps      |   indicator  
+==========================================================================================
+     1 |        8 |      2 |  0.000000E+00 |  0.000000E+00 |             - |             -
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     2 |       16 |      2 |  0.000000E+00 |  0.000000E+00 |  1.8305307206 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     3 |       24 |      2 |  0.000000E+00 |  0.000000E+00 |  1.3093595411 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     4 |       32 |      5 |  0.000000E+00 |  0.000000E+00 |  0.5487754831 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     5 |       40 |      6 |  0.000000E+00 |  0.000000E+00 |  0.3239750522 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     6 |       48 |      3 |  0.000000E+00 |  0.000000E+00 |  0.4429509919 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     7 |       56 |      5 |  0.000000E+00 |  0.000000E+00 |  0.0299197679 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     8 |       64 |      5 |  0.000000E+00 |  0.000000E+00 |  0.6909911534 |         ideal
+Pareto X:
+[[0.12495877 0.13051974 3.2270488  0.32222938 0.82019129 1.75535518
+  1.20828289]
+ [0.12780981 0.12013577 3.16347741 0.33812739 0.82029402 2.02727606
+  1.1871998 ]
+ [0.1249911  0.13000959 2.96981742 0.32262137 0.82023796 2.0286843
+  1.20911017]
+ [0.1277013  0.13029206 3.22658394 0.33606429 0.81953406 2.02844187
+  1.24149219]
+ [0.11947824 0.12013577 3.22407957 0.06879287 0.83278426 2.02724729
+  1.13155444]]
+Pareto F:
+[[-1927.09947937   -94.69466423     3.41964873]
+ [-1925.68364571   -94.74699284     3.33107855]
+ [-1922.59483189   -94.79113731     3.44252256]
+ [-1916.30757394   -94.68869123     3.31931499]
+ [-1932.66194289   -95.02022245     3.6494753 ]]

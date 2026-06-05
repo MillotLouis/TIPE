@@ -178,6 +178,14 @@ if __name__ == "__main__":
         bm_conf=bm_conf,
         nb_runs=10,
         seed_base=424242,
-        pop_size=32,
-        n_gen=10
+        pop_size=48,
+        n_gen=20,
     )
+    # run_nsga2(
+    # sim_conf=sim_conf,
+    # bm_conf=bm_conf,
+    # nb_runs=5,
+    # seed_base=424242,
+    # pop_size=8,
+    # n_gen=8
+    # )

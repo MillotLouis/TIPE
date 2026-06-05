@@ -1,0 +1,576 @@
+Generating BonnMotion traces...
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw0 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =7163992875446201608 | #Randoms = 17889
+RandomWaypoint done.
+Runtime: 1 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw1 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =7215346891771868618 | #Randoms = 18554
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw2 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =1755237874600579119 | #Randoms = 18190
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw3 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =8192896961197489210 | #Randoms = 18351
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw4 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =5558101535387645884 | #Randoms = 18413
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw5 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =1348387457405632587 | #Randoms = 18630
+RandomWaypoint done.
+Runtime: 1 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw6 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =1971542977861672883 | #Randoms = 18097
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw7 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =6967521057981780584 | #Randoms = 18365
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw8 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =4984821710525868088 | #Randoms = 17854
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw9 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =8455893499521739557 | #Randoms = 18046
+RandomWaypoint done.
+Runtime: 0 sec
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+Process SpawnPoolWorker-11:
+Process SpawnPoolWorker-2:
+Process SpawnPoolWorker-4:
+Process SpawnPoolWorker-10:
+Process SpawnPoolWorker-6:
+Process SpawnPoolWorker-7:
+Process SpawnPoolWorker-3:
+Process SpawnPoolWorker-8:
+Process SpawnPoolWorker-1:
+Process SpawnPoolWorker-5:
+Process SpawnPoolWorker-9:
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 103, in run
+    while self.net.env.now <= self.cfg.duration and not self.net.stop:
+                                                        ^^^^^^^^^^^^^
+KeyboardInterrupt
+KeyboardInterrupt
+Traceback (most recent call last):
+Traceback (most recent call last):
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 196, in step
+    callback(event)
+KeyboardInterrupt
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Traceback (most recent call last):
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 138, in broadcast_rreq
+    if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 64, in get_distance
+    def get_distance(self, n1, n2) -> float:
+    
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+KeyboardInterrupt
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\node.py", line 33, in process_messages
+    msg = yield self.pending.get()  # On bloque le process jusqu'à avoir un nouveau message
+                ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 196, in step
+    callback(event)
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+
+The above exception was the direct cause of the following exception:
+
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 141, in broadcast_rreq
+    neighbor.pending.put(copy.deepcopy(rreq))
+Traceback (most recent call last):
+KeyboardInterrupt
+Traceback (most recent call last):
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+KeyboardInterrupt
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\events.py", line 387, in _resume
+    def _resume(self, event: Event) -> None:
+    
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+
+The above exception was the direct cause of the following exception:
+
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 142, in broadcast_rreq
+    self.stats.rreq_forwarded += 1
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\node.py", line 34, in process_messages
+    if not self.network.update_battery(self, msg.type, is_emission=False):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 211, in broadcast_rerr
+    neighbor.pending.put(copy.deepcopy(rerr))
+                         ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copy.py", line 162, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copy.py", line 259, in _reconstruct
+    state = deepcopy(state, memo)
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+    ~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+KeyboardInterrupt
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The above exception was the direct cause of the following exception:
+
+KeyboardInterrupt
+Traceback (most recent call last):
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 77, in update_battery
+    node.battery = max(0.0, node.battery - consommation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+KeyboardInterrupt
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\network.py", line 141, in broadcast_rreq
+    neighbor.pending.put(copy.deepcopy(rreq))
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\resources\store.py", line 34, in __init__
+    def __init__(self, store: Store, item: Any):
+    
+KeyboardInterrupt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\Opti.py", line 83, in _evaluate_one
+    res = run_comparison_simulations(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 208, in run_comparison_simulations
+    results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 192, in _run_one_sim
+    sim.run()
+  File "c:\Users\millo\Documents\GitHub\TIPE\Codes\Final\simulation.py", line 104, in run
+    self.net.env.step()
+  File "C:\Users\millo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\simpy\core.py", line 204, in step
+    raise exc
+KeyboardInterrupt
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+^CTraceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 113, in spawn_main
+    new_handle = reduction.duplicate(pipe_handle,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\reduction.py", line 79, in duplicate
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 113, in spawn_main
+    new_handle = reduction.duplicate(pipe_handle,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\reduction.py", line 79, in duplicate
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 113, in spawn_main
+    new_handle = reduction.duplicate(pipe_handle,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\reduction.py", line 79, in duplicate
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\connection.py", line 1167, in rebuild_pipe_connection
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    handle = dh.detach()
+             ^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\reduction.py", line 131, in detach
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\spawn.py", line 132, in _main
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\connection.py", line 1167, in rebuild_pipe_connection
+    handle = dh.detach()
+             ^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\multiprocessing\reduction.py", line 131, in detach
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied

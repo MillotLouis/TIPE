@@ -37,7 +37,7 @@ class NetworkStats:
     seuiled: int = 0
     first_node_death_time: float | None = None
     ten_percent_death_time: float | None = None
-    fifty_percent_death_time: float | None = None
+    twenty_percent_death_time: float | None = None
     death_times: list[float] = field(default_factory=list)
 
 
@@ -91,9 +91,9 @@ class Network:
                 self.stats.first_node_death_time = self.env.now
             if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
                 self.stats.ten_percent_death_time = self.env.now
+            if self.stats.twenty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
+                self.stats.twenty_percent_death_time = self.env.now
                 self.stop = True
-            if self.stats.fifty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
-                self.stats.fifty_percent_death_time = self.env.now
 
 
     def calculate_weight(self, n1, n2, is_final_hop: bool = False) -> float:
@@ -132,6 +132,8 @@ class Network:
         return float(np.mean(energies)), float(np.std(energies))
 
     def broadcast_rreq(self, node, rreq):
+        
+        
         for neighbor in self.G.values():
             if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
                 continue
