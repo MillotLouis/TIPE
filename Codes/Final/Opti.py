@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 from dataclasses import replace
 from multiprocessing import Pool, cpu_count
@@ -11,12 +9,18 @@ from pymoo.core.problem import Problem
 from pymoo.optimize import minimize
 from pymoo.termination import get_termination
 
-from simulation_opti import (
+from simulation import (
     BonnMotionConfig,
     SimConfig,
     generate_bonnmotion_traces,
     run_comparison_simulations,
 )
+
+# import sys
+
+# log_file = open("C:\\Users\\millo\\Documents\\GitHub\\TIPE\\log.txt", "w", encoding="utf-8")
+# sys.stdout = log_file
+# sys.stderr = log_file
 
 
 class AodvOptiProblem(Problem):
@@ -24,15 +28,14 @@ class AodvOptiProblem(Problem):
     minimize [-ten_percent_death, -delivery_ratio, final_std_bat]
     """
 
-    def __init__(self, base_conf: SimConfig, trace_files: list[str], nb_runs: int, seed_base: int, n_processes: int):
+    def __init__(self, base_conf: SimConfig, trace_files: list[str], nb_runs: int, seed_base: int):
         self.base_conf = base_conf
         self.trace_files = trace_files
         self.nb_runs = nb_runs
         self.seed_base = seed_base
-        self.n_processes = n_processes
 
-        xl = np.array([0.10, 0.03, 0.20, 0.05, 0.60, 1.0, 1.00], dtype=float)
-        xu = np.array([0.90, 0.20, 4.00, 0.35, 0.95, 3.0, 1.40], dtype=float)
+        xl = np.array([0.10, 0.03, 0.20, 0.05, 0.60, 1.0, 0.7], dtype=float)
+        xu = np.array([0.90, 0.20, 4.00, 0.35, 0.95, 3.0, 1.6], dtype=float)
 
         super().__init__(
             n_var=7,
@@ -82,8 +85,6 @@ class AodvOptiProblem(Problem):
             nb_runs=self.nb_runs,
             seed_base=self.seed_base,
             trace_files=self.trace_files,
-            use_parallel_runs=False,
-            n_processes=self.n_processes,
         )
 
         mod_avg = res["mod_avg"][0]
@@ -93,9 +94,9 @@ class AodvOptiProblem(Problem):
 
         if ten_percent_death is None:
             ten_percent_death = config.duration
-            print("tpd pas atteint")
+            print("tpd pas atteint",flush=True)
         if final_std_bat is None:
-            final_std_bat = 1e6
+            raise NameError("final_std_bat absent dans _evaluate_one")
 
         f = np.array([-ten_percent_death, -delivery_ratio, final_std_bat], dtype=float)
         g = np.array([p["d_min"] - p["d_max"] + 1e-6], dtype=float)
@@ -104,7 +105,8 @@ class AodvOptiProblem(Problem):
 
     def _evaluate(self, X, out, *args, **kwargs):
         tasks = [np.array(row, dtype=float) for row in X]
-        with Pool(processes=self.n_processes) as pool:
+        # X = matrice des individus
+        with Pool(processes=cpu_count() - 1) as pool: #Parallélisation
             results = pool.map(self._evaluate_one, tasks)
 
         out["F"] = np.array([r[0] for r in results], dtype=float)
@@ -118,13 +120,9 @@ def run_nsga2(
     seed_base: int = 424242,
     pop_size: int = 48,
     n_gen: int = 30,
-    n_processes: int | None = None,
 ):
-    if n_processes is None:
-        n_processes = min(max(1, cpu_count() - 1), 11)
-
     os.makedirs(bm_conf.out_dir, exist_ok=True)
-    print("Generating BonnMotion traces ONCE...")
+    print("Generating BonnMotion traces...",flush=True)
     trace_files = generate_bonnmotion_traces(sim_conf, bm_conf, nb_runs)
 
     problem = AodvOptiProblem(
@@ -132,27 +130,23 @@ def run_nsga2(
         trace_files=trace_files,
         nb_runs=nb_runs,
         seed_base=seed_base,
-        n_processes=n_processes,
     )
 
     algo = NSGA2(pop_size=pop_size)
     term = get_termination("n_gen", n_gen)
 
-    t0 = time()
     res = minimize(problem, algo, termination=term, seed=seed_base, verbose=True)
-    dt = time() - t0
 
-    print(f"Optimization done in {dt:.1f}s")
-    print("Pareto X:")
-    print(res.X)
-    print("Pareto F:")
-    print(res.F)
+    print("Pareto X:",flush=True)
+    print(res.X,flush=True)
+    print("Pareto F:",flush=True)
+    print(res.F,flush=True)
 
     return res
 
 
 if __name__ == "__main__":
-    sim_conf = SimConfig(
+    sim_conf = SimConfig( #Paramètres pas tous utiles, vont être remplacés
         nb_nodes=20,
         area_size=400,
         max_dist=178,
@@ -167,6 +161,8 @@ if __name__ == "__main__":
         d_min=0.15,
         d_max=0.80,
         penalite_seuil=2.0,
+        max_duplicates=1,
+        weight_seuil=1.5
     )
 
     bm_conf = BonnMotionConfig(
@@ -180,8 +176,8 @@ if __name__ == "__main__":
     run_nsga2(
         sim_conf=sim_conf,
         bm_conf=bm_conf,
-        nb_runs=5,
+        nb_runs=10,
         seed_base=424242,
-        pop_size=8,
-        n_gen=8
+        pop_size=32,
+        n_gen=10
     )

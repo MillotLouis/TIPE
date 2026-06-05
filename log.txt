@@ -1,0 +1,4352 @@
+Generating BonnMotion traces...
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw0 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =8977351155983962583 | #Randoms = 18209
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw1 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =3684941335691252767 | #Randoms = 18197
+RandomWaypoint done.
+Runtime: 1 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw2 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =6561892174577351777 | #Randoms = 18084
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw3 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =6022269488445290489 | #Randoms = 18205
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw4 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =80456109793922235 | #Randoms = 18157
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw5 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =2162901334785063106 | #Randoms = 17978
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw6 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =4066607453266074146 | #Randoms = 18380
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw7 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =326228400128128910 | #Randoms = 18376
+RandomWaypoint done.
+Runtime: 1 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw8 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =9189367572335355701 | #Randoms = 18162
+RandomWaypoint done.
+Runtime: 0 sec
+C:/Users/millo/Documents/bonnmotion-3.0.1/bin/bm.bat -f C:/Users/millo/Documents/GitHub/TIPE/bm_files/20rw9 RandomWaypoint -n 20 -d 3000 -x 400 -y 400 -l 5 -h 5 -p 5 -o 2
+BonnMotion 3.0.1
+
+OS: Windows 11 10.0
+Java: Temurin 1.8.0_462
+
+
+Starting RandomWaypoint ...
+Next RNG-Seed =5031447616754935255 | #Randoms = 18211
+RandomWaypoint done.
+Runtime: 0 sec
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 8 commencé
+run 7 commencé
+run 6 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 9 commencé
+run 8 commencé
+run 7 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 8 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 9 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+Simulations a 20 noeuds terminées
+
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 5 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 5 commencé
+run 7 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 6 commencé
+run 8 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 8 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+==========================================================================================
+n_gen  |  n_eval  | n_nds  |     cv_min    |     cv_avg    |      eps      |   indicator  
+==========================================================================================
+     1 |       32 |      4 |  0.000000E+00 |  0.000000E+00 |             - |             -
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     2 |       64 |      8 |  0.000000E+00 |  0.000000E+00 |  0.0524040109 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 9 commencé
+run 7 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 1 commencé
+run 1 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 2 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 1 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 4 commencé
+run 2 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 3 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 4 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+Simulations a 20 noeuds terminées
+
+run 8 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     3 |       96 |     16 |  0.000000E+00 |  0.000000E+00 |  0.1015465822 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     4 |      128 |     15 |  0.000000E+00 |  0.000000E+00 |  0.0778331907 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     5 |      160 |     20 |  0.000000E+00 |  0.000000E+00 |  0.0112409642 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     6 |      192 |     19 |  0.000000E+00 |  0.000000E+00 |  0.0107905525 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     7 |      224 |     23 |  0.000000E+00 |  0.000000E+00 |  0.0504360726 |         ideal
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     8 |      256 |     25 |  0.000000E+00 |  0.000000E+00 |  0.1223329015 |         ideal
+Simulations a 20 noeuds débutées
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+     9 |      288 |     32 |  0.000000E+00 |  0.000000E+00 |  0.0616113489 |         nadir
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+run 1 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds débutées
+run 0 commencé
+Simulations a 20 noeuds terminées
+
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 1 commencé
+run 1 commencé
+run 1 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 2 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 3 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 4 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 5 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 6 commencé
+run 7 commencé
+run 6 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 7 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 7 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+run 8 commencé
+run 8 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+run 9 commencé
+run 9 commencé
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+Simulations a 20 noeuds terminées
+
+    10 |      320 |     22 |  0.000000E+00 |  0.000000E+00 |  0.0340168650 |         ideal
+Pareto X:
+[[0.34125449 0.07019627 2.17106498 0.10885472 0.87877166 2.82460167
+  1.14048301]
+ [0.13412057 0.1378203  1.18273144 0.10033233 0.72039004 2.94905554
+  1.06812466]
+ [0.12269593 0.1378203  1.2490957  0.10033233 0.72039004 2.9492768
+  1.07333894]
+ [0.19688174 0.1378203  1.27730454 0.10033233 0.72039004 2.94905554
+  1.06812466]
+ [0.34125449 0.07379986 1.64976982 0.19691788 0.87506122 2.6314356
+  1.0786915 ]
+ [0.17068661 0.13779947 3.92754072 0.31635737 0.86552927 2.94463073
+  1.04956136]
+ [0.19688174 0.13779995 1.02175791 0.10033233 0.72039004 2.94456297
+  1.07768422]
+ [0.35289855 0.13141355 1.41481475 0.19831461 0.71710692 2.94920899
+  1.16076529]
+ [0.19430111 0.1378203  1.26322395 0.19771758 0.72039004 2.82649571
+  1.11836288]
+ [0.12218379 0.13780029 1.2630656  0.12836211 0.87938391 2.9445748
+  0.97559611]
+ [0.17097526 0.13779947 3.92754072 0.31062978 0.86552927 2.94465648
+  1.06802251]
+ [0.11777053 0.1378203  1.21465457 0.09925565 0.72039004 2.94905554
+  1.06812466]
+ [0.13342715 0.13779928 1.26431615 0.10025999 0.90809399 2.94447728
+  1.06812466]
+ [0.33511928 0.13779928 1.26307612 0.19641745 0.94685334 2.94456222
+  1.10800018]
+ [0.17791126 0.13779947 2.23034713 0.319594   0.8791029  2.94463073
+  1.04956136]
+ [0.19430111 0.1378203  1.26322395 0.19771758 0.72039004 2.92881278
+  1.1027652 ]
+ [0.16369057 0.13779928 1.14730687 0.1968776  0.87505393 2.94931149
+  1.04616085]
+ [0.13412379 0.13782166 1.18273144 0.10033233 0.72039004 2.94900709
+  1.06812466]
+ [0.19295028 0.13779928 1.26321997 0.19644486 0.75985011 2.82713188
+  1.10794667]
+ [0.18846826 0.13139919 3.90940779 0.32041432 0.86552927 2.94920604
+  1.0397864 ]
+ [0.1222067  0.13782135 1.38231656 0.12836211 0.88556876 2.9446224
+  1.07061066]
+ [0.1773655  0.13779928 1.30413701 0.10002867 0.90859065 2.94440078
+  1.04999124]]
+Pareto F:
+[[-1986.69898805   -95.23773547     4.65709874]
+ [-1973.42458479   -95.36039348     3.77841574]
+ [-1975.76774903   -95.32528046     3.7481591 ]
+ [-1966.27150927   -95.42054648     4.16402849]
+ [-1998.34124283   -95.07823257     4.09160981]
+ [-1988.34248814   -95.1391335      3.24292111]
+ [-1967.96666591   -95.40358459     4.17553836]
+ [-1979.35972877   -95.28599955     4.63394595]
+ [-1978.92270459   -95.31996663     4.09056918]
+ [-1974.22479051   -95.16026859     3.36273509]
+ [-1984.66668371   -95.18935001     3.37564542]
+ [-1971.74106695   -95.33355325     3.74182297]
+ [-1989.70309919   -95.17917767     3.46042918]
+ [-1993.20783748   -95.13841829     3.96052988]
+ [-1987.7808685    -95.14809875     3.19312118]
+ [-1982.96789937   -95.26368912     4.01855993]
+ [-1995.97411822   -95.13808832     3.26726231]
+ [-1975.26855534   -95.38488817     3.7791077 ]
+ [-1984.51529907   -95.23713472     3.98853574]
+ [-1990.87887417   -95.09234828     3.22643755]
+ [-1988.73980695   -95.17435717     3.44522907]
+ [-1992.84153943   -95.23606335     3.4939967 ]]
