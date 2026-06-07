@@ -147,17 +147,17 @@ def run_nsga2(
 
 if __name__ == "__main__":
     sim_conf = SimConfig( #Paramètres pas tous utiles, vont être remplacés
-        nb_nodes=20,
-        area_size=400,
-        max_dist=178,
+        nb_nodes=40, ## !!!! CHANGER dt !!!!! ###
+        area_size=800,
+        max_dist=250,
         init_bat=100,
         conso=(0.00164, 0.0082, 10),
-        dt=0.5,
+        dt=0.25,
         ttl_max=7,
         seuil_coeff=0.075,
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
-        duration=3000,
+        duration=20000,
         d_min=0.15,
         d_max=0.80,
         penalite_seuil=2.0,

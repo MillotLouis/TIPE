@@ -201,15 +201,18 @@ def run_comparison_simulations(
 ):
     print(f"Simulations a {config.nb_nodes} noeuds débutées",flush=True)
 
-    results = []
+    res_reg = []
+    res_mod = []
     for i in range(nb_runs):
         print(f"run {i} commencé",flush=True)
         seed_i = seed_base + i
-        results.append(_run_one_sim(config,False,trace_files[i],seed_i))
+        res_mod.append(_run_one_sim(config,False,trace_files[i],seed_i))
+        res_reg.append(_run_one_sim(config,True,trace_files[i],seed_i))
 
     res = {
-        "mod": results,
-        "mod_avg": [calc_avg_metrics(results)]
+        "mod": res_mod,
+        "reg" : res_reg,
+        "mod_avg": [calc_avg_metrics(res_mod)]
     }
     print(f"Simulations a {config.nb_nodes} noeuds terminées\n",flush=True)
     return res
@@ -289,7 +292,7 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     metrics_to_plot = [
         ("Temps (first node death)", reg_first_death, mod_first_death),
         ("Temps (10% death)", reg_ten_percent_death, mod_ten_percent_death),
-        ("Temps (50% death)", reg_twenty_percent_death, mod_twenty_percent_death),
+        ("Temps (20% death)", reg_twenty_percent_death, mod_twenty_percent_death),
         ("Énergie résiduelle moyenne", reg_final_energy, mod_final_energy),
         ("Énergie totale consommée", reg_energy, mod_energy),
         ("Écart type énergie finale", reg_std, mod_std),
@@ -318,30 +321,32 @@ def densite_parallel(sim_conf: SimConfig, bm_conf: BonnMotionConfig, nb_runs: in
     return results
 
 
-# if __name__ == "__main__" :
-#     sim_conf = SimConfig(
-#         nb_nodes=0,
-#         area_size=800,
-#         max_dist=250,
-#         init_bat=100,
-#         conso=(0.00164,0.0082,10), #RX,TX,ratio
-#         dt=0.25,
-#         ttl_max=7,
-#         seuil_coeff=0.075,  # 750 / 10000
-#         coeff_dist_weight=0.6,
-#         coeff_bat_weight=0.4,
-#         duration=600,
-#         d_min= 0.15,
-#         d_max= 0.80,
-#         penalite_seuil=2
-#     )
+if __name__ == "__main__" :
+    sim_conf = SimConfig(
+        nb_nodes=40,
+        area_size=800,
+        max_dist=250,
+        init_bat=100,
+        conso=(0.00164,0.0082,10), #RX,TX,ratio
+        dt=0.25,
+        ttl_max=7,
+        seuil_coeff=0.03762018,  # 750 / 10000
+        coeff_dist_weight=0.23439377,
+        coeff_bat_weight=0.4,
+        duration=20000,
+        d_min= 0.12819995,
+        d_max= 0.94360313,
+        penalite_seuil=2.29914294,
+        max_duplicates=3,
+        weight_seuil=1.41488483
+    )
 
-#     bm_conf = BonnMotionConfig(
-#         bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
-#         out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
-#         vmin=10,
-#         vmax=10,
-#         pause=5
-#     )
-#     res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
-#     print(res)
+    bm_conf = BonnMotionConfig(
+        bm_exe="C:\\Users\\millo\\Documents\\bonnmotion-3.0.1\\bin\\bm.bat",
+        out_dir="C:\\Users\\millo\\Documents\\GitHub\\TIPE\\bm_files\\",
+        vmin=5,
+        vmax=5,
+        pause=5
+    )
+    res = densite_parallel(sim_conf,bm_conf,5,2,15,15)
+    print(res) 
