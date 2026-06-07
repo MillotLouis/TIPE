@@ -1,7 +1,6 @@
 import os
 from dataclasses import replace
 from multiprocessing import Pool, cpu_count
-from time import time
 
 import numpy as np
 from pymoo.algorithms.moo.nsga2 import NSGA2
@@ -16,17 +15,9 @@ from simulation import (
     run_comparison_simulations,
 )
 
-# import sys
-
-# log_file = open("C:\\Users\\millo\\Documents\\GitHub\\TIPE\\log.txt", "w", encoding="utf-8")
-# sys.stdout = log_file
-# sys.stderr = log_file
-
 
 class AodvOptiProblem(Problem):
-    """NSGA-II problem:
-    minimize [-ten_percent_death, -delivery_ratio, final_std_bat]
-    """
+    """Optimisation NSGA-II des coefficients du routage modifie."""
 
     def __init__(self, base_conf: SimConfig, trace_files: list[str], nb_runs: int, seed_base: int):
         self.base_conf = base_conf
@@ -34,83 +25,69 @@ class AodvOptiProblem(Problem):
         self.nb_runs = nb_runs
         self.seed_base = seed_base
 
-        xl = np.array([0.10, 0.03, 0.20, 0.05, 0.60, 1.0, 0.7], dtype=float)
-        xu = np.array([0.90, 0.20, 4.00, 0.35, 0.95, 3.0, 1.6], dtype=float)
+        lower_bounds = np.array([0.10, 0.03, 0.20, 0.05, 0.60, 1.0, 0.7], dtype=float)
+        upper_bounds = np.array([0.90, 0.20, 4.00, 0.35, 0.95, 3.0, 1.6], dtype=float)
 
         super().__init__(
             n_var=7,
             n_obj=3,
             n_ieq_constr=1,
-            xl=xl,
-            xu=xu,
+            xl=lower_bounds,
+            xu=upper_bounds,
             elementwise_evaluation=False,
         )
 
     @staticmethod
     def _decode(x):
         coeff_dist_weight = float(x[0])
-        coeff_bat_weight = 1.0 - coeff_dist_weight
-        seuil_coeff = float(x[1])
-        penalite_seuil = float(x[2])
-        d_min = float(x[3])
-        d_max = float(x[4])
-        max_duplicates = int(round(x[5]))
-        weight_seuil = float(x[6])
         return {
             "coeff_dist_weight": coeff_dist_weight,
-            "coeff_bat_weight": coeff_bat_weight,
-            "seuil_coeff": seuil_coeff,
-            "penalite_seuil": penalite_seuil,
-            "d_min": d_min,
-            "d_max": d_max,
-            "max_duplicates": max_duplicates,
-            "weight_seuil": weight_seuil,
+            "coeff_bat_weight": 1.0 - coeff_dist_weight,
+            "seuil_coeff": float(x[1]),
+            "penalite_seuil": float(x[2]),
+            "d_min": float(x[3]),
+            "d_max": float(x[4]),
+            "max_duplicates": int(round(x[5])),
+            "weight_seuil": float(x[6]),
         }
 
     def _evaluate_one(self, x: np.ndarray):
-        p = self._decode(x)
-        config = replace(
-            self.base_conf,
-            coeff_dist_weight=p["coeff_dist_weight"],
-            coeff_bat_weight=p["coeff_bat_weight"],
-            seuil_coeff=p["seuil_coeff"],
-            penalite_seuil=p["penalite_seuil"],
-            d_min=p["d_min"],
-            d_max=p["d_max"],
-            max_duplicates = p["max_duplicates"],
-            weight_seuil = p["weight_seuil"]
-        )
-        res = run_comparison_simulations(
+        params = self._decode(x)
+        config = replace(self.base_conf, **params)
+
+        results = run_comparison_simulations(
             config=config,
             nb_runs=self.nb_runs,
             seed_base=self.seed_base,
             trace_files=self.trace_files,
         )
 
-        mod_avg = res["mod_avg"][0]
-        ten_percent_death = mod_avg.get("ten_percent_death")
-        delivery_ratio = 100.0 * mod_avg.get("msg_recv", 0) / max(1.0, mod_avg.get("messages_initiated", 1.0))
-        final_std_bat = mod_avg.get("final_std_bat")
+        metrics = results["mod_avg"][0]
+        ten_percent_death = metrics.get("ten_percent_death")
+        delivery_ratio = self._delivery_ratio(metrics)
+        final_std_bat = metrics.get("final_std_bat")
 
         if ten_percent_death is None:
             ten_percent_death = config.duration
-            print("tpd pas atteint",flush=True)
+            print("tpd pas atteint", flush=True)
         if final_std_bat is None:
             raise NameError("final_std_bat absent dans _evaluate_one")
 
-        f = np.array([-ten_percent_death, -delivery_ratio, final_std_bat], dtype=float)
-        g = np.array([p["d_min"] - p["d_max"] + 1e-6], dtype=float)
+        objectives = np.array([-ten_percent_death, -delivery_ratio, final_std_bat], dtype=float)
+        constraints = np.array([params["d_min"] - params["d_max"] + 1e-6], dtype=float)
+        return objectives, constraints
 
-        return f, g
+    @staticmethod
+    def _delivery_ratio(metrics):
+        return 100.0 * metrics.get("msg_recv", 0) / max(1.0, metrics.get("messages_initiated", 1.0))
 
     def _evaluate(self, X, out, *args, **kwargs):
         tasks = [np.array(row, dtype=float) for row in X]
-        # X = matrice des individus
-        with Pool(processes=cpu_count() - 1) as pool: #Parallélisation
+        with Pool(processes=max(1, cpu_count() - 1)) as pool:
             results = pool.map(self._evaluate_one, tasks)
 
-        out["F"] = np.array([r[0] for r in results], dtype=float)
-        out["G"] = np.array([r[1] for r in results], dtype=float)
+        out["F"] = np.array([result[0] for result in results], dtype=float)
+        out["G"] = np.array([result[1] for result in results], dtype=float)
 
 
 def run_nsga2(
@@ -122,7 +99,7 @@ def run_nsga2(
     n_gen: int = 30,
 ):
     os.makedirs(bm_conf.out_dir, exist_ok=True)
-    print("Generating BonnMotion traces...",flush=True)
+    print("Generating BonnMotion traces...", flush=True)
     trace_files = generate_bonnmotion_traces(sim_conf, bm_conf, nb_runs)
 
     problem = AodvOptiProblem(
@@ -132,28 +109,26 @@ def run_nsga2(
         seed_base=seed_base,
     )
 
-    algo = NSGA2(pop_size=pop_size)
-    term = get_termination("n_gen", n_gen)
+    algorithm = NSGA2(pop_size=pop_size)
+    termination = get_termination("n_gen", n_gen)
+    result = minimize(problem, algorithm, termination=termination, seed=seed_base, verbose=True)
 
-    res = minimize(problem, algo, termination=term, seed=seed_base, verbose=True)
+    print("Pareto X:", flush=True)
+    print(result.X, flush=True)
+    print("Pareto F:", flush=True)
+    print(result.F, flush=True)
 
-    print("Pareto X:",flush=True)
-    print(res.X,flush=True)
-    print("Pareto F:",flush=True)
-    print(res.F,flush=True)
-
-    return res
+    return result
 
 
 if __name__ == "__main__":
-    sim_conf = SimConfig( #Paramètres pas tous utiles, vont être remplacés
-        nb_nodes=40, ## !!!! CHANGER dt !!!!! ###
+    sim_conf = SimConfig(
+        nb_nodes=40,
         area_size=800,
         max_dist=250,
         init_bat=100,
         conso=(0.00164, 0.0082, 10),
         dt=0.25,
-        ttl_max=7,
         seuil_coeff=0.075,
         coeff_dist_weight=0.6,
         coeff_bat_weight=0.4,
@@ -162,7 +137,7 @@ if __name__ == "__main__":
         d_max=0.80,
         penalite_seuil=2.0,
         max_duplicates=1,
-        weight_seuil=1.5
+        weight_seuil=1.5,
     )
 
     bm_conf = BonnMotionConfig(
@@ -181,11 +156,3 @@ if __name__ == "__main__":
         pop_size=48,
         n_gen=20,
     )
-    # run_nsga2(
-    # sim_conf=sim_conf,
-    # bm_conf=bm_conf,
-    # nb_runs=5,
-    # seed_base=424242,
-    # pop_size=8,
-    # n_gen=8
-    # )
