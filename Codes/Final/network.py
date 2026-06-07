@@ -1,6 +1,6 @@
 import copy
 import random
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
 from typing import Dict, Tuple
 
 import numpy as np
@@ -9,7 +9,8 @@ import simpy
 
 @dataclass
 class Message:
-    """Message réseau : RREQ / RREP / DATA / HELLO / RERR."""
+    """Message echange dans le reseau."""
+
     type: str
     src_id: int
     src_seq: int
@@ -22,7 +23,8 @@ class Message:
 
 @dataclass
 class NetworkStats:
-    """Compteurs de métriques réseau."""
+    """Compteurs utiles pour comparer AODV classique et modifie."""
+
     messages_forwarded: int = 0
     messages_initiated: int = 0
     messages_sent: int = 0
@@ -41,20 +43,21 @@ class NetworkStats:
     death_times: list[float] = field(default_factory=list)
 
 
-
-
 class Network:
-    def __init__(self, config:"SimConfig", reg_aodv: bool):
+    HELLO_INTERVAL = 3.0
+    HELLO_TIMEOUT = 6.0
+    TRANSMISSION_DELAY = (0.002, 0.003)
+    CONTROL_MESSAGES = {"RREQ", "RREP", "RERR", "HELLO"}
+
+    def __init__(self, config: "SimConfig", reg_aodv: bool):
         self.cfg = config
-        self.reg_aodv = reg_aodv  # True si on utilise AODV et false sinon
+        self.reg_aodv = reg_aodv
         self.env = simpy.Environment()
         self.G: Dict[int, "Node"] = {}
-        self.stop = False  # passé à True quand on veut que la simulation s'arrête
+        self.stop = False
         self.stats = NetworkStats()
 
-        self.last_hello = {}  # (node_id, neighbor_id) -> dernière date HELLO reçue
-        self.hello_interval = 3.0
-        self.hello_timeout = 6.0
+        self.last_hello = {}
         self.env.process(self._hello_loop())
         self.env.process(self._hello_watchdog())
 
@@ -62,110 +65,119 @@ class Network:
         self.G[node.id] = node
 
     def get_distance(self, n1, n2) -> float:
-        return ((n2.pos[0] - n1.pos[0]) ** 2 + (n2.pos[1] - n1.pos[1]) ** 2) ** 0.5
+        dx = n2.pos[0] - n1.pos[0]
+        dy = n2.pos[1] - n1.pos[1]
+        return (dx ** 2 + dy ** 2) ** 0.5
 
     def update_battery(self, node, msg_type: str, is_emission: bool = True) -> bool:
-        """Met à jour la batterie pour une émission ou une réception de message."""
-        control_msgs = {"RREQ", "RREP", "RERR", "HELLO"}
-        
-        if is_emission:
-            consommation = self.cfg.conso[1] if msg_type in control_msgs else self.cfg.conso[1]*self.cfg.conso[2]
-        
-        else:
-            consommation = self.cfg.conso[0] if msg_type in control_msgs else self.cfg.conso[0]*self.cfg.conso[2]
-        
-        node.battery = max(0.0, node.battery - consommation)
-        self.stats.energy_consumed += consommation
+        base_cost = self.cfg.conso[1] if is_emission else self.cfg.conso[0]
+        multiplier = 1 if msg_type in self.CONTROL_MESSAGES else self.cfg.conso[2]
+        consumption = base_cost * multiplier
+
+        node.battery = max(0.0, node.battery - consumption)
+        self.stats.energy_consumed += consumption
+
         if node.battery == 0 and node.alive:
             self.env.process(self._kill_node(node))
+
         return node.battery > 0
 
     def _kill_node(self, node):
         yield self.env.timeout(0)
-        if node.alive:
-            node.alive = False
-            self.stats.dead_nodes += 1
-            self.stats.death_times.append(self.env.now)
+        if not node.alive:
+            return
 
-            if self.stats.first_node_death_time is None:
-                self.stats.first_node_death_time = self.env.now
-            if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
-                self.stats.ten_percent_death_time = self.env.now
-            if self.stats.twenty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
-                self.stats.twenty_percent_death_time = self.env.now
-                self.stop = True
+        node.alive = False
+        self.stats.dead_nodes += 1
+        self.stats.death_times.append(self.env.now)
 
+        if self.stats.first_node_death_time is None:
+            self.stats.first_node_death_time = self.env.now
+        if self.stats.ten_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.1:
+            self.stats.ten_percent_death_time = self.env.now
+        if self.stats.twenty_percent_death_time is None and self.stats.dead_nodes >= self.cfg.nb_nodes * 0.5:
+            self.stats.twenty_percent_death_time = self.env.now
+            self.stop = True
 
     def calculate_weight(self, n1, n2, is_final_hop: bool = False) -> float:
-        
         if self.reg_aodv:
-            return 1.0  
-        
-        poids_distance = poids_batterie = 0
+            return 1.0
+        if is_final_hop:
+            return 0.0
 
-        if not is_final_hop:
-            ## Distance ##
-            d = self.get_distance(n1, n2)
-            d_norm = d / n1.max_dist
+        distance_weight = self._distance_weight(n1, n2)
+        battery_weight = self._battery_weight(n2)
 
-            mid = (self.cfg.d_min + self.cfg.d_max)/2
-            
-            poids_distance = ((d_norm - mid)/mid)**2 if not is_final_hop else 0
+        return (
+            self.cfg.coeff_dist_weight * distance_weight
+            + self.cfg.coeff_bat_weight * battery_weight
+        )
 
-        ## Batterie ##
-            bat = n2.battery
-            bat_norm = 1.0 - (bat / n2.initial_battery)
+    def _distance_weight(self, n1, n2) -> float:
+        normalized_distance = self.get_distance(n1, n2) / n1.max_dist
+        target_middle = (self.cfg.d_min + self.cfg.d_max) / 2
+        return ((normalized_distance - target_middle) / target_middle) ** 2
 
-            # Pénalité progressive quand la batterie baisse
-            poids_batterie = bat_norm ** 2
+    def _battery_weight(self, node) -> float:
+        battery_used = 1.0 - (node.battery / node.initial_battery)
+        weight = battery_used ** 2
 
-            # Sur-pénalité si le nœud est sous le seuil critique
-            threshold = n2.initial_battery * self.cfg.seuil_coeff
-            if bat < threshold:
-                self.stats.seuiled += 1
-                poids_batterie += self.cfg.penalite_seuil
+        if node.battery < node.initial_battery * self.cfg.seuil_coeff:
+            self.stats.seuiled += 1
+            weight += self.cfg.penalite_seuil
 
-        return self.cfg.coeff_dist_weight * poids_distance + self.cfg.coeff_bat_weight * poids_batterie
+        return weight
 
     def get_energy_stats(self) -> Tuple[float, float]:
         energies = [node.battery for node in self.G.values()]
         return float(np.mean(energies)), float(np.std(energies))
 
     def broadcast_rreq(self, node, rreq):
-        
-        
-        for neighbor in self.G.values():
-            if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
-                continue
-            yield self.env.timeout(random.uniform(0.002, 0.003))  # jitter aléatoire avant transmission
+        for neighbor in self._reachable_neighbors(node):
+            yield self.env.timeout(self._random_delay())
             neighbor.pending.put(copy.deepcopy(rreq))
             self.stats.rreq_forwarded += 1
 
     def unicast_rrep(self, node, rrep):
-        next_hop = node.routing_table.get(rrep.dest_id, (None, 0, 0, 0))[0]
-        if next_hop is None:
+        next_node = self._next_node(node, rrep.dest_id)
+        if next_node is None:
             return
-        next_node = self.G.get(next_hop)
-        if next_node is None or not next_node.alive:
-            return
-        dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "RREP", is_emission=True):
-            yield self.env.timeout(random.uniform(0.002, 0.003))
+
+        if self.update_battery(node, "RREP", is_emission=True):
+            yield self.env.timeout(self._random_delay())
             next_node.pending.put(rrep)
 
     def forward_data(self, node, data):
-        next_hop = node.routing_table.get(data.dest_id, (None, 0, 0, 0))[0]
+        next_node = self._next_node(node, data.dest_id)
         data.prev_hop = node.id
-        if next_hop is None:
+        if next_node is None:
             return
-        next_node = self.G.get(next_hop)
-        if next_node is None or not next_node.alive:
-            return
-        dist = self.get_distance(node, next_node)
-        if dist <= node.max_dist and self.update_battery(node, "DATA", is_emission=True):
+
+        if self.update_battery(node, "DATA", is_emission=True):
             self.stats.messages_forwarded += 1
-            yield self.env.timeout(random.uniform(0.002, 0.003))
+            yield self.env.timeout(self._random_delay())
             next_node.pending.put(data)
+
+    def _next_node(self, node, dest_id):
+        next_hop = node.routing_table.get(dest_id, (None, 0, 0))[0]
+        next_node = self.G.get(next_hop)
+
+        if next_node is None or not next_node.alive:
+            return None
+        if self.get_distance(node, next_node) > node.max_dist:
+            return None
+
+        return next_node
+
+    def _reachable_neighbors(self, node):
+        for neighbor in self.G.values():
+            if neighbor.id == node.id or not neighbor.alive:
+                continue
+            if self.get_distance(node, neighbor) <= node.max_dist:
+                yield neighbor
+
+    def _random_delay(self):
+        return random.uniform(*self.TRANSMISSION_DELAY)
 
     def mark_neighbor_seen(self, node_id, neighbor_id):
         self.last_hello[(node_id, neighbor_id)] = self.env.now
@@ -175,13 +187,19 @@ class Network:
             for node in self.G.values():
                 if not node.alive:
                     continue
-                hello = Message(type="HELLO", src_id=node.id, src_seq=node.seq_num, dest_id=-1, prev_hop=node.id)
-                for neighbor in self.G.values():
-                    if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
-                        continue
+
+                hello = Message(
+                    type="HELLO",
+                    src_id=node.id,
+                    src_seq=node.seq_num,
+                    dest_id=-1,
+                    prev_hop=node.id,
+                )
+                for neighbor in self._reachable_neighbors(node):
                     neighbor.pending.put(copy.deepcopy(hello))
                     self.stats.hello_sent += 1
-            yield self.env.timeout(self.hello_interval)
+
+            yield self.env.timeout(self.HELLO_INTERVAL)
 
     def _hello_watchdog(self):
         while self.env.now <= self.cfg.duration and not self.stop:
@@ -189,24 +207,38 @@ class Network:
             for node in self.G.values():
                 if not node.alive:
                     continue
-                broken_neighbors = []
-                for (next_hop, _, _, _) in set(node.routing_table.values()):
-                    last = self.last_hello.get((node.id, next_hop), 0)
-                    if (now - last) > self.hello_timeout and not now <= self.hello_interval: # Pour pas détruire des routes dès le début quand les messages hello n'ont pas été envoyés
-                        broken_neighbors.append(next_hop)
-                for broken in set(broken_neighbors): # Pour pas avoir de doublons
-                    invalidated = node.invalidate_route_via(broken)
+
+                broken_neighbors = self._expired_neighbors(node, now)
+                for broken_neighbor in broken_neighbors:
+                    invalidated = node.invalidate_route_via(broken_neighbor)
                     self.env.process(self.broadcast_rerr(node, invalidated))
-            yield self.env.timeout(self.hello_interval)
+
+            yield self.env.timeout(self.HELLO_INTERVAL)
+
+    def _expired_neighbors(self, node, now):
+        if now <= self.HELLO_INTERVAL:
+            return set()
+
+        expired = set()
+        for next_hop, _, _ in set(node.routing_table.values()):
+            last_seen = self.last_hello.get((node.id, next_hop), 0)
+            if now - last_seen > self.HELLO_TIMEOUT:
+                expired.add(next_hop)
+        return expired
 
     def broadcast_rerr(self, node, invalidated_destinations):
         if not invalidated_destinations:
             return
+
         for broken_dest in invalidated_destinations:
-            rerr = Message(type="RERR", src_id=node.id, src_seq=node.seq_num, dest_id=broken_dest, prev_hop=node.id)
-            for neighbor in self.G.values():
-                if neighbor.id == node.id or (not neighbor.alive) or self.get_distance(node, neighbor) > node.max_dist:
-                    continue
-                yield self.env.timeout(random.uniform(0.002, 0.003))
+            rerr = Message(
+                type="RERR",
+                src_id=node.id,
+                src_seq=node.seq_num,
+                dest_id=broken_dest,
+                prev_hop=node.id,
+            )
+            for neighbor in self._reachable_neighbors(node):
+                yield self.env.timeout(self._random_delay())
                 neighbor.pending.put(copy.deepcopy(rerr))
                 self.stats.rerr_sent += 1
